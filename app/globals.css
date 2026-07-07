@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gate: #7e8c99; /* overwritten by the Gate Band per evaluated state */
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-bg text-ink font-sans antialiased;
+  font-feature-settings: "tnum" 1;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--gate) 35%, transparent);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--gate);
+  outline-offset: 1px;
+}
+
+/* Disciplined page-load reveal: content settles once, quietly. */
+@keyframes axiom-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  animation: axiom-rise 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    animation: none;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-mut;
+  }
+  .panel {
+    @apply border border-line bg-panel;
+  }
+  .cell {
+    @apply border-b border-line px-2 py-1.5 font-mono text-xs;
+  }
+  .field {
+    @apply w-full border border-line bg-panel2 px-2 py-1.5 font-mono text-xs text-ink placeholder-faint;
+  }
+  .btn {
+    @apply border border-line bg-panel2 px-3 py-1.5 font-mono text-xs uppercase tracking-wider text-ink transition-colors hover:border-[var(--gate)];
+  }
+  .btn-gate {
+    @apply border px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors;
+    border-color: var(--gate);
+    color: var(--gate);
+  }
+  .btn-gate:hover {
+    background: color-mix(in srgb, var(--gate) 12%, transparent);
+  }
+  .kbd {
+    @apply inline-flex h-4 min-w-[1rem] items-center justify-center border border-line px-1 font-mono text-[10px] text-mut transition-opacity;
+  }
+}
