@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { toast } from "@/components/toast";
 import { Panel, Stat, fmtUsd } from "@/components/chrome";
 import { demoState, exportBackup, importBackup } from "@/lib/backup";
 import { downloadText } from "@/lib/csv";
@@ -9,7 +10,6 @@ import { replaceState, resetState, update, useAppState } from "@/lib/store";
 export default function SettingsPage() {
   const state = useAppState();
   const s = state.settings;
-  const [notice, setNotice] = useState("");
   const [confirmReset, setConfirmReset] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -34,22 +34,22 @@ export default function SettingsPage() {
   const doExport = () => {
     const stamp = new Date().toISOString().slice(0, 10);
     downloadText(`axiom-backup-${stamp}.json`, exportBackup(state));
-    setNotice("Backup downloaded. Keep it somewhere safe — it's the only copy outside this browser.");
+    toast("Backup downloaded.");
   };
 
   const onImport = async (file: File) => {
     const restored = importBackup(await file.text());
     if (!restored) {
-      setNotice("That file isn't a recognizable Axiom backup. No changes made.");
+      toast('File not recognised — no changes made.', 'error'); return;
       return;
     }
     replaceState(restored);
-    setNotice("Backup restored. Everything on every page now reflects the imported data.");
+    toast('Backup restored.');
   };
 
   const loadDemo = () => {
     replaceState(demoState());
-    setNotice("Demo data loaded. Explore every page, then reset when you're ready to start clean.");
+    toast('Demo data loaded.');
   };
 
   const doReset = () => {
@@ -59,7 +59,7 @@ export default function SettingsPage() {
     }
     resetState();
     setConfirmReset(false);
-    setNotice("All data cleared. This browser is back to a clean slate.");
+    toast('All data cleared.');
   };
 
   return (
@@ -168,12 +168,6 @@ export default function SettingsPage() {
           </div>
         </Panel>
       </div>
-
-      {notice && (
-        <p className="font-mono text-[11px] text-mut" role="status" aria-live="polite">
-          {notice}
-        </p>
-      )}
 
       <Panel eyebrow="Reference" title="Current profile at a glance">
         <p className="font-mono text-xs text-mut">

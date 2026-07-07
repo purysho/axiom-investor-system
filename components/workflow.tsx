@@ -2,84 +2,108 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { evaluateGate } from "@/lib/engine/gate";
-import { todayKey, isoWeekKey, useAppState } from "@/lib/store";
+import { CheckCircle2, Circle } from "lucide-react";
+import { isoWeekKey, todayKey, useAppState } from "@/lib/store";
 
 const STEPS = [
-  { n: 1, label: "Gate", href: "/gate", key: "gate" },
-  { n: 2, label: "Daily check", href: "/daily", key: "daily" },
-  { n: 3, label: "Positions", href: "/journal", key: "journal" },
-  { n: 4, label: "Portfolio", href: "/portfolio", key: "portfolio" },
-  { n: 5, label: "Watchlist", href: "/watchlist", key: "watchlist" },
+  { n: 1, label: "Risk gate",   sub: "Check conditions", href: "/gate",      key: "gate" },
+  { n: 2, label: "Daily check", sub: "15-min scan",      href: "/daily",     key: "daily" },
+  { n: 3, label: "Positions",   sub: "Open trades",      href: "/journal",   key: "journal" },
+  { n: 4, label: "Portfolio",   sub: "Holdings",         href: "/portfolio", key: "portfolio" },
+  { n: 5, label: "Watchlist",   sub: "Candidates",       href: "/watchlist", key: "watchlist" },
 ];
 
 const AUTH_PATHS = ["/login", "/join"];
 
 export function WorkflowBar() {
-  const path = usePathname();
+  const path  = usePathname();
   const state = useAppState();
   if (AUTH_PATHS.includes(path)) return null;
 
   const today = todayKey();
-  const week = isoWeekKey();
-  const gate = evaluateGate(state.gateInputs, state.settings, state.trades);
-  const hasDailyCheck = Boolean(state.dailyChecks[today]);
-  const openTrades = state.trades.filter((t) => t.status === "Open");
-  const hasReviewed = state.weeklyReviews.includes(week);
+  const week  = isoWeekKey();
 
-  const statuses: Record<string, "done" | "active" | "pending"> = {
-    gate: state.gateInputs.asOf ? "done" : "pending",
-    daily: hasDailyCheck ? "done" : "pending",
-    journal: openTrades.length === 0 ? "done" : "pending",
-    portfolio: hasReviewed ? "done" : "pending",
-    watchlist: "pending",
+  const done: Record<string, boolean> = {
+    gate:      Boolean(state.gateInputs.asOf),
+    daily:     Boolean(state.dailyChecks[today]),
+    journal:   state.trades.filter((t) => t.status === "Open").length === 0,
+    portfolio: state.weeklyReviews.includes(week),
+    watchlist: false,
   };
 
-  // Find the first incomplete step as "active"
-  const firstPending = STEPS.find((s) => statuses[s.key] === "pending");
-  if (firstPending) statuses[firstPending.key] = "active";
-
-  const currentStep = STEPS.find((s) => s.href === path);
+  const doneCount  = Object.values(done).filter(Boolean).length;
+  const nextStep   = STEPS.find((s) => !done[s.key]);
+  const pct        = (doneCount / STEPS.length) * 100;
 
   return (
-    <div className="panel mb-3 flex items-center gap-px overflow-x-auto">
-      {STEPS.map((s, i) => {
-        const status = statuses[s.key];
-        const isCurrent = s.href === path;
-        const color =
-          status === "done" ? "#2FBF8F" :
-          status === "active" ? "var(--gate)" :
-          "#55636F";
-        return (
-          <Link
-            key={s.href}
-            href={s.href}
-            className="flex flex-1 items-center gap-2 px-3 py-2 transition-colors hover:bg-panel2 min-w-0"
-            style={{ borderBottom: isCurrent ? "2px solid var(--gate)" : "2px solid transparent" }}
-          >
-            <span
-              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-semibold"
-              style={{
-                background: status === "done" ? "#2FBF8F22" : status === "active" ? "color-mix(in srgb, var(--gate) 15%, transparent)" : "#55636F15",
-                color,
-              }}
-            >
-              {status === "done" ? "✓" : s.n}
-            </span>
-            <span className="truncate font-mono text-[11px]" style={{ color: isCurrent ? "var(--ink)" : color }}>
-              {s.label}
-            </span>
-            {i < STEPS.length - 1 && (
-              <span className="ml-auto shrink-0 text-faint" aria-hidden>›</span>
-            )}
-          </Link>
-        );
-      })}
-      {currentStep && (
-        <div className="hidden shrink-0 border-l border-line px-3 py-2 md:block">
-          <div className="eyebrow">step {currentStep.n} of {STEPS.length}</div>
+    <div className="mb-5">
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-sm font-semibold text-ink">Today's workflow</span>
+        <span className="text-xs text-faint">
+          {doneCount === STEPS.length ? "All done ✓" : `${doneCount} of ${STEPS.length} complete`}
+        </span>
+      </div>
+
+      {/* Progress track */}
+      <div className="relative mb-4">
+        <div className="h-1.5 rounded-full bg-line overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{ width: `${pct}%`, background: "var(--gate)" }}
+          />
         </div>
-      )}
+      </div>
+
+      {/* Steps */}
+      <div className="grid grid-cols-5 gap-2">
+        {STEPS.map((s) => {
+          const isDone    = done[s.key];
+          const isCurrent = path === s.href;
+          const isNext    = nextStep?.key === s.key;
+
+          return (
+            <Link
+              key={s.href}
+              href={s.href}
+              className="group flex flex-col gap-2 rounded-xl p-3 transition-all"
+              style={
+                isCurrent
+                  ? { background: "var(--gate-bg)", border: `1.5px solid color-mix(in srgb, var(--gate) 30%, transparent)` }
+                  : isDone
+                  ? { background: "#F0FAF5", border: "1.5px solid #BDE8D4" }
+                  : isNext
+                  ? { background: "#FAFAF8", border: "1.5px solid #E5DDD3", boxShadow: "0 0 0 3px color-mix(in srgb, var(--gate) 10%, transparent)" }
+                  : { background: "#FAFAF8", border: "1.5px solid #E5DDD3", opacity: 0.75 }
+              }
+            >
+              {/* Icon / number */}
+              {isDone ? (
+                <CheckCircle2 size={16} style={{ color: "#1A6B47" }} />
+              ) : (
+                <div
+                  className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold"
+                  style={
+                    isCurrent || isNext
+                      ? { background: "color-mix(in srgb, var(--gate) 15%, white)", color: "var(--gate)" }
+                      : { background: "#EDE8E3", color: "#A99F96" }
+                  }
+                >
+                  {s.n}
+                </div>
+              )}
+
+              {/* Labels */}
+              <div>
+                <div className={`text-xs font-semibold leading-tight ${isDone ? "text-allowed" : isCurrent ? "text-ink" : "text-mut"}`}>
+                  {s.label}
+                </div>
+                <div className="text-[10px] text-faint mt-0.5 hidden sm:block">{s.sub}</div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

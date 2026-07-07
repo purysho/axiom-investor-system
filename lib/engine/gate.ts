@@ -108,5 +108,10 @@ export function evaluateGate(inputs: GateInputs, settings: Settings, trades: Tra
 }
 
 export function gateColorVar(state: GateState): string {
-  return state === "RISK ALLOWED" ? "#2FBF8F" : state === "REDUCED RISK ONLY" ? "#E7A83E" : "#E5484D";
+  // Dark enough to read on the warm cream light-mode background
+  return state === "RISK ALLOWED" ? "#1A6B47" : state === "REDUCED RISK ONLY" ? "#9A6100" : "#C0252A";
+}
+
+export function gateBgVar(state: GateState): string {
+  return state === "RISK ALLOWED" ? "#EDFAF4" : state === "REDUCED RISK ONLY" ? "#FEF7EC" : "#FEF1F1";
 }

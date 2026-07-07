@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { fmtPct, Panel } from "@/components/chrome";
+import { toast } from "@/components/toast";
 import { suggestPermittedAction } from "@/lib/engine/action";
 import { evaluateGate } from "@/lib/engine/gate";
 import { DAILY_BLOCKS, type BlockStatus, type DailyCheck } from "@/lib/engine/types";
@@ -23,7 +24,6 @@ export default function DailyPage() {
   const suggestion = suggestPermittedAction(gate, state.trades);
   const [action, setAction] = useState(saved?.action ?? "");
   const [because, setBecause] = useState(saved?.because ?? "");
-  const [savedFlash, setSavedFlash] = useState(false);
 
   // 15:00 countdown
   const [secondsLeft, setSecondsLeft] = useState(15 * 60);
@@ -66,8 +66,7 @@ export default function DailyPage() {
       savedAt: new Date().toISOString(),
     };
     update((prev) => ({ ...prev, dailyChecks: { ...prev.dailyChecks, [today]: check } }));
-    setSavedFlash(true);
-    setTimeout(() => setSavedFlash(false), 1800);
+    toast("Daily check saved");
   };
 
   return (
@@ -194,8 +193,8 @@ export default function DailyPage() {
             <button type="button" className="btn-gate" onClick={save}>
               Save today&apos;s check
             </button>
-            {savedFlash && <span className="font-mono text-xs text-allowed">Saved.</span>}
-            {saved && !savedFlash && (
+  
+            {saved && (
               <span className="font-mono text-[11px] text-faint">last saved {new Date(saved.savedAt).toLocaleTimeString()}</span>
             )}
           </div>

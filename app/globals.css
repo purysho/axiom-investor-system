@@ -3,80 +3,133 @@
 @tailwind utilities;
 
 :root {
-  --gate: #7e8c99; /* overwritten by the Gate Band per evaluated state */
+  --gate:    #57534E;   /* replaced by GateBand per state */
+  --gate-bg: #F7F4EF;
+  --radius:  10px;
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
+  scroll-behavior: smooth;
 }
 
 body {
   @apply bg-bg text-ink font-sans antialiased;
-  font-feature-settings: "tnum" 1;
+  font-size: 15px;
+  line-height: 1.65;
 }
 
-::selection {
-  background: color-mix(in srgb, var(--gate) 35%, transparent);
-}
+/* Subtle warm scrollbar */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D5CEC5; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #BFB7AC; }
+
+::selection { background: color-mix(in srgb, var(--gate) 18%, transparent); }
 
 *:focus-visible {
   outline: 2px solid var(--gate);
-  outline-offset: 1px;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
-/* Disciplined page-load reveal: content settles once, quietly. */
-@keyframes axiom-rise {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Page reveal */
+@keyframes warm-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
-.reveal {
-  animation: axiom-rise 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
+.reveal { animation: warm-rise 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-  .reveal {
-    animation: none;
-  }
+  .reveal { animation: none; }
 }
 
 @layer components {
+
+  /* ── Labels ─────────────────────────────── */
   .eyebrow {
-    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-mut;
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-faint;
   }
+
+  /* ── Cards ───────────────────────────────── */
   .panel {
-    @apply border border-line bg-panel;
+    @apply bg-panel rounded-lg shadow-card;
   }
+  .panel-soft {
+    @apply bg-panel2 rounded-lg;
+  }
+
+  /* ── Table ───────────────────────────────── */
   .cell {
-    @apply border-b border-line px-2 py-1.5 font-mono text-xs;
+    @apply border-b border-line px-4 py-3 text-sm;
   }
+  .cell:last-child { @apply border-b-0; }
+
+  /* ── Inputs ──────────────────────────────── */
   .field {
-    @apply w-full border border-line bg-panel2 px-2 py-1.5 font-mono text-xs text-ink placeholder-faint;
+    @apply w-full rounded-lg border border-line bg-panel px-3 py-2.5 text-sm text-ink
+           placeholder-faint shadow-sm transition-all
+           focus:border-[var(--gate)] focus:outline-none focus:ring-2 focus:ring-[#00000020];
   }
+  .field-label {
+    @apply block text-sm font-medium text-mut mb-1.5;
+  }
+
+  /* ── Buttons ─────────────────────────────── */
   .btn {
-    @apply border border-line bg-panel2 px-3 py-1.5 font-mono text-xs uppercase tracking-wider text-ink transition-colors hover:border-[var(--gate)];
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line
+           bg-panel px-4 py-2.5 text-sm font-medium text-ink shadow-sm transition-all
+           hover:bg-panel2 hover:border-faint
+           active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed;
   }
-  .btn-gate {
-    @apply border px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors;
-    border-color: var(--gate);
-    color: var(--gate);
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5
+           text-sm font-semibold text-white shadow-sm transition-all
+           active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed;
+    background: var(--gate);
   }
-  .btn-gate:hover {
-    background: color-mix(in srgb, var(--gate) 12%, transparent);
+  .btn-primary:hover { filter: brightness(1.08); }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-lg px-3 py-2
+           text-sm font-medium text-mut transition-colors
+           hover:text-ink hover:bg-panel2
+           disabled:opacity-40;
   }
+  .btn-danger {
+    @apply inline-flex items-center gap-2 rounded-lg border px-4 py-2.5
+           text-sm font-medium transition-all active:scale-[0.97];
+    border-color: #C0252A;
+    color: #C0252A;
+  }
+  .btn-danger:hover { background: #FEF1F1; }
+
+  /* Legacy alias */
+  .btn-gate { @apply btn-primary; }
+
+  /* ── Kbd ─────────────────────────────────── */
   .kbd {
-    @apply inline-flex h-4 min-w-[1rem] items-center justify-center border border-line px-1 font-mono text-[10px] text-mut transition-opacity;
+    @apply inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded
+           border border-line bg-panel2 px-1 font-mono text-[10px] text-faint;
+  }
+
+  /* ── Stat card ───────────────────────────── */
+  .stat-card {
+    @apply panel p-5 flex flex-col gap-1.5;
+  }
+  .stat-value {
+    @apply text-2xl font-bold tracking-tight text-ink;
+  }
+  .stat-label {
+    @apply text-xs font-semibold text-faint uppercase tracking-wide;
+  }
+
+  /* ── Badge ───────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
   }
 }

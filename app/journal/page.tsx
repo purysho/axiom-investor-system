@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { EquityCurve, RDistribution } from "@/components/charts";
 import { fmtPct, fmtR, fmtUsd, Panel, Stat } from "@/components/chrome";
+import { toast } from "@/components/toast";
 import { downloadText, exportJournalCsv, importJournalCsv } from "@/lib/csv";
 import { evaluateGate } from "@/lib/engine/gate";
 import { computeSizing } from "@/lib/engine/sizing";
@@ -65,7 +66,6 @@ export default function JournalPage() {
   const [entry, setEntry] = useState(emptyEntry);
   const [closingId, setClosingId] = useState<string | null>(null);
   const [closeForm, setCloseForm] = useState(emptyClose);
-  const [notice, setNotice] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const gateOpen = gate.state === "RISK ALLOWED";
@@ -80,11 +80,10 @@ export default function JournalPage() {
 
   const logTrade = () => {
     if (!entry.ticker.trim() || numOrNull(entry.entry) === null || numOrNull(entry.stop) === null) {
-      setNotice("Ticker, entry, and initial stop are required — a trade without a stop is unplannable.");
-      return;
+            return;
     }
     if (!gateOpen && !entry.exceptionNote.trim()) {
-      setNotice(`Gate is ${gate.state} — logging requires a documented exception note.`);
+      toast(`Gate is ${gate.state} — add an exception note.`, 'warning'); return;
       return;
     }
     const t: Trade = {
@@ -118,7 +117,7 @@ export default function JournalPage() {
     };
     update((prev) => ({ ...prev, trades: [...prev.trades, t] }));
     setEntry(emptyEntry);
-    setNotice(`Logged ${t.ticker} with gate stamped ${t.gateAtEntry}.`);
+    toast(`${t.ticker} logged — gate: ${t.gateAtEntry}`);
   };
 
   const startClose = (id: string) => {
@@ -129,7 +128,7 @@ export default function JournalPage() {
   const commitClose = () => {
     if (!closingId) return;
     if (numOrNull(closeForm.exitPrice) === null || !closeForm.exitReason || !closeForm.ruleFollowed) {
-      setNotice("Exit price, exit reason, and rule-followed are required to close the loop.");
+      toast('Exit price, exit reason, and rule-followed are required.', 'warning'); return;
       return;
     }
     update((prev) => ({
@@ -155,19 +154,18 @@ export default function JournalPage() {
       ),
     }));
     setClosingId(null);
-    setNotice("Trade closed and debriefed. Do not change a rule after one painful trade — tag it for the monthly sample.");
+    toast("Trade closed.");
   };
 
   const onImport = async (file: File) => {
     const text = await file.text();
     const trades = importJournalCsv(text);
     if (!trades.length) {
-      setNotice("No rows recognized — expected the companion ledger header (id,date,instrument,…).");
+      toast('No rows recognised — check the file format.', 'error'); return;
       return;
     }
     update((prev) => ({ ...prev, trades: [...prev.trades, ...trades] }));
-    setNotice(`Imported ${trades.length} trade${trades.length === 1 ? "" : "s"} from the companion ledger format.`);
-  };
+      };
 
   return (
     <div className="grid gap-3">
@@ -292,7 +290,6 @@ export default function JournalPage() {
           <button type="button" className="btn-gate" onClick={logTrade}>
             Log trade
           </button>
-          {notice && <span className="font-mono text-[11px] text-mut">{notice}</span>}
         </div>
       </Panel>
 

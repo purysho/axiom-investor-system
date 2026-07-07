@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { fmtN, fmtPct, fmtUsd, Panel, Stat } from "@/components/chrome";
+import { toast } from "@/components/toast";
 import { evaluateGate } from "@/lib/engine/gate";
 import { computeSizing } from "@/lib/engine/sizing";
 import { update, useAppState } from "@/lib/store";
@@ -17,7 +18,7 @@ export default function GatePage() {
   const gate = evaluateGate(state.gateInputs, state.settings, state.trades);
   const { gateInputs: gi, settings } = state;
   const [fetching, setFetching] = useState(false);
-  const [fetchNote, setFetchNote] = useState("");
+
 
   const [entry, setEntry] = useState("50");
   const [stop, setStop] = useState("47.50");
@@ -43,7 +44,7 @@ export default function GatePage() {
 
   const fetchLatest = async () => {
     setFetching(true);
-    setFetchNote("");
+    ("");
     try {
       const res = await fetch(`/api/market?benchmark=${encodeURIComponent(settings.benchmarkSymbol)}`);
       const data = await res.json();
@@ -61,13 +62,10 @@ export default function GatePage() {
       }
       setGi(patch);
       const missing = [!data.vix && "VIX", !data.nfci && "NFCI", !data.benchmark && "benchmark"].filter(Boolean);
-      setFetchNote(
-        missing.length
-          ? `Fetched with gaps — ${missing.join(", ")} unavailable; enter manually.`
-          : "Fetched. Delayed EOD data — verify before acting.",
-      );
+      if (missing.length) toast(`Fetched with gaps — ${missing.join(", ")} missing`, "warning");
+      else toast("Gate data fetched — delayed EOD, verify before acting.");
     } catch {
-      setFetchNote("Fetch failed — enter values manually. Unknown inputs count as failed checks.");
+      toast("Fetch failed — enter values manually.", "error");
     } finally {
       setFetching(false);
     }
@@ -108,7 +106,7 @@ export default function GatePage() {
             ))}
           </tbody>
         </table>
-        {fetchNote && <p className="mt-2 font-mono text-[11px] text-mut">{fetchNote}</p>}
+        
         <p className="mt-2 text-[11px] text-faint">
           0 fails → risk allowed · 1 fail → reduced risk only (document the exception) · 2+ fails → no new
           swings, manage existing positions only. Unknown inputs count as fails until data arrives.
