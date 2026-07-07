@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import {
   LayoutDashboard, Clock, ShieldCheck, BookOpen,
-  PieChart, Eye, BarChart2, BookMarked, Users, Settings,
+  PieChart, Eye, BarChart2, BookMarked, Users, Settings, LineChart,
 } from "lucide-react";
 import { SyncBadge } from "@/components/sync";
 
@@ -16,15 +16,17 @@ const NAV = [
   { href: "/journal",   label: "Journal",     key: "3", Icon: BookOpen },
   { href: "/portfolio", label: "Portfolio",   key: "4", Icon: PieChart },
   { href: "/watchlist", label: "Watchlist",   key: "5", Icon: Eye },
-  { href: "/monthly",   label: "Monthly",     key: "6", Icon: BarChart2 },
-  { href: "/guides",    label: "Guides",      key: "7", Icon: BookMarked },
-  { href: "/group",     label: "Group",       key: "8", Icon: Users },
-  { href: "/settings",  label: "Settings",    key: "9", Icon: Settings },
+  { href: "/charts",    label: "Charts",      key: "6", Icon: LineChart },
+  { href: "/monthly",   label: "Monthly",     key: "7", Icon: BarChart2 },
+  { href: "/guides",    label: "Guides",      key: "8", Icon: BookMarked },
+  { href: "/group",     label: "Group",       key: "9", Icon: Users },
+  { href: "/settings",  label: "Settings",    key: "0", Icon: Settings },
 ];
 
 const TITLES: Record<string, string> = {
   "/": "Dashboard", "/daily": "Daily check", "/gate": "Risk gate",
   "/journal": "Journal", "/portfolio": "Portfolio", "/watchlist": "Watchlist",
+  "/charts":    "Charts",
   "/monthly": "Monthly review", "/guides": "Guides", "/group": "Group",
   "/settings": "Settings", "/login": "Sign in", "/join": "Join",
 };
@@ -107,7 +109,7 @@ export function Nav() {
 
       {/* ── Mobile bottom nav ───────────────── */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-line bg-panel shadow-lg md:hidden">
-        {[NAV[0], NAV[2], NAV[1], NAV[3], NAV[4]].map((n) => {
+        {[NAV[0], NAV[2], NAV[1], NAV[5], NAV[6]].map((n) => {
           const active = path === n.href;
           return (
             <Link
@@ -132,7 +134,7 @@ export function PageReveal({ children }: { children: ReactNode }) {
 }
 
 export function Panel({
-  eyebrow, title, children, className = "", right, flat,
+  eyebrow, title, children, className = "", right, flat, noPad,
 }: {
   eyebrow?: string;
   title?: string;
@@ -140,11 +142,12 @@ export function Panel({
   className?: string;
   right?: ReactNode;
   flat?: boolean;
+  noPad?: boolean;
 }) {
   return (
     <section className={`${flat ? "panel-soft" : "panel"} overflow-hidden ${className}`}>
       {(eyebrow || title || right) && (
-        <header className="flex items-start justify-between gap-3 px-5 pt-5 pb-4 border-b border-line">
+  <header className="flex items-start justify-between gap-3 px-5 pt-5 pb-4 border-b border-line">
           <div>
             {eyebrow && <div className="eyebrow mb-1">{eyebrow}</div>}
             {title && <h2 className="text-base font-semibold text-ink">{title}</h2>}
@@ -152,7 +155,7 @@ export function Panel({
           {right && <div className="shrink-0 mt-0.5">{right}</div>}
         </header>
       )}
-      <div className="p-5">{children}</div>
+      <div className={noPad ? "" : "p-5"}>{children}</div>
     </section>
   );
 }

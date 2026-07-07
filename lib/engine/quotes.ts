@@ -115,3 +115,78 @@ export function round(n: number | null, dp = 2): number | null {
   const f = 10 ** dp;
   return Math.round(n * f) / f;
 }
+
+// ── Additional indicators ──────────────────────────────────────────────────
+
+/** Simple Moving Average */
+export function sma(closes: number[], period: number): (number | null)[] {
+  return closes.map((_, i) => {
+    if (i < period - 1) return null;
+    const slice = closes.slice(i - period + 1, i + 1);
+    return slice.reduce((a, b) => a + b, 0) / period;
+  });
+}
+
+/** Exponential Moving Average */
+export function ema(closes: number[], period: number): (number | null)[] {
+  const k = 2 / (period + 1);
+  const out: (number | null)[] = [];
+  let prev: number | null = null;
+  for (let i = 0; i < closes.length; i++) {
+    if (i < period - 1) { out.push(null); continue; }
+    if (i === period - 1) {
+      prev = closes.slice(0, period).reduce((a, b) => a + b, 0) / period;
+      out.push(prev); continue;
+    }
+    prev = closes[i] * k + prev! * (1 - k);
+    out.push(prev);
+  }
+  return out;
+}
+
+/** Bollinger Bands — returns upper, middle (SMA), lower */
+export function bollingerBands(closes: number[], period = 20, mult = 2): {
+  upper: (number | null)[]; mid: (number | null)[]; lower: (number | null)[];
+} {
+  const mid = sma(closes, period);
+  const upper: (number | null)[] = [];
+  const lower: (number | null)[] = [];
+  closes.forEach((_, i) => {
+    if (i < period - 1) { upper.push(null); lower.push(null); return; }
+    const slice = closes.slice(i - period + 1, i + 1);
+    const m = mid[i]!;
+    const std = Math.sqrt(slice.reduce((a, b) => a + (b - m) ** 2, 0) / period);
+    upper.push(m + mult * std);
+    lower.push(m - mult * std);
+  });
+  return { upper, mid, lower };
+}
+
+/** MACD — returns macd line, signal, histogram */
+export function macd(closes: number[], fast = 12, slow = 26, signal = 9): {
+  macd: (number | null)[]; signal: (number | null)[]; hist: (number | null)[];
+} {
+  const fastEma = ema(closes, fast);
+  const slowEma = ema(closes, slow);
+  const macdLine = closes.map((_, i) =>
+    fastEma[i] !== null && slowEma[i] !== null ? fastEma[i]! - slowEma[i]! : null
+  );
+  // Signal = EMA of macd line (only over non-null values)
+  const macdValues = macdLine.filter((v): v is number => v !== null);
+  const signalValues = ema(macdValues, signal);
+  let sigIdx = 0;
+  const signalLine = macdLine.map((v) => (v === null ? null : (signalValues[sigIdx++] ?? null)));
+  const hist = macdLine.map((m, i) =>
+    m !== null && signalLine[i] !== null ? m - signalLine[i]! : null
+  );
+  return { macd: macdLine, signal: signalLine, hist };
+}
+
+/** RSI array (per-bar) rather than a single value */
+export function rsiArray(closes: number[], period = 14): (number | null)[] {
+  const out: (number | null)[] = [];
+  for (let i = 0; i < closes.length; i++) {
+    out.push(rsi(closes.slice(0, i + 1), period));
+  }
+  return out;
+}
