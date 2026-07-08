@@ -1,60 +1,98 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { fmtPct, Panel } from "@/components/chrome";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import {
+  ArrowLeft, ArrowRight, Check, CircleHelp, Clock3, Pause, Play,
+  RotateCcw, ShieldCheck, TriangleAlert, LockKeyhole,
+} from "lucide-react";
 import { toast } from "@/components/toast";
 import { suggestPermittedAction } from "@/lib/engine/action";
 import { evaluateGate } from "@/lib/engine/gate";
 import { DAILY_BLOCKS, type BlockStatus, type DailyCheck } from "@/lib/engine/types";
 import { todayKey, update, useAppState } from "@/lib/store";
 
-const STATUSES: BlockStatus[] = ["Not Started", "Done", "Exception"];
+const QUESTIONS: Record<string, { question: string; help: string; normal: string; attention: string }> = {
+  risk: {
+    question: "Are today's risk conditions understood?",
+    help: "Start here. AXIOM checks the market backdrop and your own risk budget before you look for new swing trades.",
+    normal: "The saved risk check is current and I understand today's limits.",
+    attention: "Something in the risk check needs updating or a closer look.",
+  },
+  market: {
+    question: "Has the broad market picture meaningfully changed?",
+    help: "You are not trying to predict the next move. Just notice whether the market backdrop has clearly improved, weakened or stayed broadly the same.",
+    normal: "Nothing important has changed since my last check.",
+    attention: "The market backdrop has changed enough to affect how cautious I should be.",
+  },
+  events: {
+    question: "Is there a known event that could change an existing risk?",
+    help: "Think earnings, central-bank decisions, court rulings or other scheduled events connected to holdings or open trades. Ignore general news that does not change a decision.",
+    normal: "No known event needs action today.",
+    attention: "An event could affect a holding or open trade and needs a decision.",
+  },
+  positions: {
+    question: "Does anything you already own need attention?",
+    help: "Check open swing positions and long-term holdings for broken rules, invalidations, stops, payouts or a genuine thesis change.",
+    normal: "My existing positions are behaving within the plans I already wrote.",
+    attention: "At least one existing position needs a closer review.",
+  },
+  candidates: {
+    question: "Are you allowed to review new swing-trade ideas today?",
+    help: "New ideas come last. Only review your existing approved ideas when the risk check allows active risk.",
+    normal: "Risk is allowed and I may review the ideas already on my list.",
+    attention: "I am not taking new swing risk today.",
+  },
+};
 
 export default function DailyPage() {
   const state = useAppState();
   const gate = evaluateGate(state.gateInputs, state.settings, state.trades);
   const today = todayKey();
   const saved = state.dailyChecks[today];
-
-  const [blocks, setBlocks] = useState(
-    () =>
-      saved?.blocks ??
-      DAILY_BLOCKS.map((b) => ({ id: b.id, status: "Not Started" as BlockStatus, note: "" })),
-  );
+  const [blocks, setBlocks] = useState(() => saved?.blocks ?? DAILY_BLOCKS.map((b) => ({ id: b.id, status: "Not Started" as BlockStatus, note: "" })));
   const suggestion = suggestPermittedAction(gate, state.trades);
-  const [action, setAction] = useState(saved?.action ?? "");
-  const [because, setBecause] = useState(saved?.because ?? "");
+  const [action, setAction] = useState(saved?.action ?? suggestion.action);
+  const [because, setBecause] = useState(saved?.because ?? suggestion.because);
+  const firstIncomplete = Math.max(0, DAILY_BLOCKS.findIndex((spec) => (saved?.blocks ?? []).find((b) => b.id === spec.id)?.status === "Not Started"));
+  const [step, setStep] = useState(firstIncomplete < 0 ? DAILY_BLOCKS.length - 1 : firstIncomplete);
 
-  // 15:00 countdown
   const [secondsLeft, setSecondsLeft] = useState(15 * 60);
   const [running, setRunning] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   useEffect(() => {
-    if (!running) return;
-    if (secondsLeft === 0) {
-      setRunning(false);
-      return;
-    }
+    if (!running || secondsLeft === 0) return;
     timer.current = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
-    return () => {
-      if (timer.current) clearInterval(timer.current);
-    };
-  }, [running, secondsLeft === 0]);
+    return () => { if (timer.current) clearInterval(timer.current); };
+  }, [running, secondsLeft]);
+
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const ss = String(secondsLeft % 60).padStart(2, "0");
-
+  const completeCount = blocks.filter((b) => b.status !== "Not Started").length;
   const locked = gate.state === "NO NEW SWINGS";
-  const vixTxt = state.gateInputs.vix !== null ? state.gateInputs.vix.toFixed(2) : "awaiting data";
-  const trendTxt =
-    state.gateInputs.benchAbove200dma === null
-      ? "awaiting data"
-      : state.gateInputs.benchAbove200dma
-        ? "above 200-DMA"
-        : "below 200-DMA";
-  const openCount = state.trades.filter((t) => t.status === "Open").length;
+  const spec = DAILY_BLOCKS[step];
+  const current = blocks.find((b) => b.id === spec.id)!;
+  const copy = QUESTIONS[spec.id];
+  const isLast = step === DAILY_BLOCKS.length - 1;
+  const allAnswered = completeCount === DAILY_BLOCKS.length;
+
+  const resultText = useMemo(() => {
+    if (gate.state === "RISK ALLOWED") return "You may review existing swing-trade ideas after you finish checking current positions.";
+    if (gate.state === "REDUCED RISK ONLY") return "Today calls for smaller risk or standing aside. Any exception should be written down before a trade is planned.";
+    return "Do not look for new swing trades today. Manage what you already own and finish the check.";
+  }, [gate.state]);
 
   const setBlock = (id: string, patch: Partial<{ status: BlockStatus; note: string }>) =>
     setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
+
+  const choose = (status: BlockStatus) => {
+    if (spec.id === "candidates" && locked && status === "Done") return;
+    setBlock(spec.id, { status });
+  };
+
+  const next = () => {
+    if (step < DAILY_BLOCKS.length - 1) setStep((s) => s + 1);
+  };
 
   const save = () => {
     const check: DailyCheck = {
@@ -66,140 +104,115 @@ export default function DailyPage() {
       savedAt: new Date().toISOString(),
     };
     update((prev) => ({ ...prev, dailyChecks: { ...prev.dailyChecks, [today]: check } }));
-    toast("Daily check saved");
+    toast("Today's check is saved");
   };
 
   return (
-    <div className="grid gap-3">
-      <Panel
-        eyebrow={today}
-        title="15-minute daily market check"
-        right={
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-lg tabular-nums" style={{ color: secondsLeft === 0 ? "#E5484D" : "var(--gate)" }}>
-              {mm}:{ss}
-            </span>
-            <button type="button" className="btn" onClick={() => setRunning((r) => !r)}>
-              {running ? "Pause" : secondsLeft === 15 * 60 ? "Start" : "Resume"}
-            </button>
-            {secondsLeft !== 15 * 60 && (
-              <button
-                type="button"
-                className="btn"
-                onClick={() => {
-                  setRunning(false);
-                  setSecondsLeft(15 * 60);
-                }}
-              >
-                Reset
-              </button>
-            )}
-          </div>
-        }
-      >
-        <p className="text-xs text-mut">
-          An exception-detection routine, not a miniature research day. Candidate scanning is forbidden when the
-          Risk Gate does not permit it.
-        </p>
-      </Panel>
+    <div>
+      <header className="page-intro mb-8">
+        <div className="page-kicker">Your 15-minute routine</div>
+        <h1>Let's do today's check.</h1>
+        <p>Five simple questions. You are looking for exceptions—not reasons to trade. When the check is finished, stop browsing the market.</p>
+      </header>
 
-      {DAILY_BLOCKS.map((spec) => {
-        const b = blocks.find((x) => x.id === spec.id);
-        if (!b) return null;
-        const isCandidates = spec.id === "candidates";
-        const blockLocked = isCandidates && locked;
-        return (
-          <Panel key={spec.id} eyebrow={spec.time} title={spec.title} className="relative">
-            <div className={blockLocked ? "select-none opacity-30" : ""} inert={blockLocked || undefined}>
-              <p className="text-xs text-mut">{spec.objective}</p>
-              {spec.id === "risk" && (
-                <p className="mt-1 font-mono text-xs" style={{ color: "var(--gate)" }}>
-                  Gate: {gate.state} · {gate.fails} failing · {gate.unknowns} awaiting data
-                </p>
-              )}
-              {spec.id === "market" && (
-                <p className="mt-1 font-mono text-xs text-mut">
-                  {state.settings.benchmarkName}: {trendTxt} · VIX {vixTxt}
-                </p>
-              )}
-              {spec.id === "positions" && (
-                <p className="mt-1 font-mono text-xs text-mut">
-                  {openCount} open trade{openCount === 1 ? "" : "s"} · open planned risk{" "}
-                  {fmtPct(
-                    state.settings.portfolioValue > 0
-                      ? (state.trades
-                          .filter((t) => t.status === "Open")
-                          .reduce(
-                            (a, t) =>
-                              a +
-                              (t.entry !== null && t.stop !== null && t.shares !== null
-                                ? Math.abs(t.entry - t.stop) * t.shares
-                                : 0),
-                            0,
-                          ) /
-                          state.settings.portfolioValue) *
-                          100
-                      : 0,
-                    2,
-                  )}
-                </p>
-              )}
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <div className="flex gap-px" role="group" aria-label={`${spec.title} status`}>
-                  {STATUSES.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setBlock(spec.id, { status: s })}
-                      className={`border px-2 py-1 font-mono text-[11px] ${
-                        b.status === s ? "border-[var(--gate)] text-ink" : "border-line text-mut hover:text-ink"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-                <input
-                  className="field min-w-40 flex-1"
-                  placeholder="Notes / exceptions"
-                  value={b.note}
-                  onChange={(e) => setBlock(spec.id, { note: e.target.value })}
-                />
-              </div>
-              <p className="mt-1.5 text-[11px] text-faint">Decision rule: {spec.rule}</p>
-            </div>
-            {blockLocked && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="border border-closed px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-closed">
-                  Locked — gate says no new swings
-                </div>
-              </div>
-            )}
-          </Panel>
-        );
-      })}
-
-      <Panel eyebrow="Required daily output" title="Permitted action">
-        <div className="grid gap-2">
-          <label className="grid gap-1 text-xs text-mut">
-            Today&apos;s permitted action is…
-            <input className="field" value={action} placeholder={suggestion.action} onChange={(e) => setAction(e.target.value)} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            …because
-            <input className="field" value={because} placeholder={suggestion.because} onChange={(e) => setBecause(e.target.value)} />
-          </label>
-          <div className="flex items-center gap-3">
-            <button type="button" className="btn-gate" onClick={save}>
-              Save today&apos;s check
-            </button>
-  
-            {saved && (
-              <span className="font-mono text-[11px] text-faint">last saved {new Date(saved.savedAt).toLocaleTimeString()}</span>
-            )}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-y border-[#d9d2c6] py-4">
+        <div className="flex items-center gap-3">
+          <Clock3 size={18} className="text-[#65746b]" />
+          <div>
+            <div className="text-sm font-semibold">Question {step + 1} of {DAILY_BLOCKS.length}</div>
+            <div className="text-xs text-faint">{completeCount} answered</div>
           </div>
         </div>
-      </Panel>
+        <div className="flex items-center gap-2">
+          <span className="min-w-[68px] font-mono text-lg tabular-nums text-[#27483c]">{mm}:{ss}</span>
+          <button type="button" className="btn-ghost" onClick={() => setRunning((r) => !r)}>{running ? <Pause size={15} /> : <Play size={15} />}{running ? "Pause" : secondsLeft === 15 * 60 ? "Start timer" : "Resume"}</button>
+          {secondsLeft !== 15 * 60 && <button type="button" className="btn-ghost p-2" onClick={() => { setRunning(false); setSecondsLeft(15 * 60); }} aria-label="Reset timer"><RotateCcw size={15} /></button>}
+        </div>
+      </div>
+
+      <div className="mb-6 flex gap-2" aria-label="Daily check progress">
+        {DAILY_BLOCKS.map((b, i) => {
+          const block = blocks.find((x) => x.id === b.id)!;
+          return <button key={b.id} type="button" onClick={() => setStep(i)} className={`h-2 flex-1 rounded-full transition-colors ${i === step ? "bg-[#27483c]" : block.status !== "Not Started" ? "bg-[#89a293]" : "bg-[#ddd6ca]"}`} aria-label={`Go to question ${i + 1}`} />;
+        })}
+      </div>
+
+      <section className="mx-auto max-w-3xl py-6 sm:py-10">
+        <div className="text-sm font-semibold text-[#9a6b4b]">{spec.time} · {spec.title}</div>
+        <h2 className="mt-3 font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.25rem]">{copy.question}</h2>
+        <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">{copy.help}</p>
+
+        {spec.id === "risk" && (
+          <div className="mt-7 rounded-[18px] bg-[#ebe7dc] p-5">
+            <div className="flex items-start gap-3">
+              <ShieldCheck size={20} className="mt-0.5 shrink-0 text-[#456555]" />
+              <div>
+                <div className="font-semibold">Current answer from your risk check</div>
+                <p className="mt-1 text-sm leading-relaxed text-mut">{resultText}</p>
+                <Link href="/gate" className="quiet-link mt-3">Open the risk check <ArrowRight size={14} /></Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {spec.id === "candidates" && locked && (
+          <div className="mt-7 flex items-start gap-3 rounded-[18px] bg-[#f7eae5] p-5">
+            <LockKeyhole size={20} className="mt-0.5 shrink-0 text-[#a45645]" />
+            <div><div className="font-semibold">New trade ideas are closed today.</div><p className="mt-1 text-sm text-mut">Your current risk check says no new swings. AXIOM will not ask you to scan candidates.</p></div>
+          </div>
+        )}
+
+        <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <button type="button" onClick={() => choose("Done")} disabled={spec.id === "candidates" && locked} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Done" ? "border-[#789486] bg-[#e8efe9]" : "border-[#d8d1c5] bg-[#fffdf8] hover:border-[#aebbad]"}`}>
+            <Check size={20} className="text-[#3f6c57]" />
+            <div className="mt-3 font-semibold">Looks normal</div>
+            <p className="mt-1 text-xs leading-relaxed text-mut">{copy.normal}</p>
+          </button>
+          <button type="button" onClick={() => choose("Exception")} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Exception" ? "border-[#c68b75] bg-[#f9eee9]" : "border-[#d8d1c5] bg-[#fffdf8] hover:border-[#c8a08f]"}`}>
+            <TriangleAlert size={20} className="text-[#a45645]" />
+            <div className="mt-3 font-semibold">Needs attention</div>
+            <p className="mt-1 text-xs leading-relaxed text-mut">{copy.attention}</p>
+          </button>
+          <button type="button" onClick={() => choose("Not Started")} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Not Started" ? "border-[#c4bbaa] bg-[#f1ede4]" : "border-[#d8d1c5] bg-[#fffdf8] hover:border-[#c4bbaa]"}`}>
+            <CircleHelp size={20} className="text-[#7d837f]" />
+            <div className="mt-3 font-semibold">Not sure yet</div>
+            <p className="mt-1 text-xs leading-relaxed text-mut">Leave this unanswered until you have checked the fact you need.</p>
+          </button>
+        </div>
+
+        {(current.status === "Exception" || current.note) && (
+          <label className="mt-6 block">
+            <span className="field-label">What changed or needs attention?</span>
+            <textarea className="field min-h-28" value={current.note} onChange={(e) => setBlock(spec.id, { note: e.target.value })} placeholder="One short note is enough. Write the fact, not a market story." />
+          </label>
+        )}
+
+        <div className="mt-8 flex items-center justify-between border-t border-[#ded7ca] pt-5">
+          <button type="button" className="btn-ghost" disabled={step === 0} onClick={() => setStep((s) => Math.max(0, s - 1))}><ArrowLeft size={15} /> Back</button>
+          {!isLast ? (
+            <button type="button" className="btn-primary" onClick={next}>Next question <ArrowRight size={15} /></button>
+          ) : (
+            <button type="button" className="btn-primary" onClick={() => document.getElementById("daily-answer")?.scrollIntoView({ behavior: "smooth" })}>Finish the check <ArrowRight size={15} /></button>
+          )}
+        </div>
+      </section>
+
+      <section id="daily-answer" className="mt-8 border-t border-[#d5cec2] pt-10">
+        <div className="max-w-3xl">
+          <div className="page-kicker">End with one clear sentence</div>
+          <h2 className="mt-2 font-display text-[2.25rem] font-semibold leading-[1.06] tracking-[-0.04em]">What are you actually allowed to do today?</h2>
+          <p className="mt-3 text-sm leading-relaxed text-mut">AXIOM has suggested an answer from your saved risk check. Edit it only when a real fact from today's review changes the wording.</p>
+          <div className="mt-6 grid gap-4">
+            <label><span className="field-label">Today's permitted action is…</span><input className="field" value={action} onChange={(e) => setAction(e.target.value)} /></label>
+            <label><span className="field-label">…because</span><textarea className="field min-h-24" value={because} onChange={(e) => setBecause(e.target.value)} /></label>
+          </div>
+          {!allAnswered && <p className="mt-4 text-sm font-semibold text-[#9d6a2c]">{DAILY_BLOCKS.length - completeCount} question{DAILY_BLOCKS.length - completeCount === 1 ? " is" : "s are"} still unanswered. Unknowns should stay visible rather than being treated as clear.</p>}
+          <div className="mt-7 flex flex-wrap items-center gap-4">
+            <button type="button" className="btn-primary" onClick={save}>Save today's check <Check size={16} /></button>
+            <span className="text-sm text-mut">After saving, no further market browsing is required unless a real exception appears.</span>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

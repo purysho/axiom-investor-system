@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { fmtPct, fmtR, fmtUsd, Panel, Stat } from "@/components/chrome";
+import {
+  ArrowRight, BarChart3, Check, ChevronDown, CircleCheckBig, RefreshCcw, Scale, Sparkles,
+} from "lucide-react";
+import { fmtPct, fmtR, fmtUsd } from "@/components/chrome";
 import { flowAdjustedReturnPct, journalStats } from "@/lib/engine/stats";
 import type { MonthlyRow } from "@/lib/engine/types";
 import { uid, update, useAppState } from "@/lib/store";
@@ -13,194 +16,150 @@ const numOrNull = (s: string): number | null => {
 };
 
 const emptyDraft = {
-  monthStart: "",
-  startingValue: "",
-  netContributions: "0",
-  endingValue: "",
-  benchmarkReturnPct: "",
-  notes: "",
-  changeRule: false,
-  oldRule: "",
-  evidence: "",
-  newRule: "",
-  expectedBehavior: "",
-  reviewDate: "",
+  monthStart: "", startingValue: "", netContributions: "0", endingValue: "",
+  benchmarkReturnPct: "", notes: "", changeRule: false, oldRule: "", evidence: "",
+  newRule: "", expectedBehavior: "", reviewDate: "",
 };
 
 export default function MonthlyPage() {
   const state = useAppState();
   const js = journalStats(state.trades);
-  const [draft, setDraft] = useState(() => ({
-    ...emptyDraft,
-    monthStart: `${new Date().toISOString().slice(0, 7)}-01`,
-  }));
+  const [draft, setDraft] = useState(() => ({ ...emptyDraft, monthStart: `${new Date().toISOString().slice(0, 7)}-01` }));
   const [notice, setNotice] = useState("");
+
+  const draftReturn = flowAdjustedReturnPct(numOrNull(draft.startingValue), numOrNull(draft.netContributions), numOrNull(draft.endingValue));
+  const draftBenchmark = numOrNull(draft.benchmarkReturnPct);
+  const draftGap = draftReturn !== null && draftBenchmark !== null ? draftReturn - draftBenchmark : null;
 
   const saveMonth = () => {
     if (numOrNull(draft.startingValue) === null || numOrNull(draft.endingValue) === null) {
-      setNotice("Starting and ending values are required to compute the flow-adjusted return.");
+      setNotice("Add the starting and ending portfolio values first.");
       return;
     }
     if (draft.changeRule && (!draft.oldRule.trim() || !draft.newRule.trim() || !draft.evidence.trim())) {
-      setNotice("A rule change needs the old rule, the evidence, and the exact new rule written down.");
+      setNotice("A rule change needs the old rule, the evidence, and the exact new rule.");
       return;
     }
     const row: MonthlyRow = {
-      id: uid("M"),
-      monthStart: draft.monthStart,
-      startingValue: numOrNull(draft.startingValue),
-      netContributions: numOrNull(draft.netContributions),
-      endingValue: numOrNull(draft.endingValue),
-      benchmarkReturnPct: numOrNull(draft.benchmarkReturnPct),
-      notes: draft.notes,
-      ruleChange: draft.changeRule
-        ? {
-            oldRule: draft.oldRule,
-            evidence: draft.evidence,
-            newRule: draft.newRule,
-            expectedBehavior: draft.expectedBehavior,
-            reviewDate: draft.reviewDate,
-          }
-        : null,
+      id: uid("M"), monthStart: draft.monthStart, startingValue: numOrNull(draft.startingValue),
+      netContributions: numOrNull(draft.netContributions), endingValue: numOrNull(draft.endingValue),
+      benchmarkReturnPct: numOrNull(draft.benchmarkReturnPct), notes: draft.notes,
+      ruleChange: draft.changeRule ? {
+        oldRule: draft.oldRule, evidence: draft.evidence, newRule: draft.newRule,
+        expectedBehavior: draft.expectedBehavior, reviewDate: draft.reviewDate,
+      } : null,
     };
     update((prev) => ({ ...prev, monthly: [...prev.monthly, row] }));
     setDraft({ ...emptyDraft, monthStart: `${new Date().toISOString().slice(0, 7)}-01` });
-    setNotice("Month saved. One material rule change at a time; safety reductions can be immediate.");
+    setNotice("Month saved. Carry the decision forward; do not keep editing rules during the trading day.");
   };
 
   return (
-    <div className="grid gap-3">
-      <Panel eyebrow="Compare, diagnose, then adjust" title="Monthly performance & rule review">
-        <div className="grid gap-2 text-xs leading-relaxed text-mut sm:grid-cols-4">
-          <p><span className="font-mono text-ink">1 · Compare.</span> Calculate the flow-adjusted return and the benchmark gap. Is the benchmark appropriate for the mandate?</p>
-          <p><span className="font-mono text-ink">2 · Attribute.</span> Explain the gap: allocation, selection, cash drag, concentration, active trading, costs, taxes when known.</p>
-          <p><span className="font-mono text-ink">3 · Diagnose process.</span> Net swing P&amp;L, average R, win rate, profit factor, adherence, largest loss in R, mistake-tag frequency.</p>
-          <p><span className="font-mono text-ink">4 · Change one rule.</span> Old rule, evidence and sample size, exact new rule, expected behavior, review date.</p>
+    <div>
+      <section className="mb-10 rounded-[26px] bg-[#e7eee8] p-6 sm:p-9">
+        <Sparkles size={25} className="text-[#456555]" />
+        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Did your process improve this month?</h2>
+        <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Do this once at month-end. First compare results, then explain them, then look for repeated process problems. Change one rule only when the evidence deserves it.</p>
+      </section>
+
+      <section className="mb-12">
+        <div className="mb-7 max-w-2xl">
+          <div className="page-kicker">Step 1 of 4</div>
+          <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Compare your result with the benchmark</h2>
+          <p className="mt-3 text-sm leading-relaxed text-mut">The purpose is not to feel good or bad about a month. You are asking whether your portfolio did what its mandate should reasonably be compared with.</p>
         </div>
-      </Panel>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <label className="field-label">Month<input className="field mt-1.5" value={draft.monthStart} onChange={(e) => setDraft({ ...draft, monthStart: e.target.value })} placeholder="YYYY-MM-01" /></label>
+          <label className="field-label">Starting portfolio value ($)<input className="field mt-1.5" inputMode="decimal" value={draft.startingValue} onChange={(e) => setDraft({ ...draft, startingValue: e.target.value })} /></label>
+          <label className="field-label">Money added or withdrawn ($)<input className="field mt-1.5" inputMode="decimal" value={draft.netContributions} onChange={(e) => setDraft({ ...draft, netContributions: e.target.value })} /></label>
+          <label className="field-label">Ending portfolio value ($)<input className="field mt-1.5" inputMode="decimal" value={draft.endingValue} onChange={(e) => setDraft({ ...draft, endingValue: e.target.value })} /></label>
+          <label className="field-label">Benchmark return (%)<input className="field mt-1.5" inputMode="decimal" value={draft.benchmarkReturnPct} onChange={(e) => setDraft({ ...draft, benchmarkReturnPct: e.target.value })} /></label>
+        </div>
+        <div className="mt-6 grid gap-5 border-y border-[#d9d2c6] py-6 sm:grid-cols-3">
+          <div><div className="text-xs font-semibold text-faint">Your approximate return</div><div className="mt-1 text-2xl font-semibold">{fmtPct(draftReturn, 2)}</div></div>
+          <div><div className="text-xs font-semibold text-faint">Benchmark</div><div className="mt-1 text-2xl font-semibold">{fmtPct(draftBenchmark, 2)}</div></div>
+          <div><div className="text-xs font-semibold text-faint">Gap</div><div className="mt-1 text-2xl font-semibold" style={{ color: draftGap === null ? undefined : draftGap >= 0 ? "#2e6a50" : "#a45645" }}>{draftGap === null ? "—" : `${draftGap >= 0 ? "+" : "−"}${Math.abs(draftGap).toFixed(2)}%`}</div></div>
+        </div>
+        <p className="mt-3 text-xs text-faint">The return shown here is a simple flow-adjusted approximation, not a full time-weighted performance calculation.</p>
+      </section>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Stat label="Closed this ledger" value={String(js.closedCount)} />
-        <Stat label="Avg R" value={fmtR(js.avgR)} />
-        <Stat label="Largest loss" value={js.largestLossR !== null ? fmtR(js.largestLossR) : "—"} tone={js.largestLossR !== null && js.largestLossR < -1.2 ? "bad" : undefined} />
-        <Stat label="Rule adherence" value={fmtPct(js.adherencePct, 0)} />
-      </div>
-
-      <Panel eyebrow={`${state.monthly.length} months recorded`} title="Monthly ledger">
-        {state.monthly.length === 0 ? (
-          <p className="text-xs text-faint">No months recorded yet. Reducing risk is a valid performance decision.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="eyebrow">
-                  <th className="cell font-normal">Month</th>
-                  <th className="cell font-normal">Return</th>
-                  <th className="cell font-normal">Benchmark</th>
-                  <th className="cell font-normal">Active gap</th>
-                  <th className="cell hidden font-normal md:table-cell">Rule change</th>
-                </tr>
-              </thead>
-              <tbody>
-                {state.monthly.map((m) => {
-                  const ret = flowAdjustedReturnPct(m.startingValue, m.netContributions, m.endingValue);
-                  const gap = ret !== null && m.benchmarkReturnPct !== null ? ret - m.benchmarkReturnPct : null;
-                  return (
-                    <tr key={m.id} className="hover:bg-panel2">
-                      <td className="cell">{m.monthStart.slice(0, 7)}</td>
-                      <td className="cell text-mut">{fmtPct(ret)}</td>
-                      <td className="cell text-mut">{fmtPct(m.benchmarkReturnPct)}</td>
-                      <td className="cell font-semibold" style={{ color: gap === null ? undefined : gap >= 0 ? "#2FBF8F" : "#E5484D" }}>
-                        {gap === null ? "—" : `${gap >= 0 ? "+" : "−"}${Math.abs(gap).toFixed(2)}%`}
-                      </td>
-                      <td className="cell hidden max-w-72 truncate text-faint md:table-cell">
-                        {m.ruleChange ? `${m.ruleChange.oldRule} → ${m.ruleChange.newRule}` : "none"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      <section className="mb-12 border-t border-[#d7d0c4] pt-10">
+        <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr]">
+          <div>
+            <div className="page-kicker">Step 2 of 4</div>
+            <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Explain the gap in ordinary language</h2>
+            <p className="mt-3 text-sm leading-relaxed text-mut">Was the result mainly allocation, stock selection, cash, concentration, swing trading, costs or tax? Write what you can support. “The market was weird” is not attribution.</p>
           </div>
-        )}
-      </Panel>
-
-      <Panel eyebrow="Close the month" title="Record a month">
-        <div className="grid gap-2 sm:grid-cols-5">
-          <label className="grid gap-1 text-xs text-mut">
-            Month start (YYYY-MM-01)
-            <input className="field" value={draft.monthStart} onChange={(e) => setDraft({ ...draft, monthStart: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Starting value ($)
-            <input className="field" inputMode="decimal" value={draft.startingValue} onChange={(e) => setDraft({ ...draft, startingValue: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Net contributions ($)
-            <input className="field" inputMode="decimal" value={draft.netContributions} onChange={(e) => setDraft({ ...draft, netContributions: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Ending value ($)
-            <input className="field" inputMode="decimal" value={draft.endingValue} onChange={(e) => setDraft({ ...draft, endingValue: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Benchmark return (%)
-            <input className="field" inputMode="decimal" value={draft.benchmarkReturnPct} onChange={(e) => setDraft({ ...draft, benchmarkReturnPct: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut sm:col-span-5">
-            Notes — top 3 positive/negative contributors, concentration & event effects, income concentration
-            <input className="field" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
-          </label>
+          <label className="field-label">What actually drove this month's result?<textarea className="field mt-1.5 min-h-44" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} placeholder="Example: Cash was 12% of the portfolio during a rising month, creating about half of the benchmark gap. Two large technology holdings created most of the positive selection effect. Swing trades were slightly negative after one oversized loss." /></label>
         </div>
-        {(() => {
-          const ret = flowAdjustedReturnPct(numOrNull(draft.startingValue), numOrNull(draft.netContributions), numOrNull(draft.endingValue));
-          return ret !== null ? (
-            <p className="mt-2 font-mono text-xs text-mut">
-              Flow-adjusted return: <span style={{ color: "var(--gate)" }}>{fmtPct(ret, 2)}</span>{" "}
-              <span className="text-faint">(simple approximation, not full time-weighted return)</span>
-            </p>
-          ) : null;
-        })()}
+      </section>
 
-        <label className="mt-3 flex items-center gap-2 text-xs text-mut">
-          <input type="checkbox" className="accent-[var(--gate)]" checked={draft.changeRule} onChange={(e) => setDraft({ ...draft, changeRule: e.target.checked })} />
-          Adopt one rule change this month
+      <section className="mb-12 border-t border-[#d7d0c4] pt-10">
+        <div className="page-kicker">Step 3 of 4</div>
+        <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Look for a repeated process problem</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-mut">These journal numbers are context, not grades. A rule deserves review when the same behaviour keeps appearing or the current risk control is clearly inadequate.</p>
+        <div className="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="border-l-2 border-[#8fa296] pl-5"><BarChart3 size={18} className="text-[#49695a]" /><div className="mt-3 text-xs font-semibold text-faint">Closed trades</div><div className="mt-1 text-2xl font-semibold">{js.closedCount}</div></div>
+          <div className="border-l-2 border-[#8fa296] pl-5"><Scale size={18} className="text-[#49695a]" /><div className="mt-3 text-xs font-semibold text-faint">Average R</div><div className="mt-1 text-2xl font-semibold">{fmtR(js.avgR)}</div></div>
+          <div className="border-l-2 border-[#c49a78] pl-5"><RefreshCcw size={18} className="text-[#a16b4c]" /><div className="mt-3 text-xs font-semibold text-faint">Largest loss</div><div className="mt-1 text-2xl font-semibold">{js.largestLossR !== null ? fmtR(js.largestLossR) : "—"}</div></div>
+          <div className="border-l-2 border-[#8fa296] pl-5"><CircleCheckBig size={18} className="text-[#49695a]" /><div className="mt-3 text-xs font-semibold text-faint">Rule adherence</div><div className="mt-1 text-2xl font-semibold">{fmtPct(js.adherencePct, 0)}</div></div>
+        </div>
+        {js.mistakeCounts.length > 0 && <div className="mt-7 rounded-[18px] bg-[#fffdf8]/75 p-5"><div className="font-semibold">Repeated journal tags</div><p className="mt-2 text-sm leading-relaxed text-mut">{js.mistakeCounts.map(([tag, n]) => `${tag} ×${n}`).join(" · ")}. A repeated tag is a question to investigate, not an automatic new rule.</p></div>}
+      </section>
+
+      <section className="mb-12 border-t border-[#d7d0c4] pt-10">
+        <div className="max-w-2xl">
+          <div className="page-kicker">Step 4 of 4</div>
+          <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Does one rule need to change?</h2>
+          <p className="mt-3 text-sm leading-relaxed text-mut">Most months, the correct answer may be no. Do not redesign your process after one painful loss or one lucky streak.</p>
+        </div>
+        <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-[18px] bg-[#fffdf8]/70 p-5">
+          <input type="checkbox" className="mt-1" checked={draft.changeRule} onChange={(e) => setDraft({ ...draft, changeRule: e.target.checked })} />
+          <span><span className="block font-semibold">Yes, I have enough evidence to test one rule change</span><span className="mt-1 block text-sm text-mut">The change will be exact, linked to evidence, and given a review date.</span></span>
         </label>
         {draft.changeRule && (
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <label className="grid gap-1 text-xs text-mut">
-              Old rule
-              <input className="field" value={draft.oldRule} onChange={(e) => setDraft({ ...draft, oldRule: e.target.value })} />
-            </label>
-            <label className="grid gap-1 text-xs text-mut">
-              Exact new rule
-              <input className="field" value={draft.newRule} onChange={(e) => setDraft({ ...draft, newRule: e.target.value })} />
-            </label>
-            <label className="grid gap-1 text-xs text-mut">
-              Evidence & sample size
-              <input className="field" value={draft.evidence} onChange={(e) => setDraft({ ...draft, evidence: e.target.value })} />
-            </label>
-            <label className="grid gap-1 text-xs text-mut">
-              Expected behavior change
-              <input className="field" value={draft.expectedBehavior} onChange={(e) => setDraft({ ...draft, expectedBehavior: e.target.value })} />
-            </label>
-            <label className="grid gap-1 text-xs text-mut">
-              Review date
-              <input className="field" value={draft.reviewDate} onChange={(e) => setDraft({ ...draft, reviewDate: e.target.value })} />
-            </label>
+          <div className="mt-5 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:p-8">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <label className="field-label">What is the current rule?<textarea className="field mt-1.5 min-h-24" value={draft.oldRule} onChange={(e) => setDraft({ ...draft, oldRule: e.target.value })} /></label>
+              <label className="field-label">What exactly will the new rule be?<textarea className="field mt-1.5 min-h-24" value={draft.newRule} onChange={(e) => setDraft({ ...draft, newRule: e.target.value })} /></label>
+              <label className="field-label">What evidence supports the change, and how large is the sample?<textarea className="field mt-1.5 min-h-24" value={draft.evidence} onChange={(e) => setDraft({ ...draft, evidence: e.target.value })} /></label>
+              <label className="field-label">What behaviour should this change improve?<textarea className="field mt-1.5 min-h-24" value={draft.expectedBehavior} onChange={(e) => setDraft({ ...draft, expectedBehavior: e.target.value })} /></label>
+              <label className="field-label">When will you review the experiment?<input className="field mt-1.5" value={draft.reviewDate} onChange={(e) => setDraft({ ...draft, reviewDate: e.target.value })} placeholder="YYYY-MM-DD" /></label>
+            </div>
           </div>
         )}
-        <div className="mt-2 flex items-center gap-3">
-          <button type="button" className="btn-gate" onClick={saveMonth}>
-            Save month
-          </button>
-          {notice && <span className="font-mono text-[11px] text-mut">{notice}</span>}
-        </div>
-        <p className="mt-2 text-[11px] text-faint">
-          Separate outcome from process: a profitable rule violation is still a process failure. Change a rule
-          only on a repeated pattern or inadequate risk control — never after one painful trade.
-        </p>
-      </Panel>
+        <div className="mt-7 flex flex-wrap items-center gap-4"><button type="button" className="btn-primary" onClick={saveMonth}>Save this month's review <Check size={15} /></button>{notice && <span className="text-sm text-mut">{notice}</span>}</div>
+      </section>
+
+      {state.monthly.length > 0 && (
+        <section className="border-t border-[#d7d0c4] pt-10">
+          <details>
+            <summary className="cursor-pointer list-none">
+              <div className="flex items-center justify-between gap-4"><div><div className="page-kicker">Your review history</div><h2 className="mt-1 font-display text-[1.9rem] font-semibold tracking-[-0.03em]">Previous months</h2><p className="mt-2 text-sm text-mut">Use this to see whether the same explanations and rule changes keep repeating.</p></div><ChevronDown size={20} className="shrink-0 text-faint" /></div>
+            </summary>
+            <div className="mt-7 divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+              {state.monthly.slice().reverse().map((m) => {
+                const ret = flowAdjustedReturnPct(m.startingValue, m.netContributions, m.endingValue);
+                const gap = ret !== null && m.benchmarkReturnPct !== null ? ret - m.benchmarkReturnPct : null;
+                return (
+                  <details key={m.id} className="group">
+                    <summary className="grid cursor-pointer list-none gap-4 py-5 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+                      <div><div className="text-[18px] font-bold">{m.monthStart.slice(0, 7)}</div><p className="mt-1 text-sm text-mut">{m.ruleChange ? "One rule experiment recorded" : "No rule change recorded"}</p></div>
+                      <div className="sm:text-right"><div className="font-semibold">{fmtPct(ret, 2)}</div><div className="text-xs text-faint">Portfolio return</div></div>
+                      <div className="flex items-center gap-1 text-sm font-semibold text-[#49695a]">Read review <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></div>
+                    </summary>
+                    <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:p-7">
+                      <div className="grid gap-5 sm:grid-cols-3"><div><div className="text-xs font-semibold text-faint">Return</div><div className="mt-1 text-xl font-semibold">{fmtPct(ret, 2)}</div></div><div><div className="text-xs font-semibold text-faint">Benchmark</div><div className="mt-1 text-xl font-semibold">{fmtPct(m.benchmarkReturnPct, 2)}</div></div><div><div className="text-xs font-semibold text-faint">Gap</div><div className="mt-1 text-xl font-semibold">{gap === null ? "—" : `${gap >= 0 ? "+" : "−"}${Math.abs(gap).toFixed(2)}%`}</div></div></div>
+                      <div className="mt-6 border-l-2 border-[#c49a78] pl-5"><div className="text-xs font-semibold text-faint">What drove the month</div><p className="mt-2 text-sm leading-relaxed text-ink">{m.notes || "No attribution note was saved."}</p></div>
+                      {m.ruleChange && <div className="mt-6 rounded-[16px] bg-[#ebe7dc] p-5"><div className="text-xs font-semibold text-faint">Rule experiment</div><p className="mt-2 text-sm leading-relaxed text-ink"><strong>{m.ruleChange.oldRule}</strong> → <strong>{m.ruleChange.newRule}</strong></p><p className="mt-2 text-sm text-mut">Evidence: {m.ruleChange.evidence}. Review: {m.ruleChange.reviewDate || "not dated"}.</p></div>}
+                    </div>
+                  </details>
+                );
+              })}
+            </div>
+          </details>
+        </section>
+      )}
     </div>
   );
 }

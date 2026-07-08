@@ -32,11 +32,11 @@ export interface Indicators {
 }
 
 const T = {
-  bg: "#FFFFFF", grid: "#F7F4EF", border: "#E5DDD3", text: "#7A7068",
-  up: "#1A6B47", down: "#C0252A",
-  sma20: "#3B6CB0", sma50: "#9A6100", sma200: "#C0252A", ema20: "#7B3FC0",
-  bb: "#C4B9AC", rsi: "#3B6CB0", macdPos: "#1A6B47", macdNeg: "#C0252A",
-  macdSig: "#9A6100", volUp: "#BDE8D4", volDown: "#FBCACA",
+  bg: "#FFFEFA", grid: "#F3EFE7", border: "#DED7CA", text: "#68716B",
+  up: "#2F6B52", down: "#A84D45",
+  sma20: "#526D79", sma50: "#A8732F", sma200: "#A84D45", ema20: "#8C6F87",
+  bb: "#C5BCAF", rsi: "#526D79", macdPos: "#2F6B52", macdNeg: "#A84D45",
+  macdSig: "#A8732F", volUp: "#CFE4D8", volDown: "#EECFC9",
 };
 
 const baseOpts = (h: number): DeepPartial<ChartOptions> => ({
@@ -44,7 +44,7 @@ const baseOpts = (h: number): DeepPartial<ChartOptions> => ({
   layout: {
     background: { type: ColorType.Solid, color: T.bg },
     textColor: T.text,
-    fontFamily: "Plus Jakarta Sans, Inter, system-ui",
+    fontFamily: "DM Sans, Inter, system-ui",
     fontSize: 11,
   },
   grid: { vertLines: { color: T.grid }, horzLines: { color: T.grid } },
@@ -143,8 +143,8 @@ export default function MarketChart({
       rc.addSeries(LineSeries, { color: T.rsi, lineWidth: 1, priceLineVisible: false }).setData(valid(candles, "rsi"));
       const dates = valid(candles, "rsi").map((p) => p.time);
       if (dates.length > 1) {
-        const ob = rc.addSeries(LineSeries, { color: "#FBCACA", lineWidth: 1, lineStyle: 2 as 0|1|2|3|4, priceLineVisible: false });
-        const os = rc.addSeries(LineSeries, { color: "#BDE8D4", lineWidth: 1, lineStyle: 2 as 0|1|2|3|4, priceLineVisible: false });
+        const ob = rc.addSeries(LineSeries, { color: "#EECFC9", lineWidth: 1, lineStyle: 2 as 0|1|2|3|4, priceLineVisible: false });
+        const os = rc.addSeries(LineSeries, { color: "#CFE4D8", lineWidth: 1, lineStyle: 2 as 0|1|2|3|4, priceLineVisible: false });
         ob.setData([{ time: dates[0], value: 70 }, { time: dates[dates.length - 1], value: 70 }]);
         os.setData([{ time: dates[0], value: 30 }, { time: dates[dates.length - 1], value: 30 }]);
       }

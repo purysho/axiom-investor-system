@@ -2,41 +2,57 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import {
-  LayoutDashboard, Clock, ShieldCheck, BookOpen,
-  PieChart, Eye, BarChart2, BookMarked, Users, Settings, LineChart,
+  Home, PieChart, Lightbulb, BookOpenText, CalendarCheck2, Library,
+  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Sprout,
 } from "lucide-react";
 import { SyncBadge } from "@/components/sync";
 
-const NAV = [
-  { href: "/",          label: "Dashboard",   key: "0", Icon: LayoutDashboard },
-  { href: "/daily",     label: "Daily check", key: "1", Icon: Clock },
-  { href: "/gate",      label: "Risk gate",   key: "2", Icon: ShieldCheck },
-  { href: "/journal",   label: "Journal",     key: "3", Icon: BookOpen },
-  { href: "/portfolio", label: "Portfolio",   key: "4", Icon: PieChart },
-  { href: "/watchlist", label: "Watchlist",   key: "5", Icon: Eye },
-  { href: "/charts",    label: "Charts",      key: "6", Icon: LineChart },
-  { href: "/monthly",   label: "Monthly",     key: "7", Icon: BarChart2 },
-  { href: "/guides",    label: "Guides",      key: "8", Icon: BookMarked },
-  { href: "/group",     label: "Group",       key: "9", Icon: Users },
-  { href: "/settings",  label: "Settings",    key: "0", Icon: Settings },
+type NavItem = { href: string; label: string; key: string; Icon: LucideIcon };
+
+const PRIMARY_NAV: NavItem[] = [
+  { href: "/", label: "Today", key: "0", Icon: Home },
+  { href: "/portfolio", label: "My portfolio", key: "4", Icon: PieChart },
+  { href: "/watchlist", label: "Trade ideas", key: "5", Icon: Lightbulb },
+  { href: "/journal", label: "Journal", key: "3", Icon: BookOpenText },
+  { href: "/monthly", label: "Review", key: "7", Icon: CalendarCheck2 },
+  { href: "/guides", label: "Learn", key: "8", Icon: Library },
 ];
 
+const MORE_NAV: NavItem[] = [
+  { href: "/gate", label: "Risk check", key: "2", Icon: ShieldCheck },
+  { href: "/charts", label: "Charts", key: "6", Icon: LineChart },
+  { href: "/group", label: "Group", key: "9", Icon: Users },
+  { href: "/settings", label: "Settings", key: "", Icon: Settings },
+];
+
+const NAV = [...PRIMARY_NAV, ...MORE_NAV, { href: "/daily", label: "Daily check", key: "1", Icon: Home }];
+
 const TITLES: Record<string, string> = {
-  "/": "Dashboard", "/daily": "Daily check", "/gate": "Risk gate",
-  "/journal": "Journal", "/portfolio": "Portfolio", "/watchlist": "Watchlist",
-  "/charts":    "Charts",
-  "/monthly": "Monthly review", "/guides": "Guides", "/group": "Group",
+  "/": "Today", "/daily": "Daily check", "/gate": "Risk check",
+  "/journal": "Journal", "/portfolio": "My portfolio", "/watchlist": "Trade ideas",
+  "/charts": "Charts", "/monthly": "Monthly review", "/guides": "Learn", "/group": "Group",
   "/settings": "Settings", "/login": "Sign in", "/join": "Join",
 };
 
 const AUTH_PATHS = ["/login", "/join"];
+const PAGE_CONTEXT: Record<string, { kicker: string; title: string; sub: string }> = {
+  "/portfolio": { kicker: "Long-term investing", title: "My portfolio", sub: "See what you own, why you own it, and what genuinely needs a decision this week." },
+  "/watchlist": { kicker: "Only when risk allows", title: "Trade ideas", sub: "Keep possible swing trades here. An idea is not a trade, and most ideas should stay ideas." },
+  "/charts": { kicker: "Use only when needed", title: "Charts", sub: "Look at price structure to answer a specific question—not to find a reason to trade." },
+  "/journal": { kicker: "Learn from real decisions", title: "Journal", sub: "Record what you planned, what happened, and the one lesson worth carrying forward." },
+  "/monthly": { kicker: "Once a month", title: "Monthly review", sub: "Step back from individual trades and ask whether your process is actually improving." },
+  "/guides": { kicker: "Plain-English lessons", title: "Learn the method", sub: "Short explanations for the ideas AXIOM uses, written for decisions rather than exams." },
+  "/group": { kicker: "Optional", title: "Group", sub: "Share process context without turning investing into a leaderboard." },
+  "/settings": { kicker: "Your starting rules", title: "Settings", sub: "Set the benchmark, portfolio value, and risk limits AXIOM uses in its checks." },
+};
 
 export function TitleSync() {
   const path = usePathname();
   useEffect(() => {
-    document.title = TITLES[path] ? `${TITLES[path]} · Axiom` : "Axiom Investor System";
+    document.title = TITLES[path] ? `${TITLES[path]} · AXIOM` : "AXIOM Investor System";
   }, [path]);
   return null;
 }
@@ -45,15 +61,27 @@ export function Nav() {
   const path = usePathname();
   const router = useRouter();
   const onAuthPage = AUTH_PATHS.includes(path);
+  const moreRef = useRef<HTMLDetailsElement>(null);
+
+  // The More dropdown is a native <details>; close it on route change and outside clicks,
+  // otherwise client-side navigation leaves it hanging open.
+  useEffect(() => { moreRef.current?.removeAttribute("open"); }, [path]);
+  useEffect(() => {
+    const onDown = (e: PointerEvent) => {
+      if (moreRef.current?.open && !moreRef.current.contains(e.target as Node)) moreRef.current.removeAttribute("open");
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, []);
 
   useEffect(() => {
     if (onAuthPage) return;
     const handler = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const el = document.activeElement as HTMLElement | null;
-      if (["INPUT","TEXTAREA","SELECT"].includes(el?.tagName ?? "") || el?.isContentEditable) return;
-      const t = NAV.find((n) => n.key === e.key);
-      if (t) { e.preventDefault(); router.push(t.href); }
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(el?.tagName ?? "") || el?.isContentEditable) return;
+      const target = NAV.find((n) => n.key && n.key === e.key);
+      if (target) { e.preventDefault(); router.push(target.href); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -61,70 +89,70 @@ export function Nav() {
 
   if (onAuthPage) return <TitleSync />;
 
+  const mobile = [PRIMARY_NAV[0], PRIMARY_NAV[1], PRIMARY_NAV[2], PRIMARY_NAV[3], PRIMARY_NAV[4]];
+  const moreActive = MORE_NAV.some((n) => n.href === path) || path === "/daily";
+
   return (
     <>
       <TitleSync />
+      <header className="site-header">
+        <div className="site-header-inner">
+          <Link href="/" className="brand-mark" aria-label="AXIOM home">
+            <span className="brand-icon"><Sprout size={18} strokeWidth={1.9} /></span>
+            <span className="brand-word">AXIOM</span>
+          </Link>
 
-      {/* ── Desktop sidebar ─────────────────── */}
-      <nav className="hidden md:flex md:w-56 md:flex-col md:shrink-0 md:border-r md:border-line md:bg-panel">
-        {/* Brand */}
-        <div className="px-5 pt-6 pb-5">
-          <div className="text-lg font-bold tracking-tight text-ink">Axiom</div>
-          <div className="text-xs text-faint mt-0.5">Investor System</div>
+          <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+            {PRIMARY_NAV.map((n) => {
+              const active = path === n.href || (n.href === "/" && path === "/daily");
+              return (
+                <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined} className={`top-link ${active ? "top-link-active" : ""}`}>
+                  {n.label}
+                </Link>
+              );
+            })}
+            <details ref={moreRef} className="relative">
+              <summary className={`top-link cursor-pointer list-none ${moreActive ? "top-link-active" : ""}`}>
+                <MoreHorizontal size={18} /><span className="sr-only">More</span>
+              </summary>
+              <div className="more-menu">
+                <div className="px-3 pb-2 pt-1 text-xs text-faint"><SyncBadge /></div>
+                {MORE_NAV.map((n) => (
+                  <Link key={n.href} href={n.href} className="more-link" onClick={() => moreRef.current?.removeAttribute("open")}><n.Icon size={16} />{n.label}</Link>
+                ))}
+              </div>
+            </details>
+          </nav>
+
+          <Link href="/settings" className="md:hidden" aria-label="Settings"><Settings size={20} /></Link>
         </div>
+      </header>
 
-        {/* Links */}
-        <div className="flex-1 overflow-y-auto px-2 space-y-0.5 pb-4">
-          {NAV.map((n) => {
-            const active = path === n.href;
-            return (
-              <Link
-                key={n.href}
-                href={n.href}
-                aria-current={active ? "page" : undefined}
-                className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all ${
-                  active
-                    ? "font-semibold text-ink"
-                    : "text-mut hover:text-ink hover:bg-panel2"
-                }`}
-                style={active ? { background: "color-mix(in srgb, var(--gate) 10%, #F7F4EF)", color: "var(--gate)" } : {}}
-              >
-                <n.Icon
-                  size={16}
-                  style={active ? { color: "var(--gate)" } : {}}
-                  className={active ? "" : "text-faint group-hover:text-mut transition-colors"}
-                />
-                <span className="flex-1">{n.label}</span>
-                <span className="kbd opacity-0 group-hover:opacity-100 transition-opacity">{n.key}</span>
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-line px-5 py-4">
-          <SyncBadge />
-        </div>
-      </nav>
-
-      {/* ── Mobile bottom nav ───────────────── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-line bg-panel shadow-lg md:hidden">
-        {[NAV[0], NAV[2], NAV[1], NAV[5], NAV[6]].map((n) => {
-          const active = path === n.href;
+      <nav className="mobile-nav md:hidden" aria-label="Mobile navigation">
+        {mobile.map((n) => {
+          const active = path === n.href || (n.href === "/" && path === "/daily");
           return (
-            <Link
-              key={n.href}
-              href={n.href}
-              className="flex flex-1 flex-col items-center gap-1 py-3 text-[10px] font-medium transition-colors"
-              style={active ? { color: "var(--gate)" } : { color: "#A99F96" }}
-            >
-              <n.Icon size={20} />
-              <span>{n.label}</span>
+            <Link key={n.href} href={n.href} className={`mobile-link ${active ? "mobile-link-active" : ""}`}>
+              <n.Icon size={19} strokeWidth={active ? 2.1 : 1.7} />
+              <span>{n.label.replace("My ", "")}</span>
             </Link>
           );
         })}
       </nav>
     </>
+  );
+}
+
+export function PageContextHeader() {
+  const path = usePathname();
+  const ctx = PAGE_CONTEXT[path];
+  if (!ctx) return null;
+  return (
+    <header className="page-intro">
+      <div className="page-kicker">{ctx.kicker}</div>
+      <h1>{ctx.title}</h1>
+      <p>{ctx.sub}</p>
+    </header>
   );
 }
 
@@ -145,65 +173,59 @@ export function Panel({
   noPad?: boolean;
 }) {
   return (
-    <section className={`${flat ? "panel-soft" : "panel"} overflow-hidden ${className}`}>
+    <section className={`${flat ? "plain-section" : "paper-section"} ${className}`}>
       {(eyebrow || title || right) && (
-  <header className="flex items-start justify-between gap-3 px-5 pt-5 pb-4 border-b border-line">
-          <div>
-            {eyebrow && <div className="eyebrow mb-1">{eyebrow}</div>}
-            {title && <h2 className="text-base font-semibold text-ink">{title}</h2>}
+        <header className="section-heading">
+          <div className="min-w-0">
+            {eyebrow && <div className="section-kicker">{eyebrow}</div>}
+            {title && <h2>{title}</h2>}
           </div>
-          {right && <div className="shrink-0 mt-0.5">{right}</div>}
+          {right && <div className="shrink-0">{right}</div>}
         </header>
       )}
-      <div className={noPad ? "" : "p-5"}>{children}</div>
+      <div className={noPad ? "" : "section-body"}>{children}</div>
     </section>
   );
 }
 
-export function Stat({
-  label, value, tone, sub,
-}: {
+export function Stat({ label, value, tone, sub }: {
   label: string;
   value: string;
   tone?: "good" | "bad" | "gate";
   sub?: string;
 }) {
-  const color =
-    tone === "good" ? "#1A6B47" :
-    tone === "bad"  ? "#C0252A" :
-    tone === "gate" ? "var(--gate)" : undefined;
+  const color = tone === "good" ? "#2E6A50" : tone === "bad" ? "#A45645" : tone === "gate" ? "var(--brand)" : undefined;
   return (
-    <div className="stat-card">
+    <div className="stat-line">
       <div className="stat-label">{label}</div>
       <div className="stat-value" style={{ color }}>{value}</div>
-      {sub && <div className="text-xs text-faint">{sub}</div>}
+      {sub && <div className="stat-sub">{sub}</div>}
     </div>
   );
 }
 
 export function Footer() {
   return (
-    <footer className="mt-10 border-t border-line pt-5 pb-24 md:pb-10 text-xs text-faint leading-relaxed">
-      Educational process tool — not investment advice. Figures are delayed; verify before acting.
-      Planned stop risk is not a guaranteed maximum loss.
+    <footer className="site-footer">
+      AXIOM is an educational process tool, not investment advice. Market figures may be delayed. Planned stop risk is not a guaranteed maximum loss.
     </footer>
   );
 }
 
 export function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   return (
-    <div className="mb-5">
-      <h1 className="text-2xl font-bold text-ink">{title}</h1>
-      {sub && <p className="text-sm text-mut mt-1">{sub}</p>}
+    <div className="page-intro mb-8">
+      <h1>{title}</h1>
+      {sub && <p>{sub}</p>}
     </div>
   );
 }
 
-export const fmtN   = (n: number | null | undefined, d = 2) =>
+export const fmtN = (n: number | null | undefined, d = 2) =>
   n == null || Number.isNaN(n) ? "—" : n.toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: Math.min(d, 2) });
 export const fmtUsd = (n: number | null | undefined) =>
   n == null || Number.isNaN(n) ? "—" : `${n < 0 ? "−" : ""}$${Math.abs(n).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 export const fmtPct = (n: number | null | undefined, d = 1) =>
   n == null || Number.isNaN(n) ? "—" : `${n.toFixed(d)}%`;
-export const fmtR   = (n: number | null | undefined) =>
+export const fmtR = (n: number | null | undefined) =>
   n == null || Number.isNaN(n) ? "—" : `${n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(2)}R`;

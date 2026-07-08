@@ -17,25 +17,25 @@ import {
 
 // ── shared tokens ──────────────────────────────────────────────────────────
 const C = {
-  allowed: "#1A6B47",
-  reduced: "#9A6100",
-  closed:  "#C0252A",
-  steel:   "#3B6CB0",
-  line:    "#E5DDD3",
-  mut:     "#7A7068",
-  faint:   "#A99F96",
-  ink:     "#1C1714",
-  bg:      "#FFFFFF",
+  allowed: "#2F6B52",
+  reduced: "#A8732F",
+  closed:  "#A84D45",
+  steel:   "#526D79",
+  line:    "#DED7CA",
+  mut:     "#68716B",
+  faint:   "#979D96",
+  ink:     "#1E2A24",
+  bg:      "#FFFEFA",
 };
 
 const tooltipStyle = {
-  backgroundColor: "#FFFFFF",
+  backgroundColor: "#FFFEFA",
   border: `1px solid ${C.line}`,
-  borderRadius: 8,
+  borderRadius: 14,
   fontSize: 12,
-  fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif",
+  fontFamily: "DM Sans, Inter, system-ui, sans-serif",
   color: C.ink,
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+  boxShadow: "0 12px 30px rgba(30,42,36,0.10)",
 };
 
 // ── Equity Curve ────────────────────────────────────────────────────────────

@@ -1,19 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { AllocationDonut } from "@/components/charts";
-import { fmtPct, fmtUsd, Panel, Stat } from "@/components/chrome";
+import { useMemo, useState } from "react";
+import {
+  ArrowRight, Check, CircleAlert, Download, Plus, RefreshCw, ChevronDown,
+  PieChart, CircleCheckBig, WalletCards, Banknote, Scale,
+} from "lucide-react";
+import { fmtPct, fmtUsd } from "@/components/chrome";
 import { downloadText, exportPortfolioCsv } from "@/lib/csv";
 import { portfolioStats } from "@/lib/engine/stats";
 import {
-  ACTIONS,
-  GRADES,
-  THESIS_STATUSES,
-  type Grade,
-  type Holding,
-  type HoldingAction,
-  type Sleeve,
-  type ThesisStatus,
+  ACTIONS, GRADES, THESIS_STATUSES,
+  type Grade, type Holding, type HoldingAction, type Sleeve, type ThesisStatus,
 } from "@/lib/engine/types";
 import { isoWeekKey, uid, update, useAppState } from "@/lib/store";
 
@@ -23,38 +20,46 @@ const numOrNull = (s: string): number | null => {
   return Number.isFinite(n) ? n : null;
 };
 
-const WEEKLY_STEPS = [
-  "Reconcile holdings, market values, weights, and forward income.",
-  "Review sleeve drift: Core, Income, Satellite, Cash. Rebalance by rule, not by headline.",
-  "For each holding: role intact? thesis intact? benchmark still appropriate? concentration acceptable?",
-  "Dividend holdings: update annual dividend, coverage grade, debt/liquidity grade, dividend-trend grade.",
-  "ETFs: mandate, index fit, expense-ratio changes, distribution pattern, concentration, simpler overlap?",
-  "Compare portfolio vs benchmark and write the reason for any gap (allocation, selection, cash drag, costs, tax).",
-  "Make at most three portfolio actions for the coming week. \u201cNo action\u201d is valid.",
+const REVIEW_STEPS = [
+  { title: "Check the list is accurate", text: "Make sure holdings, shares and prices are broadly current." },
+  { title: "Ask why each holding is still here", text: "The role and thesis matter more than this week's price move." },
+  { title: "Look for concentration or income-quality problems", text: "Notice large weight drift, weak payout quality or unnecessary overlap." },
+  { title: "Choose no more than three actions", text: "Hold is a decision. Do not create activity just to finish the review." },
 ];
 
 const emptyAdd = {
-  ticker: "",
-  type: "ETF" as Holding["type"],
-  sleeve: "Core" as Sleeve,
-  shares: "",
-  costBasis: "",
-  price: "",
-  targetWeightPct: "",
-  expenseRatioPct: "",
-  yieldPct: "",
-  annualDistPerShare: "",
-  benchmark: "",
+  ticker: "", type: "ETF" as Holding["type"], sleeve: "Core" as Sleeve,
+  shares: "", costBasis: "", price: "", targetWeightPct: "",
+  expenseRatioPct: "", yieldPct: "", annualDistPerShare: "", benchmark: "",
 };
+
+function roleCopy(sleeve: Sleeve) {
+  if (sleeve === "Core") return "Long-term foundation";
+  if (sleeve === "Income") return "Income-producing holding";
+  if (sleeve === "Satellite") return "Smaller supporting position";
+  return "Cash or cash-like reserve";
+}
 
 export default function PortfolioPage() {
   const state = useAppState();
   const ps = portfolioStats(state.holdings);
   const weekTag = isoWeekKey();
   const reviewed = state.weeklyReviews.includes(weekTag);
+  const [checked, setChecked] = useState<boolean[]>(REVIEW_STEPS.map(() => false));
   const [add, setAdd] = useState(emptyAdd);
   const [priceNotice, setPriceNotice] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+
+  const plannedActions = state.holdings.filter((h) => h.action && h.action !== "Hold" && h.action !== "Watch").length;
+  const attention = useMemo(() => state.holdings.map((h) => {
+    const row = ps.rows.find((r) => r.id === h.id);
+    const reasons: string[] = [];
+    if (row?.driftPct !== null && row?.driftPct !== undefined && Math.abs(row.driftPct) > 5) reasons.push(`${Math.abs(row.driftPct).toFixed(1)}% away from target weight`);
+    if (h.thesisStatus === "Watch") reasons.push("thesis is on watch");
+    if (h.thesisStatus === "Broken") reasons.push("thesis is marked broken");
+    if (h.payoutGrade === "C" || h.payoutGrade === "D") reasons.push(`payout quality is graded ${h.payoutGrade}`);
+    return reasons.length ? { h, row, reasons } : null;
+  }).filter(Boolean) as Array<{ h: Holding; row: (typeof ps.rows)[number] | undefined; reasons: string[] }>, [state.holdings, ps.rows]);
 
   const refreshPrices = async () => {
     const tickers = [...new Set(state.holdings.map((h) => h.ticker).filter(Boolean))];
@@ -64,7 +69,7 @@ export default function PortfolioPage() {
     try {
       const res = await fetch(`/api/quotes?mode=close&symbols=${encodeURIComponent(tickers.join(","))}`);
       if (!res.ok) throw new Error();
-      const j = (await res.json()) as { quotes: Array<{ ticker: string; close: number | null; date: string | null; error?: string }> };
+      const j = (await res.json()) as { quotes: Array<{ ticker: string; close: number | null; date: string | null }> };
       const byTicker = new Map(j.quotes.map((q) => [q.ticker.toUpperCase(), q]));
       let updated = 0;
       update((prev) => ({
@@ -78,283 +83,184 @@ export default function PortfolioPage() {
       }));
       const failed = j.quotes.filter((q) => q.close === null).map((q) => q.ticker);
       const asOf = j.quotes.find((q) => q.date)?.date;
-      setPriceNotice(
-        `Updated ${updated}/${tickers.length}${asOf ? ` · closes as of ${asOf}` : ""} · Stooq delayed EOD` +
-          (failed.length ? ` · not found (enter manually): ${failed.join(", ")}` : ""),
-      );
+      setPriceNotice(`Updated ${updated}/${tickers.length}${asOf ? ` · closes as of ${asOf}` : ""}${failed.length ? ` · enter manually: ${failed.join(", ")}` : ""}`);
     } catch {
-      setPriceNotice("Couldn't fetch prices — server or data source unreachable. Manual entry still works.");
+      setPriceNotice("Could not fetch prices. Manual entry still works.");
     } finally {
       setRefreshing(false);
     }
   };
-  const [checked, setChecked] = useState<boolean[]>(WEEKLY_STEPS.map(() => false));
 
-  const plannedActions = state.holdings.filter((h) => h.action && h.action !== "Hold" && h.action !== "Watch").length;
+  const patchHolding = (id: string, patch: Partial<Holding>) => update((prev) => ({ ...prev, holdings: prev.holdings.map((h) => h.id === id ? { ...h, ...patch } : h) }));
+  const removeHolding = (id: string) => update((prev) => ({ ...prev, holdings: prev.holdings.filter((h) => h.id !== id) }));
+  const markReviewed = () => update((prev) => ({ ...prev, weeklyReviews: prev.weeklyReviews.includes(weekTag) ? prev.weeklyReviews : [...prev.weeklyReviews, weekTag] }));
 
   const addHolding = () => {
     if (!add.ticker.trim()) return;
     const h: Holding = {
-      id: uid("H"),
-      ticker: add.ticker.trim().toUpperCase(),
-      type: add.type,
-      sleeve: add.sleeve,
-      shares: numOrNull(add.shares),
-      costBasis: numOrNull(add.costBasis),
-      price: numOrNull(add.price),
-      targetWeightPct: numOrNull(add.targetWeightPct),
-      expenseRatioPct: numOrNull(add.expenseRatioPct),
-      yieldPct: numOrNull(add.yieldPct),
-      payoutRatioPct: null,
-      annualDistPerShare: numOrNull(add.annualDistPerShare),
-      benchmark: add.benchmark,
-      thesisStatus: "Intact",
-      payoutGrade: "",
-      coverageNote: "",
-      action: "Hold",
-      notes: "",
+      id: uid("H"), ticker: add.ticker.trim().toUpperCase(), type: add.type, sleeve: add.sleeve,
+      shares: numOrNull(add.shares), costBasis: numOrNull(add.costBasis), price: numOrNull(add.price),
+      targetWeightPct: numOrNull(add.targetWeightPct), expenseRatioPct: numOrNull(add.expenseRatioPct),
+      yieldPct: numOrNull(add.yieldPct), payoutRatioPct: null, annualDistPerShare: numOrNull(add.annualDistPerShare),
+      benchmark: add.benchmark, thesisStatus: "Intact", payoutGrade: "", coverageNote: "", action: "Hold", notes: "",
     };
     update((prev) => ({ ...prev, holdings: [...prev.holdings, h] }));
     setAdd(emptyAdd);
   };
 
-  const patchHolding = (id: string, patch: Partial<Holding>) =>
-    update((prev) => ({
-      ...prev,
-      holdings: prev.holdings.map((h) => (h.id === id ? { ...h, ...patch } : h)),
-    }));
-
-  const removeHolding = (id: string) =>
-    update((prev) => ({ ...prev, holdings: prev.holdings.filter((h) => h.id !== id) }));
-
-  const markReviewed = () =>
-    update((prev) => ({
-      ...prev,
-      weeklyReviews: prev.weeklyReviews.includes(weekTag) ? prev.weeklyReviews : [...prev.weeklyReviews, weekTag],
-    }));
-
   return (
-    <div className="grid gap-3">
-      {state.holdings.length > 0 && (
-        <div className="grid gap-3 md:grid-cols-3">
-          <Panel eyebrow="By sleeve" title="Allocation">
-            <AllocationDonut holdings={state.holdings} />
-            <div className="mt-2 grid gap-1">
-              {["Core","Income","Satellite","Cash"].map((s) => {
-                const mv = state.holdings.filter(h=>h.sleeve===s).reduce((a,h)=>a+(h.price??0)*(h.shares??0),0);
-                const tot = ps.totalMarketValue;
-                return mv>0 ? <div key={s} className="flex justify-between font-mono text-[11px]"><span className="text-mut">{s}</span><span className="text-ink">{tot>0?((mv/tot)*100).toFixed(1):0}%</span></div> : null;
-              })}
+    <div>
+      {state.holdings.length === 0 ? (
+        <section className="rounded-[26px] bg-[#e8efe9] p-6 sm:p-9">
+          <WalletCards size={25} className="text-[#456555]" />
+          <h2 className="mt-5 max-w-2xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.25rem]">Add the investments you actually plan to hold.</h2>
+          <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Start with your long-term portfolio. You do not need every data point on day one. Ticker, shares and a rough role are enough to begin.</p>
+          <button type="button" className="btn-primary mt-7" onClick={() => document.getElementById("add-holding")?.scrollIntoView({ behavior: "smooth" })}>Add my first holding <ArrowRight size={16} /></button>
+        </section>
+      ) : (
+        <>
+          <section className="mb-10 grid gap-8 border-b border-[#d9d2c6] pb-10 lg:grid-cols-[1.35fr_.65fr] lg:items-end">
+            <div>
+              <div className="page-kicker">Your portfolio in plain English</div>
+              <h2 className="mt-2 max-w-3xl font-display text-[2.4rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.5rem]">
+                You own {state.holdings.length} holding{state.holdings.length === 1 ? "" : "s"} worth about {fmtUsd(ps.totalMarketValue)}.
+              </h2>
+              <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">
+                {ps.topWeightTicker ? `${ps.topWeightTicker} is your largest position at ${fmtPct(ps.topWeightPct)}. ` : ""}
+                {ps.forwardIncome > 0 ? `Your current inputs imply about ${fmtUsd(ps.forwardIncome)} of forward annual income. ` : ""}
+                {attention.length ? `${attention.length} holding${attention.length === 1 ? "" : "s"} deserve a closer look this week.` : "Nothing currently crosses the simple attention rules."}
+              </p>
             </div>
-          </Panel>
-          <div className="md:col-span-2 grid grid-cols-2 gap-2 content-start">
-            <Stat label="Market value" value={fmtUsd(ps.totalMarketValue)} />
-            <Stat label="Forward income" value={fmtUsd(ps.forwardIncome)} />
-            <Stat label="Portfolio yield" value={fmtPct(ps.portfolioYieldPct)} />
-            <Stat label="Top-3 income conc." value={fmtPct(ps.top3IncomeConcPct, 0)} />
-            <Stat label="Top weight" value={ps.topWeightTicker ? `${ps.topWeightTicker} ${fmtPct(ps.topWeightPct)}` : "—"} />
-            <Stat label="Weighted expense" value={fmtPct(ps.weightedExpensePct, 2)} />
-          </div>
-        </div>
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <button type="button" className="btn" onClick={() => void refreshPrices()} disabled={refreshing}><RefreshCw size={15} />{refreshing ? "Updating…" : "Update prices"}</button>
+              <button type="button" className="btn" onClick={() => downloadText("portfolio.csv", exportPortfolioCsv(state.holdings))}><Download size={15} />Export</button>
+            </div>
+          </section>
+          {priceNotice && <p className="-mt-6 mb-8 text-sm text-mut" role="status">{priceNotice}</p>}
+        </>
       )}
 
-      <Panel
-        eyebrow="Weekly long-term review"
-        title={reviewed ? `Reviewed this week (${weekTag})` : `Due this week (${weekTag})`}
-        right={
-          <button type="button" className="btn-gate" onClick={markReviewed} disabled={reviewed}>
-            {reviewed ? "Done" : "Mark week reviewed"}
-          </button>
-        }
-      >
-        <ol className="grid gap-1.5">
-          {WEEKLY_STEPS.map((step, i) => (
-            <li key={step} className="flex items-start gap-2 text-xs text-mut">
-              <input
-                type="checkbox"
-                className="mt-0.5 accent-[var(--gate)]"
-                checked={checked[i]}
-                onChange={() => setChecked((prev) => prev.map((c, j) => (j === i ? !c : c)))}
-                aria-label={`Step ${i + 1}`}
-              />
-              <span className={checked[i] ? "text-faint line-through" : ""}>{step}</span>
-            </li>
-          ))}
-        </ol>
-        <p className="mt-2 text-[11px] text-faint">
-          Price movement is one input. Forward income is an output; yield alone is not a quality score.
-        </p>
-      </Panel>
-
-      <Panel
-        eyebrow={`${state.holdings.length} holdings`}
-        title="Holdings ledger"
-        right={
-          <div className="flex gap-2">
-            <button type="button" className="btn-gate" onClick={() => void refreshPrices()} disabled={refreshing || state.holdings.length === 0}>
-              {refreshing ? "Fetching…" : "Refresh prices"}
-            </button>
-            <button type="button" className="btn" onClick={() => downloadText("portfolio.csv", exportPortfolioCsv(state.holdings))}>
-              Export ledger CSV
-            </button>
+      {state.holdings.length > 0 && attention.length > 0 && (
+        <section className="mb-12">
+          <div className="page-kicker">Look here first</div>
+          <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">What may need a decision</h2>
+          <div className="mt-5 divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+            {attention.map(({ h, row, reasons }) => (
+              <div key={h.id} className="grid gap-3 py-5 sm:grid-cols-[44px_1fr_auto] sm:items-center">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f6e9e4] text-[#a45645]"><CircleAlert size={18} /></span>
+                <div><div className="text-[17px] font-semibold">{h.ticker}</div><p className="mt-1 text-sm text-mut">{reasons.join(" · ")}</p></div>
+                <div className="text-sm text-mut">{row?.weightPct !== null && row?.weightPct !== undefined ? `${fmtPct(row.weightPct)} of portfolio` : "Weight unavailable"}</div>
+              </div>
+            ))}
           </div>
-        }
-      >
-        {state.holdings.length === 0 ? (
-          <p className="text-xs text-faint">Add your long-term holdings below. Blank cells are honest — the stats compute on the priced subset and list what&apos;s missing.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="eyebrow">
-                  <th className="cell font-normal">Ticker</th>
-                  <th className="cell font-normal">Sleeve</th>
-                  <th className="cell font-normal">Shares</th>
-                  <th className="cell font-normal">Price</th>
-                  <th className="cell font-normal">Weight</th>
-                  <th className="cell font-normal">Target</th>
-                  <th className="cell font-normal">Drift</th>
-                  <th className="cell hidden font-normal md:table-cell">Income</th>
-                  <th className="cell hidden font-normal md:table-cell">Thesis</th>
-                  <th className="cell hidden font-normal lg:table-cell">Grade</th>
-                  <th className="cell font-normal">Action</th>
-                  <th className="cell font-normal" />
-                </tr>
-              </thead>
-              <tbody>
-                {state.holdings.map((h) => {
-                  const row = ps.rows.find((r) => r.id === h.id);
-                  const drift = row?.driftPct ?? null;
-                  return (
-                    <tr key={h.id} className="hover:bg-panel2">
-                      <td className="cell">{h.ticker}</td>
-                      <td className="cell">
-                        <select className="field !w-auto !py-0.5" value={h.sleeve} onChange={(e) => patchHolding(h.id, { sleeve: e.target.value as Sleeve })}>
-                          {(["Core", "Income", "Satellite", "Cash"] as Sleeve[]).map((s) => (
-                            <option key={s}>{s}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="cell">
-                        <input className="field !w-20 !py-0.5" inputMode="decimal" value={h.shares ?? ""} onChange={(e) => patchHolding(h.id, { shares: numOrNull(e.target.value) })} />
-                      </td>
-                      <td className="cell">
-                        <input className="field !w-20 !py-0.5" inputMode="decimal" title={h.priceAsOf ?? undefined} value={h.price ?? ""} onChange={(e) => patchHolding(h.id, { price: numOrNull(e.target.value), priceAsOf: null })} />
-                      </td>
-                      <td className="cell text-mut">{fmtPct(row?.weightPct ?? null)}</td>
-                      <td className="cell">
-                        <input className="field !w-16 !py-0.5" inputMode="decimal" value={h.targetWeightPct ?? ""} onChange={(e) => patchHolding(h.id, { targetWeightPct: numOrNull(e.target.value) })} />
-                      </td>
-                      <td className="cell font-semibold" style={{ color: drift === null ? undefined : Math.abs(drift) > 5 ? "#E7A83E" : "#7E8C99" }}>
-                        {drift === null ? "—" : `${drift >= 0 ? "+" : "−"}${Math.abs(drift).toFixed(1)}%`}
-                      </td>
-                      <td className="cell hidden text-mut md:table-cell">{fmtUsd(row?.incomeUsd ?? null)}</td>
-                      <td className="cell hidden md:table-cell">
-                        <select className="field !w-auto !py-0.5" value={h.thesisStatus} onChange={(e) => patchHolding(h.id, { thesisStatus: e.target.value as ThesisStatus })}>
-                          <option value="">—</option>
-                          {THESIS_STATUSES.map((s) => (
-                            <option key={s}>{s}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="cell hidden lg:table-cell">
-                        <select className="field !w-auto !py-0.5" value={h.payoutGrade} onChange={(e) => patchHolding(h.id, { payoutGrade: e.target.value as Grade })}>
-                          <option value="">—</option>
-                          {GRADES.map((g) => (
-                            <option key={g}>{g}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="cell">
-                        <select className="field !w-auto !py-0.5" value={h.action} onChange={(e) => patchHolding(h.id, { action: e.target.value as HoldingAction })}>
-                          <option value="">—</option>
-                          {ACTIONS.map((a) => (
-                            <option key={a}>{a}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="cell">
-                        <button type="button" className="btn !px-1.5" aria-label={`Remove ${h.ticker}`} onClick={() => removeHolding(h.id)}>
-                          ×
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {priceNotice && <p className="mt-2 font-mono text-[11px] text-mut" role="status">{priceNotice}</p>}
-        <p className="mt-2 text-[11px] text-faint">Bare tickers assume US listings (AAPL → aapl.us); gold/silver and crypto quote as pairs (XAUUSD, XAGUSD, BTCUSD, ETHUSD); other markets use Stooq suffixes (VUSA.UK). Delayed end-of-day data.</p>
-        {ps.unpricedTickers.length > 0 && (
-          <p className="mt-2 font-mono text-[11px] text-faint">Awaiting prices/shares: {ps.unpricedTickers.join(", ")}</p>
-        )}
-        <p className="mt-2 text-[11px] text-faint">
-          Symbols for fetching: bare US tickers (AAPL, SPY) · other markets with suffix (vusa.uk) · gold xauusd ·
-          crypto btcusd, ethusd. Manual entry always overrides.
-        </p>
-      </Panel>
+        </section>
+      )}
 
-      <Panel eyebrow="Add holding" title="New position in the long-term sleeve">
-        <div className="grid gap-2 sm:grid-cols-5">
-          <label className="grid gap-1 text-xs text-mut">
-            Ticker
-            <input className="field" value={add.ticker} onChange={(e) => setAdd({ ...add, ticker: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Type
-            <select className="field" value={add.type} onChange={(e) => setAdd({ ...add, type: e.target.value as Holding["type"] })}>
-              {(["Stock", "ETF", "Fund", "Bond", "Cash", "Other"] as const).map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Sleeve
-            <select className="field" value={add.sleeve} onChange={(e) => setAdd({ ...add, sleeve: e.target.value as Sleeve })}>
-              {(["Core", "Income", "Satellite", "Cash"] as Sleeve[]).map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Shares
-            <input className="field" inputMode="decimal" value={add.shares} onChange={(e) => setAdd({ ...add, shares: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Price ($)
-            <input className="field" inputMode="decimal" value={add.price} onChange={(e) => setAdd({ ...add, price: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Cost basis / share ($)
-            <input className="field" inputMode="decimal" value={add.costBasis} onChange={(e) => setAdd({ ...add, costBasis: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Target weight (%)
-            <input className="field" inputMode="decimal" value={add.targetWeightPct} onChange={(e) => setAdd({ ...add, targetWeightPct: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Expense ratio (%)
-            <input className="field" inputMode="decimal" value={add.expenseRatioPct} onChange={(e) => setAdd({ ...add, expenseRatioPct: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Yield (%)
-            <input className="field" inputMode="decimal" value={add.yieldPct} onChange={(e) => setAdd({ ...add, yieldPct: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Annual dist. / share ($)
-            <input className="field" inputMode="decimal" value={add.annualDistPerShare} onChange={(e) => setAdd({ ...add, annualDistPerShare: e.target.value })} />
-          </label>
-        </div>
-        <button type="button" className="btn-gate mt-2" onClick={addHolding}>
-          Add holding
-        </button>
-        <p className="mt-2 text-[11px] text-faint">
-          Bare tickers assume a US listing (AAPL → aapl.us). For anything else use the Stooq form — vusa.uk,
-          xauusd for gold bullion (GOLD is Barrick&apos;s ticker), btcusd, ethusd — or enter prices manually.
-        </p>
-      </Panel>
+      {state.holdings.length > 0 && (
+        <section className="mb-12 rounded-[24px] bg-[#fffdf8]/76 p-6 sm:p-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="max-w-2xl">
+              <div className="page-kicker">Once a week</div>
+              <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Do the portfolio review</h2>
+              <p className="mt-3 text-sm leading-relaxed text-mut">This is not a hunt for something to buy or sell. You are checking whether the reasons for owning your investments still make sense.</p>
+            </div>
+            {reviewed ? <span className="badge bg-[#e7efe9] text-[#2e6a50]"><CircleCheckBig size={15} />Reviewed this week</span> : <span className="badge bg-[#f2eadb] text-[#9d6a2c]">Review due</span>}
+          </div>
+          <div className="mt-7 divide-y divide-[#ddd6ca] border-y border-[#ddd6ca]">
+            {REVIEW_STEPS.map((item, i) => (
+              <label key={item.title} className="flex cursor-pointer items-start gap-4 py-5">
+                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${checked[i] ? "bg-[#27483c] text-white" : "border border-[#c9c1b4] bg-[#fffdf8] text-transparent"}`}><Check size={14} /></span>
+                <input type="checkbox" className="sr-only" checked={checked[i]} onChange={() => setChecked((prev) => prev.map((v, j) => j === i ? !v : v))} />
+                <span><span className="block font-semibold">{item.title}</span><span className="mt-1 block text-sm leading-relaxed text-mut">{item.text}</span></span>
+              </label>
+            ))}
+          </div>
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <button type="button" className="btn-primary" onClick={markReviewed} disabled={reviewed || checked.some((v) => !v)}>{reviewed ? "Review complete" : "Finish this week's review"} <Check size={15} /></button>
+            <span className="text-sm text-mut">{plannedActions} action{plannedActions === 1 ? "" : "s"} currently marked Add, Trim, Exit or Rebalance. Keep it to three or fewer.</span>
+          </div>
+        </section>
+      )}
+
+      {state.holdings.length > 0 && (
+        <section className="mb-12">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div><div className="page-kicker">What you own</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Holdings</h2></div>
+            <div className="text-sm text-mut">Click a holding to review or edit it.</div>
+          </div>
+          <div className="divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+            {state.holdings.map((h) => {
+              const row = ps.rows.find((r) => r.id === h.id);
+              const drift = row?.driftPct ?? null;
+              return (
+                <details key={h.id} className="group">
+                  <summary className="grid cursor-pointer list-none gap-3 py-5 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+                    <div>
+                      <div className="flex items-center gap-3"><span className="text-[18px] font-bold">{h.ticker}</span><span className="badge bg-[#eeeae1] text-[#69736d]">{h.sleeve}</span></div>
+                      <p className="mt-1 text-sm text-mut">{roleCopy(h.sleeve)} · Thesis {h.thesisStatus ? h.thesisStatus.toLowerCase() : "not reviewed"}</p>
+                    </div>
+                    <div className="text-sm sm:text-right"><div className="font-semibold">{fmtUsd(row?.marketValue ?? null)}</div><div className="text-xs text-faint">{fmtPct(row?.weightPct ?? null)} of portfolio</div></div>
+                    <div className="flex items-center gap-2 text-sm font-semibold text-[#49695a]">Review <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></div>
+                  </summary>
+                  <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:p-7">
+                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                      <label className="field-label">Role in portfolio<select className="field mt-1.5" value={h.sleeve} onChange={(e) => patchHolding(h.id, { sleeve: e.target.value as Sleeve })}>{(["Core", "Income", "Satellite", "Cash"] as Sleeve[]).map((s) => <option key={s}>{s}</option>)}</select></label>
+                      <label className="field-label">Thesis status<select className="field mt-1.5" value={h.thesisStatus} onChange={(e) => patchHolding(h.id, { thesisStatus: e.target.value as ThesisStatus })}><option value="">Not reviewed</option>{THESIS_STATUSES.map((s) => <option key={s}>{s}</option>)}</select></label>
+                      <label className="field-label">Planned action<select className="field mt-1.5" value={h.action} onChange={(e) => patchHolding(h.id, { action: e.target.value as HoldingAction })}><option value="">No action set</option>{ACTIONS.map((a) => <option key={a}>{a}</option>)}</select></label>
+                      <label className="field-label">Payout quality<select className="field mt-1.5" value={h.payoutGrade} onChange={(e) => patchHolding(h.id, { payoutGrade: e.target.value as Grade })}><option value="">Not graded</option>{GRADES.map((g) => <option key={g}>{g}</option>)}</select></label>
+                      <label className="field-label">Shares<input className="field mt-1.5" inputMode="decimal" value={h.shares ?? ""} onChange={(e) => patchHolding(h.id, { shares: numOrNull(e.target.value) })} /></label>
+                      <label className="field-label">Price ($)<input className="field mt-1.5" inputMode="decimal" title={h.priceAsOf ?? undefined} value={h.price ?? ""} onChange={(e) => patchHolding(h.id, { price: numOrNull(e.target.value), priceAsOf: null })} /></label>
+                      <label className="field-label">Target weight (%)<input className="field mt-1.5" inputMode="decimal" value={h.targetWeightPct ?? ""} onChange={(e) => patchHolding(h.id, { targetWeightPct: numOrNull(e.target.value) })} /></label>
+                      <label className="field-label">Annual distribution / share ($)<input className="field mt-1.5" inputMode="decimal" value={h.annualDistPerShare ?? ""} onChange={(e) => patchHolding(h.id, { annualDistPerShare: numOrNull(e.target.value) })} /></label>
+                    </div>
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                      <label className="field-label">Why do you own it?<textarea className="field mt-1.5 min-h-24" value={h.notes} onChange={(e) => patchHolding(h.id, { notes: e.target.value })} placeholder="One or two plain-English sentences." /></label>
+                      <label className="field-label">Income / balance-sheet note<textarea className="field mt-1.5 min-h-24" value={h.coverageNote} onChange={(e) => patchHolding(h.id, { coverageNote: e.target.value })} placeholder="Only when income quality matters." /></label>
+                    </div>
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#ddd6ca] pt-5">
+                      <div className="text-sm text-mut">Weight {fmtPct(row?.weightPct ?? null)} · Target {fmtPct(h.targetWeightPct)} · Drift {drift === null ? "—" : `${drift >= 0 ? "+" : "−"}${Math.abs(drift).toFixed(1)}%`}</div>
+                      <button type="button" className="btn-danger" onClick={() => removeHolding(h.id)}>Remove {h.ticker}</button>
+                    </div>
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+          {ps.unpricedTickers.length > 0 && <p className="mt-4 text-sm text-mut">Missing a usable price or share count: {ps.unpricedTickers.join(", ")}.</p>}
+        </section>
+      )}
+
+      <section id="add-holding" className="border-t border-[#d7d0c4] pt-10">
+        <details open={state.holdings.length === 0}>
+          <summary className="cursor-pointer list-none">
+            <div className="flex items-center justify-between gap-4">
+              <div><div className="page-kicker">Add to the long-term list</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Add a holding</h2><p className="mt-2 text-sm text-mut">Start with the basics. The extra income and ETF fields can be left blank until they matter.</p></div>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ebe7dc] text-[#49695a]"><Plus size={18} /></span>
+            </div>
+          </summary>
+          <div className="mt-7 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:p-8">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <label className="field-label">Ticker<input className="field mt-1.5" value={add.ticker} onChange={(e) => setAdd({ ...add, ticker: e.target.value })} placeholder="e.g. VUSA" /></label>
+              <label className="field-label">What is it?<select className="field mt-1.5" value={add.type} onChange={(e) => setAdd({ ...add, type: e.target.value as Holding["type"] })}>{(["Stock", "ETF", "Fund", "Bond", "Cash", "Other"] as const).map((t) => <option key={t}>{t}</option>)}</select></label>
+              <label className="field-label">Role in portfolio<select className="field mt-1.5" value={add.sleeve} onChange={(e) => setAdd({ ...add, sleeve: e.target.value as Sleeve })}>{(["Core", "Income", "Satellite", "Cash"] as Sleeve[]).map((s) => <option key={s}>{s}</option>)}</select></label>
+              <label className="field-label">Shares<input className="field mt-1.5" inputMode="decimal" value={add.shares} onChange={(e) => setAdd({ ...add, shares: e.target.value })} /></label>
+              <label className="field-label">Current price ($)<input className="field mt-1.5" inputMode="decimal" value={add.price} onChange={(e) => setAdd({ ...add, price: e.target.value })} /></label>
+              <label className="field-label">Cost basis / share ($)<input className="field mt-1.5" inputMode="decimal" value={add.costBasis} onChange={(e) => setAdd({ ...add, costBasis: e.target.value })} /></label>
+              <label className="field-label">Target weight (%)<input className="field mt-1.5" inputMode="decimal" value={add.targetWeightPct} onChange={(e) => setAdd({ ...add, targetWeightPct: e.target.value })} /></label>
+              <label className="field-label">Annual distribution / share ($)<input className="field mt-1.5" inputMode="decimal" value={add.annualDistPerShare} onChange={(e) => setAdd({ ...add, annualDistPerShare: e.target.value })} /></label>
+            </div>
+            <details className="mt-5">
+              <summary className="cursor-pointer text-sm font-semibold text-[#49695a]">Optional ETF and income fields</summary>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <label className="field-label">Expense ratio (%)<input className="field mt-1.5" inputMode="decimal" value={add.expenseRatioPct} onChange={(e) => setAdd({ ...add, expenseRatioPct: e.target.value })} /></label>
+                <label className="field-label">Yield (%)<input className="field mt-1.5" inputMode="decimal" value={add.yieldPct} onChange={(e) => setAdd({ ...add, yieldPct: e.target.value })} /></label>
+                <label className="field-label">Benchmark<input className="field mt-1.5" value={add.benchmark} onChange={(e) => setAdd({ ...add, benchmark: e.target.value })} placeholder="e.g. S&P 500" /></label>
+              </div>
+            </details>
+            <button type="button" className="btn-primary mt-6" onClick={addHolding}>Add holding <Plus size={15} /></button>
+          </div>
+        </details>
+      </section>
     </div>
   );
 }

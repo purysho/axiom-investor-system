@@ -1,191 +1,112 @@
 "use client";
 
 import Link from "next/link";
-import { Panel } from "@/components/chrome";
-import { DAILY_BLOCKS } from "@/lib/engine/types";
+import {
+  ArrowRight, BookOpen, Check, ChevronDown, CircleHelp, Gauge, HeartPulse,
+  Lightbulb, NotebookPen, PieChart, ShieldCheck, Sparkles,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-const SECTIONS = [
-  { id: "principles", label: "Operating principles" },
-  { id: "gate", label: "The risk gate" },
-  { id: "daily", label: "Daily 15-minute check" },
-  { id: "weekly", label: "Weekly portfolio review" },
-  { id: "sizing", label: "Sizing & risk math" },
-  { id: "debrief", label: "Closed-trade debrief" },
-  { id: "monthly", label: "Monthly review" },
-  { id: "evidence", label: "Evidence base" },
+const LESSONS: Array<{
+  id: string;
+  number: string;
+  title: string;
+  question: string;
+  Icon: LucideIcon;
+  summary: string;
+  body: React.ReactNode;
+  href?: string;
+  cta?: string;
+}> = [
+  {
+    id: "method", number: "01", title: "The AXIOM method", question: "What am I actually trying to do?", Icon: Sparkles,
+    summary: "Build a repeatable investing routine that separates long-term compounding from measured swing risk.",
+    body: <><p>AXIOM is built around a simple order: <strong>check risk, look after what you already own, review new ideas only when risk is allowed, record the decision, then learn from the outcome.</strong></p><p>Your long-term portfolio and swing trading are not one undifferentiated pot of decisions. Long-term holdings have roles, theses and benchmarks. Swing trades have planned risk, an invalidation and a journal record.</p><p>A profitable rule violation is still poor process. A losing trade that followed the plan can still be good process. That separation is how the journal becomes useful instead of emotional.</p></>,
+  },
+  {
+    id: "risk", number: "02", title: "The risk check", question: "Why check risk before looking for trades?", Icon: ShieldCheck,
+    summary: "Because the easiest time to rationalise risk is after you have already found a stock you want to trade.",
+    body: <><p>The risk check deliberately comes before trade ideas. It asks six questions about the broad market trend, volatility, financial conditions, your own drawdown, your current swing-risk budget and unaccepted event risk.</p><p>The result is permission, not prediction. <strong>Risk allowed</strong> means you may review ideas under your normal rules. <strong>Reduced risk</strong> means smaller size or standing aside. <strong>No new swings</strong> means manage what you already own.</p><p>Unknown information is not treated as good news. An unresolved check stays unresolved until the fact is known.</p></>, href: "/gate", cta: "Open the risk check",
+  },
+  {
+    id: "daily", number: "03", title: "The 15-minute daily check", question: "What should I look at every day?", Icon: HeartPulse,
+    summary: "Only facts that can change today's permitted action or require attention in something you already own.",
+    body: <><p>The daily check is five questions: are risk conditions understood; has the broad market picture materially changed; is there a known event that affects an existing risk; does anything you own need attention; and are you allowed to review new swing ideas?</p><p>This is <strong>exception detection, not research</strong>. If nothing changed, “looks normal” is the correct answer. The check ends with one sentence: “Today's permitted action is ___ because ___.”</p><p>Once the sentence is saved, no further market browsing is required unless a real exception appears.</p></>, href: "/daily", cta: "Do today's check",
+  },
+  {
+    id: "portfolio", number: "04", title: "The weekly portfolio review", question: "How do I stop reacting to every price move?", Icon: PieChart,
+    summary: "Review long-term holdings on a schedule and ask whether the reason for owning them has actually changed.",
+    body: <><p>Once a week, make sure the holdings list is accurate. Then ask why each holding is still in the portfolio, whether its role and thesis remain intact, and whether concentration or income quality need attention.</p><p>For dividend holdings, yield is not a quality grade. Review coverage, balance-sheet resilience and the distribution trend. For ETFs, review the mandate, index fit, cost, concentration and overlap.</p><p>Finish with no more than three actions. <strong>Hold is a decision. No action is valid.</strong></p></>, href: "/portfolio", cta: "Review my portfolio",
+  },
+  {
+    id: "sizing", number: "05", title: "Position sizing", question: "How much should I trade?", Icon: Gauge,
+    summary: "Start with the loss you are prepared to accept if the planned stop is reached, then work backwards to shares.",
+    body: <><p>One R is your planned loss budget for a trade. If the portfolio is $100,000 and risk per trade is 0.5%, one R is $500.</p><p>Suppose the entry is $50 and the initial stop is $47.50. The planned risk is $2.50 per share. A $500 risk budget divided by $2.50 gives 200 shares, before any single-position cap is applied.</p><p><strong>Planned risk is not a guaranteed maximum loss.</strong> A price can gap through a stop, execution can slip, and leveraged or short positions carry additional liabilities.</p></>, href: "/gate", cta: "Use the sizing calculator",
+  },
+  {
+    id: "journal", number: "06", title: "The trade journal", question: "What should I learn from a closed trade?", Icon: NotebookPen,
+    summary: "Compare the process with the outcome before allowing profit or loss to tell you the story.",
+    body: <><p>Every closed trade is classified in two dimensions. Did the trade make or lose money? And did you follow the plan?</p><p><strong>Good process + good outcome</strong> is a skilled win. <strong>Good process + bad outcome</strong> is a valid loss. <strong>Poor process + good outcome</strong> is a lucky win. <strong>Poor process + bad outcome</strong> is a process loss.</p><p>The most dangerous category can be the lucky win because it rewards behaviour you do not want to repeat. Finish every closed trade with one testable lesson rather than a long diary entry.</p></>, href: "/journal", cta: "Open my journal",
+  },
+  {
+    id: "monthly", number: "07", title: "The monthly review", question: "When should I change a rule?", Icon: BookOpen,
+    summary: "After comparing results, explaining the gap and finding a repeated process problem—not immediately after one painful trade.",
+    body: <><p>The monthly review has four steps. First, compare your approximate return with an appropriate benchmark. Second, explain the gap in ordinary language: allocation, selection, cash, concentration, trading, costs or tax.</p><p>Third, inspect the journal for repeated process problems. Fourth, decide whether one material rule deserves a controlled change. Write the old rule, the evidence and sample size, the exact new rule, the expected behaviour change and a review date.</p><p>Most months may need no rule change. Reducing risk for safety can happen immediately; loosening a rule to make a current trade fit should not.</p></>, href: "/monthly", cta: "Start monthly review",
+  },
 ];
 
 export default function GuidesPage() {
   return (
-    <div className="grid gap-3">
-      <Panel eyebrow="The methodology, in the tool" title="System guides">
-        <p className="text-xs leading-relaxed text-mut">
-          Everything the app enforces is written down here, so the site stands alone. Each loop has one primary
-          question; if a page ever seems to disagree with a guide, the guide wins and the discrepancy is a bug.
-        </p>
-        <nav aria-label="Guide sections" className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-          {SECTIONS.map((s) => (
-            <a key={s.id} href={`#${s.id}`} className="font-mono text-[11px] text-mut underline decoration-line hover:text-ink hover:decoration-[var(--gate)]">
-              {s.label}
-            </a>
+    <div>
+      <section className="mb-12 rounded-[26px] bg-[#e7eee8] p-6 sm:p-9">
+        <Lightbulb size={25} className="text-[#456555]" />
+        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Learn the routine in the order you will use it.</h2>
+        <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">You do not need to become a market technician before using AXIOM. Read one lesson, use the related page, and let the repetition teach the method.</p>
+      </section>
+
+      <section className="mb-12">
+        <div className="page-kicker">A good first week</div>
+        <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Start with these three things</h2>
+        <div className="mt-6 grid gap-7 md:grid-cols-3">
+          {[
+            ["1", "Understand the order", "Read The AXIOM method and The risk check. Do not start with chart indicators."],
+            ["2", "Repeat the daily check", "Use the five questions for several days. Learn what 'nothing changed' feels like."],
+            ["3", "Review one real decision", "Use a closed trade or existing holding to practise process-first reflection."],
+          ].map(([n, title, text]) => <div key={n} className="border-t border-[#cfc8bc] pt-5"><div className="text-sm font-bold text-[#a16b4c]">{n}</div><h3 className="mt-3 font-display text-2xl font-semibold tracking-[-0.025em]">{title}</h3><p className="mt-2 text-sm leading-relaxed text-mut">{text}</p></div>)}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-5"><div className="page-kicker">The method</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Seven short lessons</h2><p className="mt-2 text-sm text-mut">Open only the lesson you need. The technical detail stays inside the lesson instead of crowding the rest of the site.</p></div>
+        <div className="divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+          {LESSONS.map((lesson) => (
+            <details key={lesson.id} id={lesson.id} className="group scroll-mt-28">
+              <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[48px_1fr_auto] sm:items-start">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#ebe7dc] text-[#49695a]"><lesson.Icon size={19} /></span>
+                <div><div className="text-xs font-bold text-[#a16b4c]">{lesson.number}</div><h3 className="mt-1 font-display text-[1.75rem] font-semibold leading-tight tracking-[-0.03em]">{lesson.title}</h3><p className="mt-1 text-[15px] font-semibold text-[#5f6c65]">{lesson.question}</p><p className="mt-2 max-w-2xl text-sm leading-relaxed text-mut">{lesson.summary}</p></div>
+                <span className="flex items-center gap-1 text-sm font-semibold text-[#49695a]">Read <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></span>
+              </summary>
+              <div className="mb-7 ml-0 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:ml-16 sm:p-8">
+                <div className="max-w-3xl space-y-4 text-[15px] leading-relaxed text-mut [&_strong]:font-semibold [&_strong]:text-ink">{lesson.body}</div>
+                {lesson.href && <Link href={lesson.href} className="btn-primary mt-7">{lesson.cta} <ArrowRight size={15} /></Link>}
+              </div>
+            </details>
           ))}
-        </nav>
-      </Panel>
-
-      <Panel eyebrow="Why this exists" title="Operating principles">
-        <div id="principles" className="grid gap-2 text-xs leading-relaxed text-mut">
-          <p>
-            <span className="font-mono text-ink">Risk permission precedes candidate discovery.</span> You never ask
-            &ldquo;what looks good?&rdquo; before asking &ldquo;am I allowed to take risk today?&rdquo;. The gate answers the second
-            question; only then does the first become legal.
-          </p>
-          <p>
-            <span className="font-mono text-ink">The core compounds; the satellite is measured.</span> Long-term
-            holdings track a benchmark and are reviewed weekly for role and thesis, not price wiggles. Active
-            risk lives in a separate, capped sleeve whose every trade becomes a data point.
-          </p>
-          <p>
-            <span className="font-mono text-ink">Process over outcome.</span> A profitable rule violation is still a
-            process failure; a losing trade that followed the plan is a process success. Rules change on
-            repeated patterns at the monthly review — never after one painful trade, never intraday. Safety
-            reductions are the one exception: cutting risk can always happen immediately.
-          </p>
-          <p>
-            <span className="font-mono text-ink">Honesty about data and limits.</span> Figures are delayed and
-            free-tier; unknown inputs count as failed checks, not as passes. Planned stop risk is not a
-            guaranteed maximum loss. Nothing here is individualized investment advice.
-          </p>
         </div>
-      </Panel>
+      </section>
 
-      <Panel eyebrow="Six checks, three states" title="The risk gate">
-        <div id="gate" className="grid gap-2 text-xs leading-relaxed text-mut">
-          <p>
-            The gate asks whether conditions and your own account justify new active risk. Six checks, each pass
-            or fail: the benchmark closes above its 200-day moving average; VIX is at or below 25; the Chicago
-            Fed&apos;s NFCI is at or below +0.50 (positive means tighter financial conditions); your account drawdown
-            from its high-water mark is no worse than −10%; open planned swing risk is at or below 2% of the
-            portfolio; and there is no unaccepted binary-event risk (earnings, decisions, rulings) hanging over a
-            planned trade.
-          </p>
-          <p>
-            <span style={{ color: "#2FBF8F" }}>Zero fails → RISK ALLOWED.</span>{" "}
-            <span style={{ color: "#E7A83E" }}>One fail → REDUCED RISK ONLY</span> — smaller size, and the exception
-            documented. <span style={{ color: "#E5484D" }}>Two or more → NO NEW SWINGS</span> — manage existing
-            positions only; the candidates block on the daily page physically locks. Unknown or stale inputs are
-            counted as fails until real data arrives. The thresholds are governance defaults reviewed monthly —
-            useful lines in the sand, not proven forecasting signals.
-          </p>
-        </div>
-      </Panel>
+      <section className="mt-12 border-t border-[#d7d0c4] pt-10">
+        <details>
+          <summary className="cursor-pointer list-none">
+            <div className="flex items-center justify-between gap-4"><div><div className="page-kicker">For the curious</div><h2 className="mt-1 font-display text-[1.9rem] font-semibold tracking-[-0.03em]">Why AXIOM is benchmark-first</h2><p className="mt-2 text-sm text-mut">The evidence that shaped the system's bias toward a benchmark-aware core and a separately measured active sleeve.</p></div><ChevronDown size={20} className="shrink-0 text-faint" /></div>
+          </summary>
+          <div className="mt-7 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:p-8">
+            <div className="flex items-start gap-4"><CircleHelp size={20} className="mt-1 shrink-0 text-[#a16b4c]" /><div className="max-w-3xl space-y-4 text-sm leading-relaxed text-mut"><p>The evidence pack bundled with the original system uses SPIVA large-cap observations from 2001–2025. In that series, actively managed large-cap funds underperformed the S&amp;P 500 in an average of 65.04% of the annual observations, and a majority underperformed in 22 of 25 calendar years.</p><p>That does not prove an individual swing method cannot add value. It does place the burden of proof on active decisions. AXIOM therefore keeps the long-term core benchmark-aware and treats swing trading as a capped, journalled experiment whose results must be measured separately.</p><p>The default risk thresholds are governance starting points, not statistically proven alpha signals. They should be reviewed against your own evidence and changed carefully.</p></div></div>
+          </div>
+        </details>
+      </section>
 
-      <Panel eyebrow="Exception detection, not research" title="Daily 15-minute check">
-        <div id="daily" className="grid gap-1.5 text-xs leading-relaxed text-mut">
-          <p>
-            Fifteen minutes, five timed blocks, one required output. This is a scan for exceptions, not a
-            miniature research day — if nothing demands action, the correct entry is &ldquo;no action.&rdquo;
-          </p>
-          <ol className="grid gap-1.5">
-            {DAILY_BLOCKS.map((b) => (
-              <li key={b.id}>
-                <span className="font-mono text-ink">{b.time} · {b.title}.</span> {b.objective}{" "}
-                <span className="text-faint">Rule: {b.rule}</span>
-              </li>
-            ))}
-          </ol>
-          <p>
-            The day ends by completing the sentence <span className="font-mono text-ink">&ldquo;Today&apos;s permitted action
-            is ___ because ___&rdquo;</span> — the single line the dashboard shows all day.
-          </p>
-        </div>
-      </Panel>
-
-      <Panel eyebrow="Role and thesis, not price wiggles" title="Weekly portfolio review">
-        <div id="weekly" className="grid gap-2 text-xs leading-relaxed text-mut">
-          <p>
-            Once a week, 30–60 minutes: reconcile holdings, values, weights, and forward income; check sleeve
-            drift (Core / Income / Satellite / Cash) and rebalance by rule; for each holding ask whether its role
-            and thesis are intact, its benchmark still appropriate, its concentration acceptable. Dividend
-            holdings get their annual dividend, coverage grade, balance-sheet grade, and dividend-trend grade
-            refreshed; ETFs get mandate, index fit, expense-ratio changes, distribution pattern, and overlap
-            checked.
-          </p>
-          <p>
-            Compare the portfolio against its benchmark and write down the reason for any gap — allocation,
-            selection, cash drag, costs, tax. Then commit to <span className="font-mono text-ink">at most three
-            actions</span> for the coming week. &ldquo;No action&rdquo; is a valid, often correct, answer. Yield alone is not
-            a quality score; forward income is an output, not a target to chase.
-          </p>
-        </div>
-      </Panel>
-
-      <Panel eyebrow="Size from risk, never from conviction" title="Sizing & risk math">
-        <div id="sizing" className="grid gap-2 text-xs leading-relaxed text-mut">
-          <p>
-            One R is the dollars you plan to lose if the initial stop is hit: portfolio value × risk-per-trade
-            (default 0.5%). Shares = R ÷ (entry − stop), then capped so no single name exceeds the notional cap
-            (default 20% of equity). Worked example: $100,000 at 0.5% is a $500 budget; entry $50, stop $47.50 is
-            $2.50 of risk per share → 200 shares, $10,000 position.
-          </p>
-          <p>
-            Two caps sit above every trade: per-name notional, and total portfolio heat — the sum of all open
-            planned risk — at roughly 6%. And one liability is written on the calculator itself: a stop order
-            does not guarantee the stop price. A gap through $47.50 to $44 turns the planned $500 loss into
-            roughly $1,200. Cash-funded long trades are the default assumption; margin, shorts, and complex
-            products need their own playbooks and smaller budgets.
-          </p>
-        </div>
-      </Panel>
-
-      <Panel eyebrow="Within 24 hours of exit" title="Closed-trade debrief">
-        <div id="debrief" className="grid gap-2 text-xs leading-relaxed text-mut">
-          <p>
-            Every closed trade becomes a comparable data point or it was wasted tuition. Record exit price, fees,
-            exit date, MFE/MAE if tracked, the exit reason (Target, Stop, Trail, Time Stop, Thesis Break,
-            Manual, Event Risk), whether the plan was followed, one primary mistake tag, and{" "}
-            <span className="font-mono text-ink">one falsifiable lesson</span> — a sentence a future trade could
-            prove wrong.
-          </p>
-          <p>
-            Tags like moved-stop, fomo-entry, cut-winner-early, let-loser-run, revenge-trade, oversized, and
-            chasing are counted as behavioral leaks across the ledger. A repeated leak is what earns a rule
-            change at the monthly review — a single occurrence earns only a note.
-          </p>
-        </div>
-      </Panel>
-
-      <Panel eyebrow="Compare · attribute · diagnose · change one rule" title="Monthly review">
-        <div id="monthly" className="grid gap-2 text-xs leading-relaxed text-mut">
-          <p>
-            Sixty to ninety minutes at month-end. First compare: compute the flow-adjusted return
-            ((end − start − net contributions) ÷ (start + net contributions), a deliberate simple approximation)
-            and the gap to the benchmark. Second attribute: explain that gap in words — allocation, selection,
-            cash drag, concentration, trading, costs, tax. Third diagnose process: swing expectancy, win rate,
-            profit factor, adherence, largest loss in R, mistake-tag frequency.
-          </p>
-          <p>
-            Finally, change <span className="font-mono text-ink">at most one material rule</span>, written as: old
-            rule → evidence and sample size → exact new rule → expected behavior change → review date. Reducing
-            risk is always a valid performance decision and never needs to wait for month-end.
-          </p>
-        </div>
-      </Panel>
-
-      <Panel eyebrow="Why benchmark-first" title="Evidence base">
-        <div id="evidence" className="grid gap-2 text-xs leading-relaxed text-mut">
-          <p>
-            In the SPIVA large-cap snapshot bundled with this system (2001–2025), actively managed funds
-            underperformed the S&amp;P 500 in an average of 65.04% of observations, and a majority underperformed
-            in 22 of 25 calendar years. That asymmetry is the reason the core sleeve tracks a benchmark and
-            active risk is a separate, gated, measured experiment — the burden of proof sits on the active
-            sleeve, and the journal is where it testifies.
-          </p>
-          <p className="text-faint">
-            Sources and thresholds live with your data and are reviewed monthly on the{" "}
-            <Link href="/gate" className="underline decoration-line hover:decoration-[var(--gate)]">gate page</Link>.
-          </p>
-        </div>
-      </Panel>
+      <div className="mt-12 flex items-start gap-4 border-t border-[#d9d2c6] pt-7"><Check size={20} className="mt-1 shrink-0 text-[#49695a]" /><div><div className="font-semibold">You do not need to finish the Learn section before using AXIOM.</div><p className="mt-1 text-sm leading-relaxed text-mut">The intended learning loop is read a little, use the routine, record a real decision, then return with a better question.</p></div></div>
     </div>
   );
 }

@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import {
+  ArrowRight, Check, ChevronDown, Download, HardDrive, KeyRound, RotateCcw,
+  ShieldCheck, Sparkles, Upload, UserRound,
+} from "lucide-react";
 import { toast } from "@/components/toast";
-import { Panel, Stat, fmtUsd } from "@/components/chrome";
+import { fmtUsd } from "@/components/chrome";
 import { demoState, exportBackup, importBackup } from "@/lib/backup";
 import { downloadText } from "@/lib/csv";
 import { replaceState, resetState, update, useAppState } from "@/lib/store";
@@ -13,168 +18,136 @@ export default function SettingsPage() {
   const [confirmReset, setConfirmReset] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const setSetting = (patch: Partial<typeof s>) =>
-    update((prev) => ({ ...prev, settings: { ...prev.settings, ...patch } }));
-
-  const num = (v: string, fallback: number) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : fallback;
-  };
-
-  const counts = {
-    trades: state.trades.length,
-    holdings: state.holdings.length,
-    watch: state.watchRules.length,
-    months: state.monthly.length,
-    days: Object.keys(state.dailyChecks).length,
-  };
-  const hasData =
-    counts.trades + counts.holdings + counts.watch + counts.months + counts.days > 0;
+  const setSetting = (patch: Partial<typeof s>) => update((prev) => ({ ...prev, settings: { ...prev.settings, ...patch } }));
+  const num = (v: string, fallback: number) => { const n = Number(v); return Number.isFinite(n) ? n : fallback; };
+  const counts = { trades: state.trades.length, holdings: state.holdings.length, watch: state.watchRules.length, months: state.monthly.length, days: Object.keys(state.dailyChecks).length };
+  const hasData = counts.trades + counts.holdings + counts.watch + counts.months + counts.days > 0;
+  const oneR = (s.portfolioValue * s.riskPerTradePct) / 100;
 
   const doExport = () => {
     const stamp = new Date().toISOString().slice(0, 10);
     downloadText(`axiom-backup-${stamp}.json`, exportBackup(state));
     toast("Backup downloaded.");
   };
-
   const onImport = async (file: File) => {
     const restored = importBackup(await file.text());
-    if (!restored) {
-      toast('File not recognised — no changes made.', 'error'); return;
-      return;
-    }
+    if (!restored) { toast("File not recognised — no changes made.", "error"); return; }
     replaceState(restored);
-    toast('Backup restored.');
+    toast("Backup restored.");
   };
-
-  const loadDemo = () => {
-    replaceState(demoState());
-    toast('Demo data loaded.');
-  };
-
+  const loadDemo = () => { replaceState(demoState()); toast("Example data loaded."); };
   const doReset = () => {
-    if (!confirmReset) {
-      setConfirmReset(true);
-      return;
-    }
-    resetState();
-    setConfirmReset(false);
-    toast('All data cleared.');
+    if (!confirmReset) { setConfirmReset(true); return; }
+    resetState(); setConfirmReset(false); toast("All data cleared.");
   };
 
   return (
-    <div className="grid gap-3">
-      <Panel eyebrow="One place for the numbers every surface reads from" title="Profile">
-        <div className="grid gap-2 sm:grid-cols-3">
-          <label className="grid gap-1 text-xs text-mut">
-            Portfolio value ($)
-            <input className="field" inputMode="decimal" value={s.portfolioValue} onChange={(e) => setSetting({ portfolioValue: num(e.target.value, s.portfolioValue) })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Benchmark name
-            <input className="field" value={s.benchmarkName} onChange={(e) => setSetting({ benchmarkName: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Benchmark symbol (Stooq, e.g. spy.us)
-            <input className="field" value={s.benchmarkSymbol} onChange={(e) => setSetting({ benchmarkSymbol: e.target.value })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Risk per trade (%)
-            <input className="field" inputMode="decimal" value={s.riskPerTradePct} onChange={(e) => setSetting({ riskPerTradePct: num(e.target.value, s.riskPerTradePct) })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Single-name cap (%)
-            <input className="field" inputMode="decimal" value={s.notionalCapPct} onChange={(e) => setSetting({ notionalCapPct: num(e.target.value, s.notionalCapPct) })} />
-          </label>
-          <label className="grid gap-1 text-xs text-mut">
-            Portfolio heat cap (%)
-            <input className="field" inputMode="decimal" value={s.heatCapPct} onChange={(e) => setSetting({ heatCapPct: num(e.target.value, s.heatCapPct) })} />
-          </label>
-        </div>
-        <p className="mt-2 text-[11px] text-faint">
-          Gate thresholds live on the <a className="underline decoration-line hover:decoration-[var(--gate)]" href="/gate">risk gate</a> page,
-          next to the checks they govern. Review them monthly, never intraday.
-        </p>
-      </Panel>
+    <div>
+      <section className="mb-10 rounded-[26px] bg-[#e7eee8] p-6 sm:p-9">
+        <ShieldCheck size={25} className="text-[#456555]" />
+        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Set the few rules AXIOM needs to guide you.</h2>
+        <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">You can start with the defaults. The important thing is to use one consistent set of limits instead of changing risk because a trade feels exciting.</p>
+      </section>
 
-      <AccountPanel />
-
-      <Panel eyebrow="Belt and braces, even with sync on" title="Backup & restore">
-        <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
-          <Stat label="Trades" value={String(counts.trades)} />
-          <Stat label="Holdings" value={String(counts.holdings)} />
-          <Stat label="Watch rules" value={String(counts.watch)} />
-          <Stat label="Months" value={String(counts.months)} />
-          <Stat label="Daily checks" value={String(counts.days)} />
-        </div>
-        <p className="mb-2 text-xs leading-relaxed text-mut">
-          Signed-in accounts sync automatically across devices; offline mode keeps everything in this browser
-          only. Either way, export a backup regularly — the file is portable JSON you can restore anywhere this
-          app runs, and it&apos;s your recovery path if a device or the server is ever lost.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" className="btn-gate" onClick={doExport}>
-            Export backup (.json)
-          </button>
-          <button type="button" className="btn" onClick={() => fileRef.current?.click()}>
-            Restore from backup
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="application/json,.json"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) onImport(f);
-              e.target.value = "";
-            }}
-          />
-        </div>
-      </Panel>
-
-      <div className="grid gap-3 md:grid-cols-2">
-        <Panel eyebrow="See it populated" title="Demo data">
-          <p className="text-xs leading-relaxed text-mut">
-            Load a realistic sample — five swings including a rule-violation and tagged leaks, a five-sleeve
-            portfolio, a watchlist, and two closed months — so you can walk every page before entering your own.
-            Loading demo data replaces whatever is here now.
-          </p>
-          <button type="button" className="btn mt-2" onClick={loadDemo}>
-            Load demo data
-          </button>
-        </Panel>
-
-        <Panel eyebrow="Start clean" title="Reset">
-          <p className="text-xs leading-relaxed text-mut">
-            Permanently clears every trade, holding, watch rule, daily check, and month in this browser. Export a
-            backup first if there&apos;s any chance you&apos;ll want it back.
-          </p>
-          <div className="mt-2 flex items-center gap-3">
-            <button
-              type="button"
-              className="border px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors"
-              style={{ borderColor: "#E5484D", color: "#E5484D", background: confirmReset ? "color-mix(in srgb, #E5484D 12%, transparent)" : undefined }}
-              onClick={doReset}
-              disabled={!hasData && !confirmReset}
-            >
-              {confirmReset ? "Click again to confirm" : "Reset all data"}
-            </button>
-            {confirmReset && (
-              <button type="button" className="btn" onClick={() => setConfirmReset(false)}>
-                Cancel
-              </button>
-            )}
+      <section className="mb-12">
+        <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
+          <div>
+            <div className="page-kicker">Step 1</div>
+            <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Tell AXIOM what portfolio it is protecting</h2>
+            <p className="mt-3 text-sm leading-relaxed text-mut">The portfolio value is used to turn percentages into dollar risk. The benchmark gives your long-term results a sensible comparison point.</p>
           </div>
-        </Panel>
-      </div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="field-label">Approximate portfolio value ($)<input className="field mt-1.5" inputMode="decimal" value={s.portfolioValue} onChange={(e) => setSetting({ portfolioValue: num(e.target.value, s.portfolioValue) })} /></label>
+            <label className="field-label">Long-term benchmark<input className="field mt-1.5" value={s.benchmarkName} onChange={(e) => setSetting({ benchmarkName: e.target.value })} placeholder="e.g. S&P 500" /></label>
+            <label className="field-label sm:col-span-2">Market-data symbol for that benchmark <span className="font-normal text-faint">(advanced, usually leave the default)</span><input className="field mt-1.5" value={s.benchmarkSymbol} onChange={(e) => setSetting({ benchmarkSymbol: e.target.value })} placeholder="e.g. spy.us" /></label>
+          </div>
+        </div>
+      </section>
 
-      <Panel eyebrow="Reference" title="Current profile at a glance">
-        <p className="font-mono text-xs text-mut">
-          {fmtUsd(s.portfolioValue)} · {s.riskPerTradePct}% risk/trade ({fmtUsd((s.portfolioValue * s.riskPerTradePct) / 100)} = 1R) ·
-          single-name cap {s.notionalCapPct}% · heat cap {s.heatCapPct}% · benchmark {s.benchmarkName} ({s.benchmarkSymbol})
-        </p>
-      </Panel>
+      <section className="mb-12 border-t border-[#d7d0c4] pt-10">
+        <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
+          <div>
+            <div className="page-kicker">Step 2</div>
+            <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Choose the planned risk for one swing trade</h2>
+            <p className="mt-3 text-sm leading-relaxed text-mut">AXIOM calls this 1R. It is the dollar loss you plan around if the initial stop is reached. It is not a guaranteed maximum loss.</p>
+          </div>
+          <div>
+            <label className="field-label max-w-sm">Risk per trade (%)<input className="field mt-1.5" inputMode="decimal" value={s.riskPerTradePct} onChange={(e) => setSetting({ riskPerTradePct: num(e.target.value, s.riskPerTradePct) })} /></label>
+            <div className="mt-5 rounded-[20px] bg-[#ebe7dc] p-5">
+              <div className="text-sm font-semibold text-[#5e6b64]">With your current portfolio value</div>
+              <div className="mt-2 font-display text-[2.5rem] font-semibold tracking-[-0.04em]">1R = {fmtUsd(oneR)}</div>
+              <p className="mt-2 text-sm leading-relaxed text-mut">A trade with an initial stop should be sized so the planned stop loss is around this amount before the single-position cap is applied.</p>
+              <Link href="/gate" className="quiet-link mt-4">Try the position-size calculator <ArrowRight size={14} /></Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-12 border-t border-[#d7d0c4] pt-10">
+        <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
+          <div>
+            <div className="page-kicker">Step 3</div>
+            <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Put a ceiling on concentration</h2>
+            <p className="mt-3 text-sm leading-relaxed text-mut">These caps stop a strong opinion from quietly turning into one oversized position or too much total swing exposure.</p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="field-label">Maximum single position (% of portfolio)<input className="field mt-1.5" inputMode="decimal" value={s.notionalCapPct} onChange={(e) => setSetting({ notionalCapPct: num(e.target.value, s.notionalCapPct) })} /></label>
+            <label className="field-label">Maximum total swing heat (% of portfolio)<input className="field mt-1.5" inputMode="decimal" value={s.heatCapPct} onChange={(e) => setSetting({ heatCapPct: num(e.target.value, s.heatCapPct) })} /></label>
+            <p className="sm:col-span-2 text-sm leading-relaxed text-mut">The stricter daily risk-permission threshold is managed on the <Link href="/gate" className="quiet-link">risk check</Link>, next to the conditions it governs. Review limits monthly rather than during a trade.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-12 rounded-[24px] bg-[#fffdf8]/76 p-6 sm:p-8">
+        <div className="flex items-start gap-4">
+          <Check size={21} className="mt-1 shrink-0 text-[#49695a]" />
+          <div>
+            <div className="font-semibold">Your current starting rules</div>
+            <p className="mt-2 max-w-3xl text-[16px] leading-relaxed text-mut">AXIOM is protecting a portfolio of about <strong className="text-ink">{fmtUsd(s.portfolioValue)}</strong>. One planned trade risk is <strong className="text-ink">{s.riskPerTradePct}% ({fmtUsd(oneR)})</strong>. A single position is capped at <strong className="text-ink">{s.notionalCapPct}%</strong>, and total swing heat is capped at <strong className="text-ink">{s.heatCapPct}%</strong>. Your long-term comparison is <strong className="text-ink">{s.benchmarkName}</strong>.</p>
+            <Link href="/" className="btn-primary mt-6">Go to Today <ArrowRight size={15} /></Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-[#d7d0c4] pt-10">
+        <div className="page-kicker">Account and data</div>
+        <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">The practical stuff</h2>
+        <p className="mt-2 max-w-2xl text-sm text-mut">Account, backup and test-data controls live here so they do not interrupt the investing routine.</p>
+
+        <div className="mt-7 divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+          <AccountPanel />
+
+          <details className="group">
+            <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ebe7dc] text-[#49695a]"><HardDrive size={18} /></span>
+              <div><div className="text-[17px] font-semibold">Backup and restore</div><p className="mt-1 text-sm text-mut">Keep a portable copy of your holdings, journal, reviews and settings.</p></div>
+              <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:ml-14 sm:p-7">
+              <p className="text-sm leading-relaxed text-mut">Your backup contains {counts.holdings} holding{counts.holdings === 1 ? "" : "s"}, {counts.trades} trade{counts.trades === 1 ? "" : "s"}, {counts.watch} idea rule{counts.watch === 1 ? "" : "s"}, {counts.days} daily check{counts.days === 1 ? "" : "s"}, and {counts.months} monthly review{counts.months === 1 ? "" : "s"}.</p>
+              <div className="mt-5 flex flex-wrap gap-3"><button type="button" className="btn" onClick={doExport}><Download size={15} />Download backup</button><button type="button" className="btn" onClick={() => fileRef.current?.click()}><Upload size={15} />Restore backup</button><input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void onImport(f); e.target.value = ""; }} /></div>
+            </div>
+          </details>
+
+          <details className="group">
+            <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ebe7dc] text-[#a16b4c]"><Sparkles size={18} /></span>
+              <div><div className="text-[17px] font-semibold">Example data</div><p className="mt-1 text-sm text-mut">See the full site filled with a realistic sample before entering your own information.</p></div>
+              <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:ml-14 sm:p-7"><p className="text-sm leading-relaxed text-mut">Loading example data replaces the current local state with sample holdings, swing trades, trade ideas, daily checks and monthly reviews.</p><button type="button" className="btn mt-5" onClick={loadDemo}>Load example data</button></div>
+          </details>
+
+          <details className="group">
+            <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f6e8e3] text-[#a45645]"><RotateCcw size={18} /></span>
+              <div><div className="text-[17px] font-semibold">Reset AXIOM</div><p className="mt-1 text-sm text-mut">Clear all holdings, trades, ideas, daily checks and monthly reviews from this browser.</p></div>
+              <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="mb-6 rounded-[20px] bg-[#fff8f5] p-5 sm:ml-14 sm:p-7"><p className="text-sm leading-relaxed text-mut">Download a backup first if there is any chance you will want the data again.</p><div className="mt-5 flex flex-wrap items-center gap-3"><button type="button" className="btn-danger" onClick={doReset} disabled={!hasData && !confirmReset}>{confirmReset ? "Click again to erase everything" : "Reset all data"}</button>{confirmReset && <button type="button" className="btn" onClick={() => setConfirmReset(false)}>Cancel</button>}</div></div>
+          </details>
+        </div>
+      </section>
     </div>
   );
 }
@@ -191,108 +164,38 @@ function AccountPanel() {
     void (async () => {
       try {
         const res = await fetch("/api/account");
-        if (res.status === 401) {
-          setOffline(true);
-          return;
-        }
+        if (res.status === 401) { setOffline(true); return; }
         if (!res.ok) throw new Error();
         const j = await res.json();
         setAccount({ username: j.username, displayName: j.displayName });
         setDn(j.displayName);
-      } catch {
-        setOffline(true);
-      }
+      } catch { setOffline(true); }
     })();
   }, []);
 
   const saveName = async () => {
     setMsg("");
-    const res = await fetch("/api/account", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ displayName: dn }),
-    }).catch(() => null);
-    setMsg(res?.ok ? "Display name saved." : "Couldn't save the display name.");
+    const res = await fetch("/api/account", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ displayName: dn }) }).catch(() => null);
+    setMsg(res?.ok ? "Display name saved." : "Could not save the display name.");
   };
-
   const changePass = async () => {
     setMsg("");
-    const res = await fetch("/api/account/password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ current: cur, next }),
-    }).catch(() => null);
-    if (res?.ok) {
-      setCur("");
-      setNext("");
-      setMsg("Passphrase changed.");
-    } else {
-      const j = res ? await res.json().catch(() => null) : null;
-      setMsg(j?.error ?? "Couldn't change the passphrase.");
-    }
+    const res = await fetch("/api/account/password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ current: cur, next }) }).catch(() => null);
+    if (res?.ok) { setCur(""); setNext(""); setMsg("Passphrase changed."); }
+    else { const j = res ? await res.json().catch(() => null) : null; setMsg(j?.error ?? "Could not change the passphrase."); }
   };
-
-  const signOut = async () => {
-    await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
-    window.location.href = "/login";
-  };
-
-  if (offline) {
-    return (
-      <Panel eyebrow="Offline mode" title="Account">
-        <p className="text-xs leading-relaxed text-mut">
-          You&apos;re running without an account — everything stays in this browser, and there&apos;s no cross-device
-          sync or group view.{" "}
-          <a href="/login" className="underline decoration-line hover:decoration-[var(--gate)]">
-            Sign in or join with an invite
-          </a>{" "}
-          to turn those on. Your local data will be adopted by the account on first sign-in.
-        </p>
-      </Panel>
-    );
-  }
+  const signOut = async () => { await fetch("/api/auth/logout", { method: "POST" }).catch(() => {}); window.location.href = "/login"; };
 
   return (
-    <Panel eyebrow={account ? `signed in as ${account.username}` : "loading…"} title="Account & sync">
-      {account && (
-        <div className="grid gap-3">
-          <div className="grid gap-2 sm:grid-cols-3">
-            <label className="grid gap-1 text-xs text-mut sm:col-span-2">
-              Display name (shown to the group)
-              <input className="field" value={dn} onChange={(e) => setDn(e.target.value)} />
-            </label>
-            <div className="flex items-end">
-              <button type="button" className="btn" onClick={() => void saveName()}>
-                Save name
-              </button>
-            </div>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-3">
-            <label className="grid gap-1 text-xs text-mut">
-              Current passphrase
-              <input className="field" type="password" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} />
-            </label>
-            <label className="grid gap-1 text-xs text-mut">
-              New passphrase (8+ chars)
-              <input className="field" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} />
-            </label>
-            <div className="flex items-end">
-              <button type="button" className="btn" onClick={() => void changePass()}>
-                Change passphrase
-              </button>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <button type="button" className="btn" onClick={() => void signOut()}>
-              Sign out
-            </button>
-            <span className="text-[11px] text-faint">
-              Signing out keeps this browser&apos;s local copy; it simply stops syncing until you sign back in.
-            </span>
-          </div>
-          {msg && <p className="font-mono text-[11px] text-mut" role="status">{msg}</p>}
-        </div>
-      )}
-    </Panel>
+    <details className="group">
+      <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ebe7dc] text-[#49695a]">{offline ? <UserRound size={18} /> : <KeyRound size={18} />}</span>
+        <div><div className="text-[17px] font-semibold">Account and sync</div><p className="mt-1 text-sm text-mut">{offline ? "This browser is currently keeping the AXIOM data locally." : account ? `Signed in as ${account.username}.` : "Checking account status…"}</p></div>
+        <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:ml-14 sm:p-7">
+        {offline ? <p className="text-sm leading-relaxed text-mut">You are using offline mode. Data stays in this browser and does not sync across devices. <a href="/login" className="quiet-link">Sign in or join with an invite</a> to enable account sync.</p> : account ? <div className="grid gap-5"><div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end"><label className="field-label">Display name<input className="field mt-1.5" value={dn} onChange={(e) => setDn(e.target.value)} /></label><button type="button" className="btn" onClick={() => void saveName()}>Save name</button></div><div className="grid gap-4 sm:grid-cols-2"><label className="field-label">Current passphrase<input className="field mt-1.5" type="password" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} /></label><label className="field-label">New passphrase<input className="field mt-1.5" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} /></label></div><div className="flex flex-wrap gap-3"><button type="button" className="btn" onClick={() => void changePass()}>Change passphrase</button><button type="button" className="btn" onClick={() => void signOut()}>Sign out</button></div>{msg && <p className="text-sm text-mut" role="status">{msg}</p>}</div> : <p className="text-sm text-mut">Checking your account…</p>}
+      </div>
+    </details>
   );
 }

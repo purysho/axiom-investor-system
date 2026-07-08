@@ -25,14 +25,14 @@ const POPULAR = [
 ];
 
 const ALL_INDICATORS = [
-  { key: "sma20",  label: "SMA 20",  color: "#3B6CB0" },
-  { key: "sma50",  label: "SMA 50",  color: "#9A6100" },
-  { key: "sma200", label: "SMA 200", color: "#C0252A" },
-  { key: "ema20",  label: "EMA 20",  color: "#7B3FC0" },
-  { key: "bb",     label: "Bollinger Bands", color: "#A99F96" },
-  { key: "volume", label: "Volume",  color: "#E5DDD3" },
-  { key: "rsi",    label: "RSI 14",  color: "#3B6CB0" },
-  { key: "macd",   label: "MACD",    color: "#1A6B47" },
+  { key: "sma20",  label: "SMA 20",  color: "#526D79" },
+  { key: "sma50",  label: "SMA 50",  color: "#A8732F" },
+  { key: "sma200", label: "SMA 200", color: "#A84D45" },
+  { key: "ema20",  label: "EMA 20",  color: "#8C6F87" },
+  { key: "bb",     label: "Bollinger Bands", color: "#979D96" },
+  { key: "volume", label: "Volume",  color: "#DED7CA" },
+  { key: "rsi",    label: "RSI 14",  color: "#526D79" },
+  { key: "macd",   label: "MACD",    color: "#2F6B52" },
 ] as const;
 
 interface Summary {
@@ -144,7 +144,7 @@ export default function ChartsPage() {
               <div className="text-xs text-faint font-semibold uppercase tracking-wide">{ticker}</div>
               <div className="text-3xl font-bold text-ink mt-0.5">${summary.close.toLocaleString()}</div>
             </div>
-            <div className={`flex items-center gap-1.5 text-lg font-semibold`} style={{ color: up ? "#1A6B47" : "#C0252A" }}>
+            <div className={`flex items-center gap-1.5 text-lg font-semibold`} style={{ color: up ? "#2F6B52" : "#A84D45" }}>
               {up ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
               {up ? "+" : "−"}{Math.abs(summary.chg).toFixed(2)} ({up ? "+" : "−"}{Math.abs(summary.chgPct).toFixed(2)}%)
             </div>
@@ -196,7 +196,7 @@ export default function ChartsPage() {
                   style={
                     indicators[key as keyof typeof indicators]
                       ? { background: color + "18", borderColor: color, color }
-                      : { borderColor: "#E5DDD3", color: "#A99F96" }
+                      : { borderColor: "#DED7CA", color: "#979D96" }
                   }
                 >
                   <span
@@ -217,7 +217,7 @@ export default function ChartsPage() {
           </div>
         ) : error ? (
           <div className="flex h-80 flex-col items-center justify-center gap-2">
-            <div className="text-sm" style={{ color: "#C0252A" }}>{error}</div>
+            <div className="text-sm" style={{ color: "#A84D45" }}>{error}</div>
             <p className="text-xs text-faint">Try a Stooq-format symbol: AAPL.US, XAUUSD, BTCUSD, VUSA.UK</p>
           </div>
         ) : candles.length === 0 ? (
@@ -245,10 +245,10 @@ export default function ChartsPage() {
       {mode === "pro" && candles.length > 0 && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
-            { label: "SMA 20", desc: "20-day average — short-term trend", color: "#3B6CB0" },
-            { label: "SMA 200", desc: "200-day average — long-term regime (gate check)", color: "#C0252A" },
-            { label: "RSI 14", desc: "Momentum — above 70 overbought, below 30 oversold", color: "#3B6CB0" },
-            { label: "MACD", desc: "12/26/9 — trend & momentum divergence", color: "#1A6B47" },
+            { label: "SMA 20", desc: "20-day average — short-term trend", color: "#526D79" },
+            { label: "SMA 200", desc: "200-day average — long-term regime (gate check)", color: "#A84D45" },
+            { label: "RSI 14", desc: "Momentum — above 70 overbought, below 30 oversold", color: "#526D79" },
+            { label: "MACD", desc: "12/26/9 — trend & momentum divergence", color: "#2F6B52" },
           ].map((item) => (
             <div key={item.label} className="panel p-4">
               <div className="flex items-center gap-2 mb-1.5">

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ArrowRight, Leaf, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -12,10 +13,7 @@ export default function LoginPage() {
   const submit = async () => {
     setBusy(true); setError("");
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, passphrase }),
-      });
+      const res = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, passphrase }) });
       const j = await res.json();
       if (!res.ok) { setError(j.error ?? "Sign-in failed."); setBusy(false); return; }
       window.location.href = "/";
@@ -28,52 +26,47 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        {/* Brand */}
-        <div className="text-center mb-8">
-          <div className="text-3xl font-bold text-ink mb-1">Axiom</div>
-          <div className="text-sm text-faint">Investor System</div>
-        </div>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:flex lg:items-stretch lg:p-5">
+      <div className="mx-auto grid w-full max-w-[1180px] overflow-hidden rounded-[30px] border border-line bg-panel shadow-lg lg:grid-cols-[1.08fr_.92fr]">
+        <section className="relative hidden min-h-[720px] overflow-hidden bg-[#24483B] p-12 text-white lg:flex lg:flex-col lg:justify-between">
+          <div className="absolute -right-40 -top-32 h-[520px] w-[520px] rounded-full border border-white/10" />
+          <div className="absolute -right-16 -top-12 h-[330px] w-[330px] rounded-full border border-white/10" />
+          <div className="relative flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-[15px] bg-[#F3E6CF] text-[#24483B]"><Leaf size={20} /></span>
+            <div><div className="font-display text-3xl font-semibold leading-none">Axiom</div><div className="mt-1 text-xs text-white/55">Investor workspace</div></div>
+          </div>
+          <div className="relative max-w-xl">
+            <div className="text-xs font-semibold text-[#E7C98D]">A cockpit, not a casino.</div>
+            <h1 className="mt-4 font-display text-[3.65rem] font-medium leading-[1.02] tracking-[-0.045em] text-[#FFFDF6]">Know what deserves attention. Ignore the rest.</h1>
+            <p className="mt-6 max-w-lg text-[15px] leading-relaxed text-white/65">Axiom helps you check risk, review your portfolio, record decisions and improve the process—without turning investing into an endless feed.</p>
+          </div>
+          <div className="relative flex items-center gap-3 text-xs text-white/55"><ShieldCheck size={16} className="text-[#E7C98D]" /> Risk first · candidates second · learning always</div>
+        </section>
 
-        {/* Card */}
-        <div className="panel p-6">
-          <h1 className="text-lg font-semibold text-ink mb-5">Welcome back</h1>
-          <form onSubmit={(e) => { e.preventDefault(); void submit(); }} className="space-y-4">
-            <div>
-              <label className="field-label">Username</label>
-              <input className="field" autoComplete="username" value={username}
-                onChange={(e) => setUsername(e.target.value)} />
+        <section className="flex min-h-[680px] items-center justify-center p-6 sm:p-10 lg:min-h-[720px] lg:p-14">
+          <div className="w-full max-w-[390px]">
+            <div className="mb-9 flex items-center gap-3 lg:hidden">
+              <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[#24483B] text-[#F3E6CF]"><Leaf size={18} /></span>
+              <div className="font-display text-2xl font-semibold text-[#203B31]">Axiom</div>
             </div>
-            <div>
-              <label className="field-label">Passphrase</label>
-              <input className="field" type="password" autoComplete="current-password"
-                value={passphrase} onChange={(e) => setPassphrase(e.target.value)} />
-            </div>
-            {error && (
-              <p className="text-sm rounded-lg px-3 py-2" style={{ background: "#FEF1F1", color: "#C0252A" }}>
-                {error}
-              </p>
-            )}
-            <button type="submit" className="btn-primary w-full" disabled={busy}>
-              {busy ? "Signing in…" : "Sign in"}
-            </button>
-          </form>
-          <p className="mt-4 text-sm text-center text-faint">
-            Have an invite?{" "}
-            <Link href="/join" className="text-mut font-medium hover:text-ink transition-colors">
-              Create your account →
-            </Link>
-          </p>
-        </div>
+            <div className="eyebrow">Welcome back</div>
+            <h2 className="mt-2 font-display text-[2.45rem] font-semibold leading-tight tracking-[-0.04em] text-ink">Return to your process.</h2>
+            <p className="mt-3 text-sm leading-relaxed text-mut">Sign in to continue your reviews and synced journal.</p>
 
-        {/* Offline option */}
-        <div className="mt-4 p-4 rounded-xl border border-line bg-panel2 text-center">
-          <p className="text-xs text-faint mb-3">No account? You can still use the full system — data stays in this browser only.</p>
-          <button onClick={goOffline} className="btn text-xs px-4 py-2">
-            Continue offline
-          </button>
-        </div>
+            <form onSubmit={(e) => { e.preventDefault(); void submit(); }} className="mt-8 space-y-4">
+              <label className="field-label">Username<input className="field mt-1.5" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} /></label>
+              <label className="field-label">Passphrase<input className="field mt-1.5" type="password" autoComplete="current-password" value={passphrase} onChange={(e) => setPassphrase(e.target.value)} /></label>
+              {error && <p className="rounded-[14px] bg-[#FBEEEA] px-4 py-3 text-sm text-[#98453F]">{error}</p>}
+              <button type="submit" className="btn-primary w-full" disabled={busy}>{busy ? "Signing in…" : "Sign in"} {!busy && <ArrowRight size={15} />}</button>
+            </form>
+
+            <p className="mt-5 text-center text-sm text-faint">Have an invite? <Link href="/join" className="font-semibold text-[#315E4D] hover:underline">Create your account</Link></p>
+            <div className="mt-8 border-t border-line pt-6 text-center">
+              <p className="text-xs leading-relaxed text-faint">Prefer to keep everything on this device?</p>
+              <button onClick={goOffline} className="btn-ghost mt-2">Continue offline <ArrowRight size={14} /></button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
