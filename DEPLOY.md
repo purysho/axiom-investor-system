@@ -97,6 +97,18 @@ Front it with Caddy as in path A. (The standalone/Docker route is still recommen
 
 ---
 
+## The in-site assistant (optional)
+
+The "Ask Axiom" bubble is powered by Claude via the Anthropic API. To turn it on:
+
+1. Create an API key at console.anthropic.com (Settings → API keys) and add a few dollars of credit.
+2. Add `ANTHROPIC_API_KEY` to your host's environment (Render → your service → Environment; or `fly secrets set`; or `.env` for Docker) and redeploy.
+
+Costs are pay-per-use on Claude Haiku 4.5 ($1 per million input tokens, $5 per million output tokens) — a
+typical question-and-answer is well under a cent. Each request sends the question plus a compact snapshot of
+that user's own Axiom data (never other members' data, passphrases, or invite codes) to Anthropic. Without the
+key, the assistant degrades to a friendly setup message; nothing else breaks.
+
 ## Operational notes
 
 - **One writer.** The file-backed setup is deliberately single-instance. If the group ever outgrows that,

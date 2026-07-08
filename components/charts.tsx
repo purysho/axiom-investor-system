@@ -20,7 +20,7 @@ const C = {
   allowed: "#2F6B52",
   reduced: "#A8732F",
   closed:  "#A84D45",
-  steel:   "#526D79",
+  steel:   "#93A39A",
   line:    "#DED7CA",
   mut:     "#68716B",
   faint:   "#979D96",

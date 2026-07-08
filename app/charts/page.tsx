@@ -25,13 +25,13 @@ const POPULAR = [
 ];
 
 const ALL_INDICATORS = [
-  { key: "sma20",  label: "SMA 20",  color: "#526D79" },
+  { key: "sma20",  label: "SMA 20",  color: "#93A39A" },
   { key: "sma50",  label: "SMA 50",  color: "#A8732F" },
   { key: "sma200", label: "SMA 200", color: "#A84D45" },
   { key: "ema20",  label: "EMA 20",  color: "#8C6F87" },
   { key: "bb",     label: "Bollinger Bands", color: "#979D96" },
   { key: "volume", label: "Volume",  color: "#DED7CA" },
-  { key: "rsi",    label: "RSI 14",  color: "#526D79" },
+  { key: "rsi",    label: "RSI 14",  color: "#93A39A" },
   { key: "macd",   label: "MACD",    color: "#2F6B52" },
 ] as const;
 
@@ -113,7 +113,7 @@ export default function ChartsPage() {
               key={m}
               onClick={() => setMode(m)}
               className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-all"
-              style={mode === m ? { background: "var(--gate)", color: "white" } : { color: "#7A7068" }}
+              style={mode === m ? { background: "var(--gate)", color: "white" } : { color: "#93A39A" }}
             >
               {m === "simple" ? <Activity size={14} /> : <BarChart2 size={14} />}
               {m === "simple" ? "Simple" : "Pro"}
@@ -178,7 +178,7 @@ export default function ChartsPage() {
                 key={r}
                 onClick={() => setRangeAndLoad(r)}
                 className="px-3 py-1.5 text-xs font-medium transition-colors"
-                style={range === r ? { background: "var(--gate)", color: "white" } : { color: "#7A7068" }}
+                style={range === r ? { background: "var(--gate)", color: "white" } : { color: "#93A39A" }}
               >
                 {r.toUpperCase()}
               </button>
@@ -201,7 +201,7 @@ export default function ChartsPage() {
                 >
                   <span
                     className="h-2 w-2 rounded-full"
-                    style={{ background: indicators[key as keyof typeof indicators] ? color : "#D5CEC5" }}
+                    style={{ background: indicators[key as keyof typeof indicators] ? color : "#3A453E" }}
                   />
                   {label}
                 </button>
@@ -245,9 +245,9 @@ export default function ChartsPage() {
       {mode === "pro" && candles.length > 0 && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
-            { label: "SMA 20", desc: "20-day average — short-term trend", color: "#526D79" },
+            { label: "SMA 20", desc: "20-day average — short-term trend", color: "#93A39A" },
             { label: "SMA 200", desc: "200-day average — long-term regime (gate check)", color: "#A84D45" },
-            { label: "RSI 14", desc: "Momentum — above 70 overbought, below 30 oversold", color: "#526D79" },
+            { label: "RSI 14", desc: "Momentum — above 70 overbought, below 30 oversold", color: "#93A39A" },
             { label: "MACD", desc: "12/26/9 — trend & momentum divergence", color: "#2F6B52" },
           ].map((item) => (
             <div key={item.label} className="panel p-4">

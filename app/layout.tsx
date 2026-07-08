@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Footer, Nav, PageContextHeader, PageReveal } from "@/components/chrome";
 import { ToastContainer } from "@/components/toast";
+import AssistantWidget from "@/components/assistant";
 import { SyncBoot } from "@/components/sync";
 import "./globals.css";
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: { apple: "/icons/apple-touch-icon.png" },
 };
-export const viewport: Viewport = { themeColor: "#F7F3EA" };
+export const viewport: Viewport = { themeColor: "#0B0F0D" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body>
         <Nav />
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </main>
           <Footer />
         </div>
+        <AssistantWidget />
         <ToastContainer />
       </body>
     </html>

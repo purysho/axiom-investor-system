@@ -78,7 +78,7 @@ export default function MonthlyPage() {
         <div className="mt-6 grid gap-5 border-y border-[#d9d2c6] py-6 sm:grid-cols-3">
           <div><div className="text-xs font-semibold text-faint">Your approximate return</div><div className="mt-1 text-2xl font-semibold">{fmtPct(draftReturn, 2)}</div></div>
           <div><div className="text-xs font-semibold text-faint">Benchmark</div><div className="mt-1 text-2xl font-semibold">{fmtPct(draftBenchmark, 2)}</div></div>
-          <div><div className="text-xs font-semibold text-faint">Gap</div><div className="mt-1 text-2xl font-semibold" style={{ color: draftGap === null ? undefined : draftGap >= 0 ? "#2e6a50" : "#a45645" }}>{draftGap === null ? "—" : `${draftGap >= 0 ? "+" : "−"}${Math.abs(draftGap).toFixed(2)}%`}</div></div>
+          <div><div className="text-xs font-semibold text-faint">Gap</div><div className="mt-1 text-2xl font-semibold" style={{ color: draftGap === null ? undefined : draftGap >= 0 ? "#34D399" : "#F4645C" }}>{draftGap === null ? "—" : `${draftGap >= 0 ? "+" : "−"}${Math.abs(draftGap).toFixed(2)}%`}</div></div>
         </div>
         <p className="mt-3 text-xs text-faint">The return shown here is a simple flow-adjusted approximation, not a full time-weighted performance calculation.</p>
       </section>

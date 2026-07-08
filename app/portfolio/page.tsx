@@ -147,7 +147,7 @@ export default function PortfolioPage() {
           <div className="mt-5 divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
             {attention.map(({ h, row, reasons }) => (
               <div key={h.id} className="grid gap-3 py-5 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f6e9e4] text-[#a45645]"><CircleAlert size={18} /></span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f6e9e4] text-[#F4645C]"><CircleAlert size={18} /></span>
                 <div><div className="text-[17px] font-semibold">{h.ticker}</div><p className="mt-1 text-sm text-mut">{reasons.join(" · ")}</p></div>
                 <div className="text-sm text-mut">{row?.weightPct !== null && row?.weightPct !== undefined ? `${fmtPct(row.weightPct)} of portfolio` : "Weight unavailable"}</div>
               </div>
@@ -164,12 +164,12 @@ export default function PortfolioPage() {
               <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Do the portfolio review</h2>
               <p className="mt-3 text-sm leading-relaxed text-mut">This is not a hunt for something to buy or sell. You are checking whether the reasons for owning your investments still make sense.</p>
             </div>
-            {reviewed ? <span className="badge bg-[#e7efe9] text-[#2e6a50]"><CircleCheckBig size={15} />Reviewed this week</span> : <span className="badge bg-[#f2eadb] text-[#9d6a2c]">Review due</span>}
+            {reviewed ? <span className="badge bg-[#10241C] text-[#34D399]"><CircleCheckBig size={15} />Reviewed this week</span> : <span className="badge bg-[#f2eadb] text-[#F0B429]">Review due</span>}
           </div>
           <div className="mt-7 divide-y divide-[#ddd6ca] border-y border-[#ddd6ca]">
             {REVIEW_STEPS.map((item, i) => (
               <label key={item.title} className="flex cursor-pointer items-start gap-4 py-5">
-                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${checked[i] ? "bg-[#27483c] text-white" : "border border-[#c9c1b4] bg-[#fffdf8] text-transparent"}`}><Check size={14} /></span>
+                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${checked[i] ? "bg-[#B4F03C] text-white" : "border border-[#c9c1b4] bg-[#fffdf8] text-transparent"}`}><Check size={14} /></span>
                 <input type="checkbox" className="sr-only" checked={checked[i]} onChange={() => setChecked((prev) => prev.map((v, j) => j === i ? !v : v))} />
                 <span><span className="block font-semibold">{item.title}</span><span className="mt-1 block text-sm leading-relaxed text-mut">{item.text}</span></span>
               </label>

@@ -6,7 +6,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Home, PieChart, Lightbulb, BookOpenText, CalendarCheck2, Library,
-  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Sprout,
+  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Sprout, Bot,
 } from "lucide-react";
 import { SyncBadge } from "@/components/sync";
 
@@ -15,6 +15,7 @@ type NavItem = { href: string; label: string; key: string; Icon: LucideIcon };
 const PRIMARY_NAV: NavItem[] = [
   { href: "/", label: "Today", key: "0", Icon: Home },
   { href: "/portfolio", label: "My portfolio", key: "4", Icon: PieChart },
+  { href: "/copilot", label: "Copilot", key: "c", Icon: Bot },
   { href: "/watchlist", label: "Trade ideas", key: "5", Icon: Lightbulb },
   { href: "/journal", label: "Journal", key: "3", Icon: BookOpenText },
   { href: "/monthly", label: "Review", key: "7", Icon: CalendarCheck2 },
@@ -32,7 +33,8 @@ const NAV = [...PRIMARY_NAV, ...MORE_NAV, { href: "/daily", label: "Daily check"
 
 const TITLES: Record<string, string> = {
   "/": "Today", "/daily": "Daily check", "/gate": "Risk check",
-  "/journal": "Journal", "/portfolio": "My portfolio", "/watchlist": "Trade ideas",
+  "/journal": "Journal", "/portfolio": "My portfolio", "/copilot": "Copilot",
+  "/watchlist": "Trade ideas",
   "/charts": "Charts", "/monthly": "Monthly review", "/guides": "Learn", "/group": "Group",
   "/settings": "Settings", "/login": "Sign in", "/join": "Join",
 };
@@ -194,7 +196,7 @@ export function Stat({ label, value, tone, sub }: {
   tone?: "good" | "bad" | "gate";
   sub?: string;
 }) {
-  const color = tone === "good" ? "#2E6A50" : tone === "bad" ? "#A45645" : tone === "gate" ? "var(--brand)" : undefined;
+  const color = tone === "good" ? "#34D399" : tone === "bad" ? "#F4645C" : tone === "gate" ? "var(--brand)" : undefined;
   return (
     <div className="stat-line">
       <div className="stat-label">{label}</div>

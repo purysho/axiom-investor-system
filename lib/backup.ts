@@ -1,3 +1,4 @@
+import { DEFAULT_COPILOT } from "@/lib/copilot/types";
 import { defaultState } from "@/lib/store";
 import type { AppState, Trade } from "@/lib/engine/types";
 
@@ -146,5 +147,7 @@ export function demoState(): AppState {
       { id: "MDEMO2", monthStart: "2026-06-01", startingValue: 99800, netContributions: 1000, endingValue: 101950, benchmarkReturnPct: 1.4, notes: "One stop-moving mistake on AMD flagged for review.", ruleChange: { oldRule: "Stops may be adjusted intraday on news.", evidence: "1 tagged moved-stop event; needs a larger sample before hard rule.", newRule: "No stop widening after entry — exits are stop or plan only.", expectedBehavior: "Zero moved-stop tags next month.", reviewDate: "2026-07-31" } },
     ],
     weeklyReviews: [],
+    recommendations: [],
+    copilot: { ...DEFAULT_COPILOT },
   };
 }

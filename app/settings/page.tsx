@@ -140,7 +140,7 @@ export default function SettingsPage() {
 
           <details className="group">
             <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f6e8e3] text-[#a45645]"><RotateCcw size={18} /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#241111] text-[#F4645C]"><RotateCcw size={18} /></span>
               <div><div className="text-[17px] font-semibold">Reset AXIOM</div><p className="mt-1 text-sm text-mut">Clear all holdings, trades, ideas, daily checks and monthly reviews from this browser.</p></div>
               <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
             </summary>

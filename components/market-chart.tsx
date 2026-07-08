@@ -34,8 +34,8 @@ export interface Indicators {
 const T = {
   bg: "#FFFEFA", grid: "#F3EFE7", border: "#DED7CA", text: "#68716B",
   up: "#2F6B52", down: "#A84D45",
-  sma20: "#526D79", sma50: "#A8732F", sma200: "#A84D45", ema20: "#8C6F87",
-  bb: "#C5BCAF", rsi: "#526D79", macdPos: "#2F6B52", macdNeg: "#A84D45",
+  sma20: "#93A39A", sma50: "#A8732F", sma200: "#A84D45", ema20: "#8C6F87",
+  bb: "#C5BCAF", rsi: "#93A39A", macdPos: "#2F6B52", macdNeg: "#A84D45",
   macdSig: "#A8732F", volUp: "#CFE4D8", volDown: "#EECFC9",
 };
 

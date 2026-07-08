@@ -72,10 +72,10 @@ export default function GatePage() {
   };
 
   const stateMeta = gate.state === "RISK ALLOWED"
-    ? { Icon: ShieldCheck, answer: "Yes — you may consider new swing risk.", copy: "All six checks are clear. This does not make any trade good; it only means your process allows you to review ideas and size them normally.", bg: "#e6efe8", ink: "#2e6a50" }
+    ? { Icon: ShieldCheck, answer: "Yes — you may consider new swing risk.", copy: "All six checks are clear. This does not make any trade good; it only means your process allows you to review ideas and size them normally.", bg: "#e6efe8", ink: "#34D399" }
     : gate.state === "REDUCED RISK ONLY"
-      ? { Icon: AlertTriangle, answer: "Only with extra caution.", copy: "One check is outside your normal limit. Smaller risk or standing aside is the default. Any exception should be written down before a trade is planned.", bg: "#f5ead6", ink: "#9d6a2c" }
-      : { Icon: ShieldOff, answer: "No — do not take new swing risk today.", copy: "Two or more checks are failing or unresolved. Manage existing positions and leave new trade ideas alone until the conditions are understood.", bg: "#f6e8e3", ink: "#a45645" };
+      ? { Icon: AlertTriangle, answer: "Only with extra caution.", copy: "One check is outside your normal limit. Smaller risk or standing aside is the default. Any exception should be written down before a trade is planned.", bg: "#241C0E", ink: "#F0B429" }
+      : { Icon: ShieldOff, answer: "No — do not take new swing risk today.", copy: "Two or more checks are failing or unresolved. Manage existing positions and leave new trade ideas alone until the conditions are understood.", bg: "#241111", ink: "#F4645C" };
 
   return (
     <div>
@@ -107,7 +107,7 @@ export default function GatePage() {
         <div className="divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
           {gate.checks.map((c) => {
             const plain = PLAIN_CHECKS[c.id];
-            const tone = c.pass ? { Icon: Check, label: "Clear", ink: "#2e6a50", bg: "#e8efe9" } : c.unknown ? { Icon: CircleHelp, label: "Not known", ink: "#767e79", bg: "#eeeae1" } : { Icon: AlertTriangle, label: "Outside limit", ink: "#a45645", bg: "#f7eae5" };
+            const tone = c.pass ? { Icon: Check, label: "Clear", ink: "#34D399", bg: "#e8efe9" } : c.unknown ? { Icon: CircleHelp, label: "Not known", ink: "#767e79", bg: "#eeeae1" } : { Icon: AlertTriangle, label: "Outside limit", ink: "#F4645C", bg: "#f7eae5" };
             return (
               <div key={c.id} className="grid gap-4 py-6 sm:grid-cols-[48px_1fr_auto] sm:items-start">
                 <span className="flex h-11 w-11 items-center justify-center rounded-full" style={{ background: tone.bg, color: tone.ink }}><tone.Icon size={18} /></span>
@@ -218,7 +218,7 @@ export default function GatePage() {
                   <Stat label="Position value" value={fmtUsd(sizing.notional)} />
                   <Stat label="Reward versus risk" value={sizing.rewardRisk !== null ? `${fmtN(sizing.rewardRisk, 2)} to 1` : "—"} />
                 </div>
-                {sizing.capApplied && <p className="mt-4 text-sm text-[#9d6a2c]">Your {settings.notionalCapPct}% single-position cap reduced the size below the pure risk-based {sizing.maxSharesByRisk} shares.</p>}
+                {sizing.capApplied && <p className="mt-4 text-sm text-[#F0B429]">Your {settings.notionalCapPct}% single-position cap reduced the size below the pure risk-based {sizing.maxSharesByRisk} shares.</p>}
                 <div className="mt-6 flex items-start gap-3 rounded-[18px] bg-[#f8ece7] p-5">
                   <Gauge size={19} className="mt-0.5 shrink-0 text-[#b56b4e]" />
                   <div><div className="font-semibold">A stop does not guarantee your maximum loss.</div><p className="mt-1 text-sm leading-relaxed text-mut">A gap through the stop to {fmtUsd(sizing.gapExamplePrice)} would mean roughly {fmtUsd(sizing.gapExampleLoss ? -sizing.gapExampleLoss : null)} gross instead of about {fmtUsd(sizing.riskDollars)}. Stops can slip.</p></div>

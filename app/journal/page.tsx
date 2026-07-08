@@ -42,10 +42,10 @@ function tradeDiagnosis(t: Trade) {
   const r = rMultiple(t);
   const goodOutcome = r !== null && r >= 0;
   const goodProcess = t.ruleFollowed === "Yes";
-  if (goodProcess && goodOutcome) return { label: "Good process, good outcome", short: "Skilled win", bg: "#e7efe9", ink: "#2e6a50" };
-  if (goodProcess && !goodOutcome) return { label: "Good process, bad outcome", short: "Valid loss", bg: "#e8edf0", ink: "#526d79" };
-  if (!goodProcess && goodOutcome) return { label: "Poor process, good outcome", short: "Lucky win", bg: "#f5ead6", ink: "#9d6a2c" };
-  return { label: "Poor process, bad outcome", short: "Process loss", bg: "#f6e8e3", ink: "#a45645" };
+  if (goodProcess && goodOutcome) return { label: "Good process, good outcome", short: "Skilled win", bg: "#10241C", ink: "#34D399" };
+  if (goodProcess && !goodOutcome) return { label: "Good process, bad outcome", short: "Valid loss", bg: "#161D22", ink: "#93A39A" };
+  if (!goodProcess && goodOutcome) return { label: "Poor process, good outcome", short: "Lucky win", bg: "#241C0E", ink: "#F0B429" };
+  return { label: "Poor process, bad outcome", short: "Process loss", bg: "#241111", ink: "#F4645C" };
 }
 
 export default function JournalPage() {
@@ -143,8 +143,8 @@ export default function JournalPage() {
 
   return (
     <div>
-      <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${reflectionDue.length ? "bg-[#f5ead6]" : "bg-[#e7eee8]"}`}>
-        {reflectionDue.length ? <CircleAlert size={25} className="text-[#9d6a2c]" /> : <BookOpenText size={25} className="text-[#456555]" />}
+      <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${reflectionDue.length ? "bg-[#241C0E]" : "bg-[#e7eee8]"}`}>
+        {reflectionDue.length ? <CircleAlert size={25} className="text-[#F0B429]" /> : <BookOpenText size={25} className="text-[#456555]" />}
         <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">
           {reflectionDue.length ? `${reflectionDue.length} closed trade${reflectionDue.length === 1 ? " still needs" : "s still need"} a reflection.` : closed.length ? "Your trade notes are up to date." : "The journal starts with a plan, not a result."}
         </h2>
@@ -222,7 +222,7 @@ export default function JournalPage() {
           </summary>
           <div className="mt-7 rounded-[22px] bg-[#fffdf8]/78 p-6 sm:p-8">
             {!gateOpen && (
-              <div className="mb-6 flex items-start gap-3 rounded-[18px] bg-[#f6e8e3] p-5"><ShieldAlert size={20} className="mt-0.5 shrink-0 text-[#a45645]" /><div><div className="font-semibold">Today's risk check is {gate.state.toLowerCase()}.</div><p className="mt-1 text-sm leading-relaxed text-mut">Your process says {gate.state === "NO NEW SWINGS" ? "manage existing positions only" : "use smaller risk or stand aside"}. Logging a new trade requires a written exception that stays on the record.</p><Link href="/gate" className="quiet-link mt-3">Review the risk check <ArrowRight size={14} /></Link></div></div>
+              <div className="mb-6 flex items-start gap-3 rounded-[18px] bg-[#241111] p-5"><ShieldAlert size={20} className="mt-0.5 shrink-0 text-[#F4645C]" /><div><div className="font-semibold">Today's risk check is {gate.state.toLowerCase()}.</div><p className="mt-1 text-sm leading-relaxed text-mut">Your process says {gate.state === "NO NEW SWINGS" ? "manage existing positions only" : "use smaller risk or stand aside"}. Logging a new trade requires a written exception that stays on the record.</p><Link href="/gate" className="quiet-link mt-3">Review the risk check <ArrowRight size={14} /></Link></div></div>
             )}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <label className="field-label">Ticker<input className="field mt-1.5" value={entry.ticker} onChange={(e) => setEntry({ ...entry, ticker: e.target.value })} /></label>
@@ -258,8 +258,8 @@ export default function JournalPage() {
               return (
                 <details key={t.id} className="group">
                   <summary className="grid cursor-pointer list-none gap-4 py-5 sm:grid-cols-[1fr_auto_auto] sm:items-center">
-                    <div><div className="flex flex-wrap items-center gap-3"><span className="text-[18px] font-bold">{t.ticker}</span><span className="badge" style={{ background: diagnosis.bg, color: diagnosis.ink }}>{diagnosis.short}</span>{!t.lesson && <span className="badge bg-[#f2eadb] text-[#9d6a2c]">Reflection incomplete</span>}</div><p className="mt-1 text-sm text-mut">{diagnosis.label} · {t.exitReason || "exit reason not recorded"}</p></div>
-                    <div className="sm:text-right"><div className="text-lg font-semibold" style={{ color: r !== null && r >= 0 ? "#2e6a50" : "#a45645" }}>{fmtR(r)}</div><div className="text-xs text-faint">{fmtUsd(n)} net</div></div>
+                    <div><div className="flex flex-wrap items-center gap-3"><span className="text-[18px] font-bold">{t.ticker}</span><span className="badge" style={{ background: diagnosis.bg, color: diagnosis.ink }}>{diagnosis.short}</span>{!t.lesson && <span className="badge bg-[#f2eadb] text-[#F0B429]">Reflection incomplete</span>}</div><p className="mt-1 text-sm text-mut">{diagnosis.label} · {t.exitReason || "exit reason not recorded"}</p></div>
+                    <div className="sm:text-right"><div className="text-lg font-semibold" style={{ color: r !== null && r >= 0 ? "#34D399" : "#F4645C" }}>{fmtR(r)}</div><div className="text-xs text-faint">{fmtUsd(n)} net</div></div>
                     <div className="flex items-center gap-1 text-sm font-semibold text-[#49695a]">Read reflection <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></div>
                   </summary>
                   <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:p-7">

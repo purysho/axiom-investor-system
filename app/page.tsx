@@ -93,7 +93,7 @@ export default function TodayPage() {
         <>
           <section className="mb-8 rounded-[26px] bg-[#e7eee8] p-6 sm:p-9">
             <div className="max-w-2xl">
-              <span className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#27483c] text-[#f5e9d5]"><Leaf size={21} /></span>
+              <span className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#B4F03C] text-[#f5e9d5]"><Leaf size={21} /></span>
               <h2 className="font-display text-[2.15rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[#243d33] sm:text-[3rem]">Start with a routine, not a watchlist.</h2>
               <p className="mt-4 text-[16px] leading-relaxed text-[#607067]">Tell AXIOM about your portfolio and starting risk limits. From there, it guides you through a 15-minute daily check, a weekly portfolio review and a monthly learning loop.</p>
               <div className="mt-7 flex flex-wrap gap-3">
@@ -144,7 +144,7 @@ export default function TodayPage() {
             <div className="divide-y divide-[#dcd5c9] border-y border-[#dcd5c9]">
               {steps.map(({ done, title, text, href, cta, Icon }, index) => (
                 <Link href={href} key={title} className="group grid gap-4 py-6 sm:grid-cols-[48px_1fr_auto] sm:items-center">
-                  <span className={`flex h-11 w-11 items-center justify-center rounded-full ${done ? "bg-[#e7efe9] text-[#2e6a50]" : index === steps.findIndex((s) => !s.done) ? "bg-[#27483c] text-white" : "bg-[#eee9df] text-[#7b837e]"}`}>
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-full ${done ? "bg-[#10241C] text-[#34D399]" : index === steps.findIndex((s) => !s.done) ? "bg-[#B4F03C] text-white" : "bg-[#eee9df] text-[#7b837e]"}`}>
                     {done ? <Check size={18} strokeWidth={2.4} /> : <Icon size={18} />}
                   </span>
                   <span>

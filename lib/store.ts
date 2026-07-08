@@ -1,5 +1,6 @@
 "use client";
 
+import { DEFAULT_COPILOT } from "@/lib/copilot/types";
 import { useSyncExternalStore } from "react";
 import type { AppState } from "./engine/types";
 
@@ -32,6 +33,8 @@ export const defaultState: AppState = {
   watchData: { rows: [], asOf: "", source: "" },
   monthly: [],
   weeklyReviews: [],
+  recommendations: [],
+  copilot: { ...DEFAULT_COPILOT },
 };
 
 let state: AppState = defaultState;

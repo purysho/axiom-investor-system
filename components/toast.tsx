@@ -26,9 +26,9 @@ export function ToastContainer() {
   if (!list.length) return null;
 
   const styles = {
-    success: { bg: "#F0FAF5", border: "#BDE8D4", icon: "#1A6B47", Icon: CheckCircle },
-    warning: { bg: "#FEF7EC", border: "#FDDBA0", icon: "#9A6100", Icon: AlertTriangle },
-    error:   { bg: "#FEF1F1", border: "#FBCACA", icon: "#C0252A", Icon: XCircle },
+    success: { bg: "#10241C", border: "#1F4636", icon: "#34D399", Icon: CheckCircle },
+    warning: { bg: "#241C0E", border: "#4A3A16", icon: "#F0B429", Icon: AlertTriangle },
+    error:   { bg: "#241111", border: "#4A1F1F", icon: "#F4645C", Icon: XCircle },
   };
 
   return (

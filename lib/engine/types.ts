@@ -1,3 +1,4 @@
+import type { CopilotSettings, Recommendation } from "@/lib/copilot/types";
 /**
  * Unified data model.
  * Sources: 02_Investor_Operating_System.xlsx (Lists / Trade Journal / Risk Gate /
@@ -254,6 +255,9 @@ export interface AppState {
   monthly: MonthlyRow[];
   /** ISO-week stamps (e.g. "2026-W28") for completed weekly reviews. */
   weeklyReviews: string[];
+  /** Copilot recommendations (proposed/approved/dismissed/expired/rejected). */
+  recommendations: Recommendation[];
+  copilot: CopilotSettings;
 }
 
 export const WATCH_METRICS = [

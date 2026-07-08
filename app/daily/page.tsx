@@ -124,7 +124,7 @@ export default function DailyPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="min-w-[68px] font-mono text-lg tabular-nums text-[#27483c]">{mm}:{ss}</span>
+          <span className="min-w-[68px] font-mono text-lg tabular-nums text-[#B4F03C]">{mm}:{ss}</span>
           <button type="button" className="btn-ghost" onClick={() => setRunning((r) => !r)}>{running ? <Pause size={15} /> : <Play size={15} />}{running ? "Pause" : secondsLeft === 15 * 60 ? "Start timer" : "Resume"}</button>
           {secondsLeft !== 15 * 60 && <button type="button" className="btn-ghost p-2" onClick={() => { setRunning(false); setSecondsLeft(15 * 60); }} aria-label="Reset timer"><RotateCcw size={15} /></button>}
         </div>
@@ -133,7 +133,7 @@ export default function DailyPage() {
       <div className="mb-6 flex gap-2" aria-label="Daily check progress">
         {DAILY_BLOCKS.map((b, i) => {
           const block = blocks.find((x) => x.id === b.id)!;
-          return <button key={b.id} type="button" onClick={() => setStep(i)} className={`h-2 flex-1 rounded-full transition-colors ${i === step ? "bg-[#27483c]" : block.status !== "Not Started" ? "bg-[#89a293]" : "bg-[#ddd6ca]"}`} aria-label={`Go to question ${i + 1}`} />;
+          return <button key={b.id} type="button" onClick={() => setStep(i)} className={`h-2 flex-1 rounded-full transition-colors ${i === step ? "bg-[#B4F03C]" : block.status !== "Not Started" ? "bg-[#89a293]" : "bg-[#ddd6ca]"}`} aria-label={`Go to question ${i + 1}`} />;
         })}
       </div>
 
@@ -157,7 +157,7 @@ export default function DailyPage() {
 
         {spec.id === "candidates" && locked && (
           <div className="mt-7 flex items-start gap-3 rounded-[18px] bg-[#f7eae5] p-5">
-            <LockKeyhole size={20} className="mt-0.5 shrink-0 text-[#a45645]" />
+            <LockKeyhole size={20} className="mt-0.5 shrink-0 text-[#F4645C]" />
             <div><div className="font-semibold">New trade ideas are closed today.</div><p className="mt-1 text-sm text-mut">Your current risk check says no new swings. AXIOM will not ask you to scan candidates.</p></div>
           </div>
         )}
@@ -169,7 +169,7 @@ export default function DailyPage() {
             <p className="mt-1 text-xs leading-relaxed text-mut">{copy.normal}</p>
           </button>
           <button type="button" onClick={() => choose("Exception")} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Exception" ? "border-[#c68b75] bg-[#f9eee9]" : "border-[#d8d1c5] bg-[#fffdf8] hover:border-[#c8a08f]"}`}>
-            <TriangleAlert size={20} className="text-[#a45645]" />
+            <TriangleAlert size={20} className="text-[#F4645C]" />
             <div className="mt-3 font-semibold">Needs attention</div>
             <p className="mt-1 text-xs leading-relaxed text-mut">{copy.attention}</p>
           </button>
@@ -206,7 +206,7 @@ export default function DailyPage() {
             <label><span className="field-label">Today's permitted action is…</span><input className="field" value={action} onChange={(e) => setAction(e.target.value)} /></label>
             <label><span className="field-label">…because</span><textarea className="field min-h-24" value={because} onChange={(e) => setBecause(e.target.value)} /></label>
           </div>
-          {!allAnswered && <p className="mt-4 text-sm font-semibold text-[#9d6a2c]">{DAILY_BLOCKS.length - completeCount} question{DAILY_BLOCKS.length - completeCount === 1 ? " is" : "s are"} still unanswered. Unknowns should stay visible rather than being treated as clear.</p>}
+          {!allAnswered && <p className="mt-4 text-sm font-semibold text-[#F0B429]">{DAILY_BLOCKS.length - completeCount} question{DAILY_BLOCKS.length - completeCount === 1 ? " is" : "s are"} still unanswered. Unknowns should stay visible rather than being treated as clear.</p>}
           <div className="mt-7 flex flex-wrap items-center gap-4">
             <button type="button" className="btn-primary" onClick={save}>Save today's check <Check size={16} /></button>
             <span className="text-sm text-mut">After saving, no further market browsing is required unless a real exception appears.</span>
