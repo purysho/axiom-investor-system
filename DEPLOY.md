@@ -109,6 +109,24 @@ typical question-and-answer is well under a cent. Each request sends the questio
 that user's own Axiom data (never other members' data, passphrases, or invite codes) to Anthropic. Without the
 key, the assistant degrades to a friendly setup message; nothing else breaks.
 
+## Going public
+
+By default `SIGNUPS_OPEN=true`: anyone who reaches `/join` can create an account. Set it to `false` to go back
+to invite-only (the bootstrap invite is printed to the server log on first run; more can be minted in-app).
+
+What is in place for public use: passphrases and recovery codes are scrypt-hashed, sessions are signed JWTs in
+httpOnly cookies, sign-in / sign-up / reset / assistant / Copilot routes are rate-limited per IP, the Group page
+only lists members who opted into sharing, and every account can export its data or delete itself permanently.
+
+What is deliberately **not** in place, and you should know before inviting strangers:
+
+- **No email address is collected**, so there is no email verification and no "email me a reset link". Recovery
+  depends entirely on the one-time `AXR-XXXX-XXXX` code shown at sign-up. If a user loses their passphrase *and*
+  that code, their synced data is unrecoverable. This is a deliberate trade (no email = less to leak); say so plainly.
+- **No CAPTCHA.** Rate limiting is in-memory and per-instance — fine for one Render/Fly instance, useless behind
+  multiple. If the app grows, put Cloudflare (or Turnstile) in front and move the limiter to the database.
+- **No payment, no broker connection.** The Copilot is paper-only by design.
+
 ## Operational notes
 
 - **One writer.** The file-backed setup is deliberately single-instance. If the group ever outgrows that,

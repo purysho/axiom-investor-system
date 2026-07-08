@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { clientIp, limited } from "@/lib/server/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,9 @@ The user's current Axiom snapshot follows. Treat it as their real data.`;
 interface InMsg { role: "user" | "assistant"; content: string }
 
 export async function POST(req: Request) {
+  if (limited(`assistant:${clientIp(req)}`, 20, 5 * 60_000))
+    return NextResponse.json({ error: "You're asking quickly — give it a minute." }, { status: 429 });
+
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) {
     return NextResponse.json(

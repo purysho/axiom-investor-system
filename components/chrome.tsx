@@ -211,6 +211,7 @@ export function Footer() {
   return (
     <footer className="site-footer">
       AXIOM is an educational process tool, not investment advice. Market figures may be delayed. Planned stop risk is not a guaranteed maximum loss.
+      <span className="mt-2 block"><Link href="/terms" className="quiet-link">Terms</Link> · <Link href="/privacy" className="quiet-link">Privacy</Link></span>
     </footer>
   );
 }

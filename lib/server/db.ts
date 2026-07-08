@@ -47,6 +47,17 @@ async function ensureSchema(c: Client) {
     ],
     "write",
   );
+  await migrate(c);
+}
+
+async function migrate(c: Client) {
+  // Idempotent column adds for databases created before recovery codes existed.
+  for (const sql of [
+    "ALTER TABLE users ADD COLUMN recovery_salt TEXT",
+    "ALTER TABLE users ADD COLUMN recovery_hash TEXT",
+  ]) {
+    try { await c.execute(sql); } catch { /* column already exists */ }
+  }
 }
 
 /** First run on an empty database: mint one invite and print it to the server log. */

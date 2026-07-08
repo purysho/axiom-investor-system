@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { clientIp, limited } from "@/lib/server/ratelimit";
 import { mapToStooq, parseStooqDaily, rsi, sma, type DailyRow } from "@/lib/engine/quotes";
 
 export const dynamic = "force-dynamic";
@@ -146,6 +147,9 @@ async function aiAnalyst(features: Features[], gateState: string, key: string): 
 }
 
 export async function POST(req: Request) {
+  if (limited(`copilot:${clientIp(req)}`, 6, 5 * 60_000))
+    return NextResponse.json({ error: "Too many scans — the market hasn't moved that fast. Try again shortly." }, { status: 429 });
+
   let body: { symbols?: unknown; gateState?: unknown };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid body." }, { status: 400 }); }
 

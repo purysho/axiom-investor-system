@@ -32,7 +32,8 @@ export async function GET() {
      ORDER BY u.created_at ASC`,
   );
 
-  const members: MemberRow[] = res.rows.map((r) => {
+  const visible = res.rows.filter((r) => Number(r.share_group) === 1 || String(r.id) === user?.id);
+  const members: MemberRow[] = visible.map((r) => {
     const shared = Number(r.share_group) === 1;
     const base: MemberRow = {
       displayName: String(r.display_name),

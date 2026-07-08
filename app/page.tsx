@@ -98,7 +98,7 @@ export default function TodayPage() {
               <p className="mt-4 text-[16px] leading-relaxed text-[#607067]">Tell AXIOM about your portfolio and starting risk limits. From there, it guides you through a 15-minute daily check, a weekly portfolio review and a monthly learning loop.</p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link className="btn-primary" href="/settings">Set up AXIOM <ArrowRight size={16} /></Link>
-                <button type="button" className="btn" onClick={() => replaceState(demoState())}>See a filled-in example</button>
+                <button type="button" className="btn" onClick={() => { if (window.confirm("Load example data into this account? You can clear it any time in Settings.")) replaceState(demoState()); }}>See a filled-in example</button>
               </div>
             </div>
           </section>

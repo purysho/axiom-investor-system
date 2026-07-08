@@ -47,6 +47,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     // Everything except Next internals, static assets, and auth endpoints.
-    "/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|sw.js|api/health|api/auth/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|sw.js|api/health|api/auth/|terms|privacy|reset).*)",
   ],
 };

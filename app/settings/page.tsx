@@ -153,6 +153,27 @@ export default function SettingsPage() {
 }
 
 function AccountPanel() {
+  const [newCode, setNewCode] = useState("");
+  const [delPass, setDelPass] = useState("");
+  const [delOpen, setDelOpen] = useState(false);
+
+  const regenCode = async () => {
+    const res = await fetch("/api/account/recovery", { method: "POST" });
+    const j = await res.json();
+    if (res.ok) { setNewCode(j.recoveryCode); toast("New recovery code generated — save it now."); }
+    else toast(j.error ?? "Couldn't generate a code.", "error");
+  };
+
+  const deleteAccount = async () => {
+    const res = await fetch("/api/account/delete", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ passphrase: delPass }),
+    });
+    const j = await res.json();
+    if (res.ok) { window.location.href = "/login"; }
+    else toast(j.error ?? "Couldn't delete the account.", "error");
+  };
+
   const [account, setAccount] = useState<{ username: string; displayName: string } | null>(null);
   const [offline, setOffline] = useState(false);
   const [dn, setDn] = useState("");
@@ -194,7 +215,28 @@ function AccountPanel() {
         <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
       </summary>
       <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:ml-14 sm:p-7">
-        {offline ? <p className="text-sm leading-relaxed text-mut">You are using offline mode. Data stays in this browser and does not sync across devices. <a href="/login" className="quiet-link">Sign in or join with an invite</a> to enable account sync.</p> : account ? <div className="grid gap-5"><div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end"><label className="field-label">Display name<input className="field mt-1.5" value={dn} onChange={(e) => setDn(e.target.value)} /></label><button type="button" className="btn" onClick={() => void saveName()}>Save name</button></div><div className="grid gap-4 sm:grid-cols-2"><label className="field-label">Current passphrase<input className="field mt-1.5" type="password" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} /></label><label className="field-label">New passphrase<input className="field mt-1.5" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} /></label></div><div className="flex flex-wrap gap-3"><button type="button" className="btn" onClick={() => void changePass()}>Change passphrase</button><button type="button" className="btn" onClick={() => void signOut()}>Sign out</button></div>{msg && <p className="text-sm text-mut" role="status">{msg}</p>}</div> : <p className="text-sm text-mut">Checking your account…</p>}
+        {offline ? <p className="text-sm leading-relaxed text-mut">You are using offline mode. Data stays in this browser and does not sync across devices. <a href="/login" className="quiet-link">Sign in or join with an invite</a> to enable account sync.</p> : account ? <div className="grid gap-5"><div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end"><label className="field-label">Display name<input className="field mt-1.5" value={dn} onChange={(e) => setDn(e.target.value)} /></label><button type="button" className="btn" onClick={() => void saveName()}>Save name</button></div><div className="grid gap-4 sm:grid-cols-2"><label className="field-label">Current passphrase<input className="field mt-1.5" type="password" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} /></label><label className="field-label">New passphrase<input className="field mt-1.5" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} /></label></div><div className="flex flex-wrap gap-3"><button type="button" className="btn" onClick={() => void changePass()}>Change passphrase</button><button type="button" className="btn" onClick={() => void signOut()}>Sign out</button></div>{msg && <p className="text-sm text-mut" role="status">{msg}</p>}
+
+<div className="border-t border-line pt-5">
+  <div className="text-sm font-semibold text-ink">Recovery code</div>
+  <p className="mt-1 text-sm leading-relaxed text-mut">The only way to reset a forgotten passphrase. Generating a new one invalidates the old.</p>
+  <button type="button" className="btn mt-3" onClick={() => void regenCode()}>Generate a new recovery code</button>
+  {newCode && <div className="mt-3 rounded-[14px] border border-[#27312B] bg-[#1A211D] px-4 py-3 font-mono text-base tracking-wider text-[#B4F03C]">{newCode}</div>}
+</div>
+
+<div className="border-t border-line pt-5">
+  <div className="text-sm font-semibold text-[#F4645C]">Delete this account</div>
+  <p className="mt-1 text-sm leading-relaxed text-mut">Removes your account and all synced data, permanently. Export a backup first if you want to keep it.</p>
+  {!delOpen ? (
+    <button type="button" className="btn-danger mt-3" onClick={() => setDelOpen(true)}>Delete account…</button>
+  ) : (
+    <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+      <label className="field-label">Confirm your passphrase<input className="field mt-1.5" type="password" value={delPass} onChange={(e) => setDelPass(e.target.value)} /></label>
+      <div className="flex gap-2"><button type="button" className="btn-danger" onClick={() => void deleteAccount()}>Delete permanently</button><button type="button" className="btn" onClick={() => { setDelOpen(false); setDelPass(""); }}>Cancel</button></div>
+    </div>
+  )}
+</div>
+</div> : <p className="text-sm text-mut">Checking your account…</p>}
       </div>
     </details>
   );

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { setSessionCookie, verifyPassphrase } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
+import { clientIp, limited } from "@/lib/server/ratelimit";
 
 export async function POST(req: Request) {
+  if (limited(`login:${clientIp(req)}`, 6, 5 * 60_000))
+    return NextResponse.json({ error: "Too many sign-in attempts — try again in a few minutes." }, { status: 429 });
+
   let body: { username?: string; passphrase?: string };
   try {
     body = await req.json();
