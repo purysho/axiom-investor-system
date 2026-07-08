@@ -28,7 +28,7 @@ export default function JoinPage() {
         <section className="flex min-h-[760px] items-center justify-center p-6 sm:p-10 lg:p-14">
           <div className="w-full max-w-[420px]">
             <div className="mb-8 flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[#24483B] text-[#F3E6CF]"><Leaf size={18} /></span><div className="font-display text-2xl font-semibold text-[#203B31]">Axiom</div></div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#E7EEE9] px-3 py-1.5 text-xs font-bold text-[#315E4D]"><LockKeyhole size={13} /> Invite only</div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#EFF6F1] px-3 py-1.5 text-xs font-bold text-[#315E4D]"><LockKeyhole size={13} /> Invite only</div>
             <h1 className="mt-5 font-display text-[2.5rem] font-semibold leading-tight tracking-[-0.04em] text-ink">Create your workspace.</h1>
             <p className="mt-3 text-sm leading-relaxed text-mut">Your journal, rules and reviews can sync across devices once your account is created.</p>
 
@@ -46,7 +46,7 @@ export default function JoinPage() {
           </div>
         </section>
 
-        <section className="relative hidden min-h-[760px] overflow-hidden bg-[#E7EEE9] p-12 lg:flex lg:flex-col lg:justify-end">
+        <section className="relative hidden min-h-[760px] overflow-hidden bg-[#EFF6F1] p-12 lg:flex lg:flex-col lg:justify-end">
           <div className="absolute -right-36 -top-28 h-[500px] w-[500px] rounded-full border border-[#24483B]/10" />
           <div className="absolute right-16 top-16 h-52 w-52 rounded-full bg-[#F4E6CE]/70 blur-3xl" />
           <div className="relative max-w-xl rounded-[26px] border border-white/80 bg-white/60 p-7 shadow-card backdrop-blur-sm">

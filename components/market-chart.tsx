@@ -32,11 +32,11 @@ export interface Indicators {
 }
 
 const T = {
-  bg: "#FFFEFA", grid: "#F3EFE7", border: "#DED7CA", text: "#68716B",
-  up: "#2F6B52", down: "#A84D45",
-  sma20: "#93A39A", sma50: "#A8732F", sma200: "#A84D45", ema20: "#8C6F87",
-  bb: "#C5BCAF", rsi: "#93A39A", macdPos: "#2F6B52", macdNeg: "#A84D45",
-  macdSig: "#A8732F", volUp: "#CFE4D8", volDown: "#EECFC9",
+  bg: "#121714", grid: "#1B221D", border: "#27312B", text: "#93A39A",
+  up: "#34D399", down: "#F4645C",
+  sma20: "#6FA8DC", sma50: "#F0B429", sma200: "#F4645C", ema20: "#B48CF2",
+  bb: "#5C6B62", rsi: "#6FA8DC", macdPos: "#34D399", macdNeg: "#F4645C",
+  macdSig: "#F0B429", volUp: "#1F4636", volDown: "#4A1F1F",
 };
 
 const baseOpts = (h: number): DeepPartial<ChartOptions> => ({
@@ -143,8 +143,8 @@ export default function MarketChart({
       rc.addSeries(LineSeries, { color: T.rsi, lineWidth: 1, priceLineVisible: false }).setData(valid(candles, "rsi"));
       const dates = valid(candles, "rsi").map((p) => p.time);
       if (dates.length > 1) {
-        const ob = rc.addSeries(LineSeries, { color: "#EECFC9", lineWidth: 1, lineStyle: 2 as 0|1|2|3|4, priceLineVisible: false });
-        const os = rc.addSeries(LineSeries, { color: "#CFE4D8", lineWidth: 1, lineStyle: 2 as 0|1|2|3|4, priceLineVisible: false });
+        const ob = rc.addSeries(LineSeries, { color: "#4A1F1F", lineWidth: 1, lineStyle: 2 as 0|1|2|3|4, priceLineVisible: false });
+        const os = rc.addSeries(LineSeries, { color: "#1F4636", lineWidth: 1, lineStyle: 2 as 0|1|2|3|4, priceLineVisible: false });
         ob.setData([{ time: dates[0], value: 70 }, { time: dates[dates.length - 1], value: 70 }]);
         os.setData([{ time: dates[0], value: 30 }, { time: dates[dates.length - 1], value: 30 }]);
       }

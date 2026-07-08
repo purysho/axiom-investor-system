@@ -58,7 +58,7 @@ const LESSONS: Array<{
 export default function GuidesPage() {
   return (
     <div>
-      <section className="mb-12 rounded-[26px] bg-[#e7eee8] p-6 sm:p-9">
+      <section className="mb-12 rounded-[26px] bg-[#EFF6F1] p-6 sm:p-9">
         <Lightbulb size={25} className="text-[#456555]" />
         <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Learn the routine in the order you will use it.</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">You do not need to become a market technician before using AXIOM. Read one lesson, use the related page, and let the repetition teach the method.</p>
@@ -72,17 +72,17 @@ export default function GuidesPage() {
             ["1", "Understand the order", "Read The AXIOM method and The risk check. Do not start with chart indicators."],
             ["2", "Repeat the daily check", "Use the five questions for several days. Learn what 'nothing changed' feels like."],
             ["3", "Review one real decision", "Use a closed trade or existing holding to practise process-first reflection."],
-          ].map(([n, title, text]) => <div key={n} className="border-t border-[#cfc8bc] pt-5"><div className="text-sm font-bold text-[#a16b4c]">{n}</div><h3 className="mt-3 font-display text-2xl font-semibold tracking-[-0.025em]">{title}</h3><p className="mt-2 text-sm leading-relaxed text-mut">{text}</p></div>)}
+          ].map(([n, title, text]) => <div key={n} className="border-t border-[#3A453E] pt-5"><div className="text-sm font-bold text-[#a16b4c]">{n}</div><h3 className="mt-3 font-display text-2xl font-semibold tracking-[-0.025em]">{title}</h3><p className="mt-2 text-sm leading-relaxed text-mut">{text}</p></div>)}
         </div>
       </section>
 
       <section>
         <div className="mb-5"><div className="page-kicker">The method</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Seven short lessons</h2><p className="mt-2 text-sm text-mut">Open only the lesson you need. The technical detail stays inside the lesson instead of crowding the rest of the site.</p></div>
-        <div className="divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+        <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
           {LESSONS.map((lesson) => (
             <details key={lesson.id} id={lesson.id} className="group scroll-mt-28">
               <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[48px_1fr_auto] sm:items-start">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#ebe7dc] text-[#49695a]"><lesson.Icon size={19} /></span>
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><lesson.Icon size={19} /></span>
                 <div><div className="text-xs font-bold text-[#a16b4c]">{lesson.number}</div><h3 className="mt-1 font-display text-[1.75rem] font-semibold leading-tight tracking-[-0.03em]">{lesson.title}</h3><p className="mt-1 text-[15px] font-semibold text-[#5f6c65]">{lesson.question}</p><p className="mt-2 max-w-2xl text-sm leading-relaxed text-mut">{lesson.summary}</p></div>
                 <span className="flex items-center gap-1 text-sm font-semibold text-[#49695a]">Read <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></span>
               </summary>
@@ -95,7 +95,7 @@ export default function GuidesPage() {
         </div>
       </section>
 
-      <section className="mt-12 border-t border-[#d7d0c4] pt-10">
+      <section className="mt-12 border-t border-[#27312B] pt-10">
         <details>
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-4"><div><div className="page-kicker">For the curious</div><h2 className="mt-1 font-display text-[1.9rem] font-semibold tracking-[-0.03em]">Why AXIOM is benchmark-first</h2><p className="mt-2 text-sm text-mut">The evidence that shaped the system's bias toward a benchmark-aware core and a separately measured active sleeve.</p></div><ChevronDown size={20} className="shrink-0 text-faint" /></div>
@@ -106,7 +106,7 @@ export default function GuidesPage() {
         </details>
       </section>
 
-      <div className="mt-12 flex items-start gap-4 border-t border-[#d9d2c6] pt-7"><Check size={20} className="mt-1 shrink-0 text-[#49695a]" /><div><div className="font-semibold">You do not need to finish the Learn section before using AXIOM.</div><p className="mt-1 text-sm leading-relaxed text-mut">The intended learning loop is read a little, use the routine, record a real decision, then return with a better question.</p></div></div>
+      <div className="mt-12 flex items-start gap-4 border-t border-[#27312B] pt-7"><Check size={20} className="mt-1 shrink-0 text-[#49695a]" /><div><div className="font-semibold">You do not need to finish the Learn section before using AXIOM.</div><p className="mt-1 text-sm leading-relaxed text-mut">The intended learning loop is read a little, use the routine, record a real decision, then return with a better question.</p></div></div>
     </div>
   );
 }

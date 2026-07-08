@@ -111,7 +111,7 @@ export default function PortfolioPage() {
   return (
     <div>
       {state.holdings.length === 0 ? (
-        <section className="rounded-[26px] bg-[#e8efe9] p-6 sm:p-9">
+        <section className="rounded-[26px] bg-[#EFF6F1] p-6 sm:p-9">
           <WalletCards size={25} className="text-[#456555]" />
           <h2 className="mt-5 max-w-2xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.25rem]">Add the investments you actually plan to hold.</h2>
           <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Start with your long-term portfolio. You do not need every data point on day one. Ticker, shares and a rough role are enough to begin.</p>
@@ -119,7 +119,7 @@ export default function PortfolioPage() {
         </section>
       ) : (
         <>
-          <section className="mb-10 grid gap-8 border-b border-[#d9d2c6] pb-10 lg:grid-cols-[1.35fr_.65fr] lg:items-end">
+          <section className="mb-10 grid gap-8 border-b border-[#27312B] pb-10 lg:grid-cols-[1.35fr_.65fr] lg:items-end">
             <div>
               <div className="page-kicker">Your portfolio in plain English</div>
               <h2 className="mt-2 max-w-3xl font-display text-[2.4rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.5rem]">
@@ -144,7 +144,7 @@ export default function PortfolioPage() {
         <section className="mb-12">
           <div className="page-kicker">Look here first</div>
           <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">What may need a decision</h2>
-          <div className="mt-5 divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+          <div className="mt-5 divide-y divide-[#27312B] border-y border-[#27312B]">
             {attention.map(({ h, row, reasons }) => (
               <div key={h.id} className="grid gap-3 py-5 sm:grid-cols-[44px_1fr_auto] sm:items-center">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f6e9e4] text-[#F4645C]"><CircleAlert size={18} /></span>
@@ -166,10 +166,10 @@ export default function PortfolioPage() {
             </div>
             {reviewed ? <span className="badge bg-[#10241C] text-[#34D399]"><CircleCheckBig size={15} />Reviewed this week</span> : <span className="badge bg-[#f2eadb] text-[#F0B429]">Review due</span>}
           </div>
-          <div className="mt-7 divide-y divide-[#ddd6ca] border-y border-[#ddd6ca]">
+          <div className="mt-7 divide-y divide-[#27312B] border-y border-[#27312B]">
             {REVIEW_STEPS.map((item, i) => (
               <label key={item.title} className="flex cursor-pointer items-start gap-4 py-5">
-                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${checked[i] ? "bg-[#B4F03C] text-white" : "border border-[#c9c1b4] bg-[#fffdf8] text-transparent"}`}><Check size={14} /></span>
+                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${checked[i] ? "bg-[#B4F03C] text-[#0B0F0D]" : "border border-[#3A453E] bg-[#fffdf8] text-transparent"}`}><Check size={14} /></span>
                 <input type="checkbox" className="sr-only" checked={checked[i]} onChange={() => setChecked((prev) => prev.map((v, j) => j === i ? !v : v))} />
                 <span><span className="block font-semibold">{item.title}</span><span className="mt-1 block text-sm leading-relaxed text-mut">{item.text}</span></span>
               </label>
@@ -188,7 +188,7 @@ export default function PortfolioPage() {
             <div><div className="page-kicker">What you own</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Holdings</h2></div>
             <div className="text-sm text-mut">Click a holding to review or edit it.</div>
           </div>
-          <div className="divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+          <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
             {state.holdings.map((h) => {
               const row = ps.rows.find((r) => r.id === h.id);
               const drift = row?.driftPct ?? null;
@@ -196,7 +196,7 @@ export default function PortfolioPage() {
                 <details key={h.id} className="group">
                   <summary className="grid cursor-pointer list-none gap-3 py-5 sm:grid-cols-[1fr_auto_auto] sm:items-center">
                     <div>
-                      <div className="flex items-center gap-3"><span className="text-[18px] font-bold">{h.ticker}</span><span className="badge bg-[#eeeae1] text-[#69736d]">{h.sleeve}</span></div>
+                      <div className="flex items-center gap-3"><span className="text-[18px] font-bold">{h.ticker}</span><span className="badge bg-[#1A211D] text-[#69736d]">{h.sleeve}</span></div>
                       <p className="mt-1 text-sm text-mut">{roleCopy(h.sleeve)} · Thesis {h.thesisStatus ? h.thesisStatus.toLowerCase() : "not reviewed"}</p>
                     </div>
                     <div className="text-sm sm:text-right"><div className="font-semibold">{fmtUsd(row?.marketValue ?? null)}</div><div className="text-xs text-faint">{fmtPct(row?.weightPct ?? null)} of portfolio</div></div>
@@ -217,7 +217,7 @@ export default function PortfolioPage() {
                       <label className="field-label">Why do you own it?<textarea className="field mt-1.5 min-h-24" value={h.notes} onChange={(e) => patchHolding(h.id, { notes: e.target.value })} placeholder="One or two plain-English sentences." /></label>
                       <label className="field-label">Income / balance-sheet note<textarea className="field mt-1.5 min-h-24" value={h.coverageNote} onChange={(e) => patchHolding(h.id, { coverageNote: e.target.value })} placeholder="Only when income quality matters." /></label>
                     </div>
-                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#ddd6ca] pt-5">
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#27312B] pt-5">
                       <div className="text-sm text-mut">Weight {fmtPct(row?.weightPct ?? null)} · Target {fmtPct(h.targetWeightPct)} · Drift {drift === null ? "—" : `${drift >= 0 ? "+" : "−"}${Math.abs(drift).toFixed(1)}%`}</div>
                       <button type="button" className="btn-danger" onClick={() => removeHolding(h.id)}>Remove {h.ticker}</button>
                     </div>
@@ -230,12 +230,12 @@ export default function PortfolioPage() {
         </section>
       )}
 
-      <section id="add-holding" className="border-t border-[#d7d0c4] pt-10">
+      <section id="add-holding" className="border-t border-[#27312B] pt-10">
         <details open={state.holdings.length === 0}>
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-4">
               <div><div className="page-kicker">Add to the long-term list</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Add a holding</h2><p className="mt-2 text-sm text-mut">Start with the basics. The extra income and ETF fields can be left blank until they matter.</p></div>
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ebe7dc] text-[#49695a]"><Plus size={18} /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><Plus size={18} /></span>
             </div>
           </summary>
           <div className="mt-7 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:p-8">

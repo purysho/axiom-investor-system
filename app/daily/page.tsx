@@ -115,7 +115,7 @@ export default function DailyPage() {
         <p>Five simple questions. You are looking for exceptions—not reasons to trade. When the check is finished, stop browsing the market.</p>
       </header>
 
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-y border-[#d9d2c6] py-4">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-y border-[#27312B] py-4">
         <div className="flex items-center gap-3">
           <Clock3 size={18} className="text-[#65746b]" />
           <div>
@@ -133,7 +133,7 @@ export default function DailyPage() {
       <div className="mb-6 flex gap-2" aria-label="Daily check progress">
         {DAILY_BLOCKS.map((b, i) => {
           const block = blocks.find((x) => x.id === b.id)!;
-          return <button key={b.id} type="button" onClick={() => setStep(i)} className={`h-2 flex-1 rounded-full transition-colors ${i === step ? "bg-[#B4F03C]" : block.status !== "Not Started" ? "bg-[#89a293]" : "bg-[#ddd6ca]"}`} aria-label={`Go to question ${i + 1}`} />;
+          return <button key={b.id} type="button" onClick={() => setStep(i)} className={`h-2 flex-1 rounded-full transition-colors ${i === step ? "bg-[#B4F03C]" : block.status !== "Not Started" ? "bg-[#89a293]" : "bg-[#27312B]"}`} aria-label={`Go to question ${i + 1}`} />;
         })}
       </div>
 
@@ -143,7 +143,7 @@ export default function DailyPage() {
         <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">{copy.help}</p>
 
         {spec.id === "risk" && (
-          <div className="mt-7 rounded-[18px] bg-[#ebe7dc] p-5">
+          <div className="mt-7 rounded-[18px] bg-[#151B17] p-5">
             <div className="flex items-start gap-3">
               <ShieldCheck size={20} className="mt-0.5 shrink-0 text-[#456555]" />
               <div>
@@ -163,17 +163,17 @@ export default function DailyPage() {
         )}
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
-          <button type="button" onClick={() => choose("Done")} disabled={spec.id === "candidates" && locked} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Done" ? "border-[#789486] bg-[#e8efe9]" : "border-[#d8d1c5] bg-[#fffdf8] hover:border-[#aebbad]"}`}>
+          <button type="button" onClick={() => choose("Done")} disabled={spec.id === "candidates" && locked} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Done" ? "border-[#789486] bg-[#EFF6F1]" : "border-[#27312B] bg-[#fffdf8] hover:border-[#aebbad]"}`}>
             <Check size={20} className="text-[#3f6c57]" />
             <div className="mt-3 font-semibold">Looks normal</div>
             <p className="mt-1 text-xs leading-relaxed text-mut">{copy.normal}</p>
           </button>
-          <button type="button" onClick={() => choose("Exception")} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Exception" ? "border-[#c68b75] bg-[#f9eee9]" : "border-[#d8d1c5] bg-[#fffdf8] hover:border-[#c8a08f]"}`}>
+          <button type="button" onClick={() => choose("Exception")} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Exception" ? "border-[#F4645C] bg-[#f9eee9]" : "border-[#27312B] bg-[#fffdf8] hover:border-[#F4645C]"}`}>
             <TriangleAlert size={20} className="text-[#F4645C]" />
             <div className="mt-3 font-semibold">Needs attention</div>
             <p className="mt-1 text-xs leading-relaxed text-mut">{copy.attention}</p>
           </button>
-          <button type="button" onClick={() => choose("Not Started")} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Not Started" ? "border-[#c4bbaa] bg-[#f1ede4]" : "border-[#d8d1c5] bg-[#fffdf8] hover:border-[#c4bbaa]"}`}>
+          <button type="button" onClick={() => choose("Not Started")} className={`text-left rounded-[18px] border p-5 transition ${current.status === "Not Started" ? "border-[#3A453E] bg-[#f1ede4]" : "border-[#27312B] bg-[#fffdf8] hover:border-[#3A453E]"}`}>
             <CircleHelp size={20} className="text-[#7d837f]" />
             <div className="mt-3 font-semibold">Not sure yet</div>
             <p className="mt-1 text-xs leading-relaxed text-mut">Leave this unanswered until you have checked the fact you need.</p>
@@ -187,7 +187,7 @@ export default function DailyPage() {
           </label>
         )}
 
-        <div className="mt-8 flex items-center justify-between border-t border-[#ded7ca] pt-5">
+        <div className="mt-8 flex items-center justify-between border-t border-[#27312B] pt-5">
           <button type="button" className="btn-ghost" disabled={step === 0} onClick={() => setStep((s) => Math.max(0, s - 1))}><ArrowLeft size={15} /> Back</button>
           {!isLast ? (
             <button type="button" className="btn-primary" onClick={next}>Next question <ArrowRight size={15} /></button>
@@ -197,7 +197,7 @@ export default function DailyPage() {
         </div>
       </section>
 
-      <section id="daily-answer" className="mt-8 border-t border-[#d5cec2] pt-10">
+      <section id="daily-answer" className="mt-8 border-t border-[#3A453E] pt-10">
         <div className="max-w-3xl">
           <div className="page-kicker">End with one clear sentence</div>
           <h2 className="mt-2 font-display text-[2.25rem] font-semibold leading-[1.06] tracking-[-0.04em]">What are you actually allowed to do today?</h2>

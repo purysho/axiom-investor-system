@@ -43,7 +43,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <section className="mb-10 rounded-[26px] bg-[#e7eee8] p-6 sm:p-9">
+      <section className="mb-10 rounded-[26px] bg-[#EFF6F1] p-6 sm:p-9">
         <ShieldCheck size={25} className="text-[#456555]" />
         <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Set the few rules AXIOM needs to guide you.</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">You can start with the defaults. The important thing is to use one consistent set of limits instead of changing risk because a trade feels exciting.</p>
@@ -64,7 +64,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="mb-12 border-t border-[#d7d0c4] pt-10">
+      <section className="mb-12 border-t border-[#27312B] pt-10">
         <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
           <div>
             <div className="page-kicker">Step 2</div>
@@ -73,8 +73,8 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="field-label max-w-sm">Risk per trade (%)<input className="field mt-1.5" inputMode="decimal" value={s.riskPerTradePct} onChange={(e) => setSetting({ riskPerTradePct: num(e.target.value, s.riskPerTradePct) })} /></label>
-            <div className="mt-5 rounded-[20px] bg-[#ebe7dc] p-5">
-              <div className="text-sm font-semibold text-[#5e6b64]">With your current portfolio value</div>
+            <div className="mt-5 rounded-[20px] bg-[#151B17] p-5">
+              <div className="text-sm font-semibold text-[#9FB0A6]">With your current portfolio value</div>
               <div className="mt-2 font-display text-[2.5rem] font-semibold tracking-[-0.04em]">1R = {fmtUsd(oneR)}</div>
               <p className="mt-2 text-sm leading-relaxed text-mut">A trade with an initial stop should be sized so the planned stop loss is around this amount before the single-position cap is applied.</p>
               <Link href="/gate" className="quiet-link mt-4">Try the position-size calculator <ArrowRight size={14} /></Link>
@@ -83,7 +83,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="mb-12 border-t border-[#d7d0c4] pt-10">
+      <section className="mb-12 border-t border-[#27312B] pt-10">
         <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
           <div>
             <div className="page-kicker">Step 3</div>
@@ -109,17 +109,17 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="border-t border-[#d7d0c4] pt-10">
+      <section className="border-t border-[#27312B] pt-10">
         <div className="page-kicker">Account and data</div>
         <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">The practical stuff</h2>
         <p className="mt-2 max-w-2xl text-sm text-mut">Account, backup and test-data controls live here so they do not interrupt the investing routine.</p>
 
-        <div className="mt-7 divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+        <div className="mt-7 divide-y divide-[#27312B] border-y border-[#27312B]">
           <AccountPanel />
 
           <details className="group">
             <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ebe7dc] text-[#49695a]"><HardDrive size={18} /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><HardDrive size={18} /></span>
               <div><div className="text-[17px] font-semibold">Backup and restore</div><p className="mt-1 text-sm text-mut">Keep a portable copy of your holdings, journal, reviews and settings.</p></div>
               <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
             </summary>
@@ -131,7 +131,7 @@ export default function SettingsPage() {
 
           <details className="group">
             <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ebe7dc] text-[#a16b4c]"><Sparkles size={18} /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#a16b4c]"><Sparkles size={18} /></span>
               <div><div className="text-[17px] font-semibold">Example data</div><p className="mt-1 text-sm text-mut">See the full site filled with a realistic sample before entering your own information.</p></div>
               <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
             </summary>
@@ -189,7 +189,7 @@ function AccountPanel() {
   return (
     <details className="group">
       <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ebe7dc] text-[#49695a]">{offline ? <UserRound size={18} /> : <KeyRound size={18} />}</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]">{offline ? <UserRound size={18} /> : <KeyRound size={18} />}</span>
         <div><div className="text-[17px] font-semibold">Account and sync</div><p className="mt-1 text-sm text-mut">{offline ? "This browser is currently keeping the AXIOM data locally." : account ? `Signed in as ${account.username}.` : "Checking account status…"}</p></div>
         <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
       </summary>

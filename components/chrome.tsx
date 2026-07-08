@@ -6,9 +6,10 @@ import { useEffect, useRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Home, PieChart, Lightbulb, BookOpenText, CalendarCheck2, Library,
-  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Sprout, Bot,
+  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Bot,
 } from "lucide-react";
 import { SyncBadge } from "@/components/sync";
+import { AxiomMark } from "@/components/logo";
 
 type NavItem = { href: string; label: string; key: string; Icon: LucideIcon };
 
@@ -100,7 +101,7 @@ export function Nav() {
       <header className="site-header">
         <div className="site-header-inner">
           <Link href="/" className="brand-mark" aria-label="AXIOM home">
-            <span className="brand-icon"><Sprout size={18} strokeWidth={1.9} /></span>
+            <span className="brand-icon"><AxiomMark size={26} /></span>
             <span className="brand-word">AXIOM</span>
           </Link>
 

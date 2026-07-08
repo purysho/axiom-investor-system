@@ -19,8 +19,8 @@ function ConflictBanner() {
   const s = useSyncStatus();
   if (s.mode !== "conflict") return null;
   return (
-    <div className="panel mb-3 border-l-4 p-3" style={{ borderLeftColor: "#E7A83E" }} role="alertdialog" aria-label="Sync conflict">
-      <div className="eyebrow" style={{ color: "#E7A83E" }}>
+    <div className="panel mb-3 border-l-4 p-3" style={{ borderLeftColor: "#F0B429" }} role="alertdialog" aria-label="Sync conflict">
+      <div className="eyebrow" style={{ color: "#F0B429" }}>
         Sync conflict
       </div>
       <p className="mt-1 text-xs leading-relaxed text-mut">
@@ -42,7 +42,7 @@ function ConflictBanner() {
 export function SyncBadge() {
   const s = useSyncStatus();
   const color =
-    s.mode === "synced" ? "#2FBF8F" : s.mode === "conflict" || s.mode === "offline-error" ? "#E7A83E" : "#55636F";
+    s.mode === "synced" ? "#2FBF8F" : s.mode === "conflict" || s.mode === "offline-error" ? "#F0B429" : "#55636F";
   return (
     <span className="font-mono text-[10px]" style={{ color }} title={s.detail}>
       {syncLabel(s)}

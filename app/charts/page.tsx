@@ -30,7 +30,7 @@ const ALL_INDICATORS = [
   { key: "sma200", label: "SMA 200", color: "#A84D45" },
   { key: "ema20",  label: "EMA 20",  color: "#8C6F87" },
   { key: "bb",     label: "Bollinger Bands", color: "#979D96" },
-  { key: "volume", label: "Volume",  color: "#DED7CA" },
+  { key: "volume", label: "Volume",  color: "#27312B" },
   { key: "rsi",    label: "RSI 14",  color: "#93A39A" },
   { key: "macd",   label: "MACD",    color: "#2F6B52" },
 ] as const;
@@ -196,7 +196,7 @@ export default function ChartsPage() {
                   style={
                     indicators[key as keyof typeof indicators]
                       ? { background: color + "18", borderColor: color, color }
-                      : { borderColor: "#DED7CA", color: "#979D96" }
+                      : { borderColor: "#27312B", color: "#979D96" }
                   }
                 >
                   <span

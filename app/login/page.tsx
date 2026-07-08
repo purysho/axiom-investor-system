@@ -36,11 +36,11 @@ export default function LoginPage() {
             <div><div className="font-display text-3xl font-semibold leading-none">Axiom</div><div className="mt-1 text-xs text-white/55">Investor workspace</div></div>
           </div>
           <div className="relative max-w-xl">
-            <div className="text-xs font-semibold text-[#E7C98D]">A cockpit, not a casino.</div>
+            <div className="text-xs font-semibold text-[#F0B429]">A cockpit, not a casino.</div>
             <h1 className="mt-4 font-display text-[3.65rem] font-medium leading-[1.02] tracking-[-0.045em] text-[#FFFDF6]">Know what deserves attention. Ignore the rest.</h1>
             <p className="mt-6 max-w-lg text-[15px] leading-relaxed text-white/65">Axiom helps you check risk, review your portfolio, record decisions and improve the process—without turning investing into an endless feed.</p>
           </div>
-          <div className="relative flex items-center gap-3 text-xs text-white/55"><ShieldCheck size={16} className="text-[#E7C98D]" /> Risk first · candidates second · learning always</div>
+          <div className="relative flex items-center gap-3 text-xs text-white/55"><ShieldCheck size={16} className="text-[#F0B429]" /> Risk first · candidates second · learning always</div>
         </section>
 
         <section className="flex min-h-[680px] items-center justify-center p-6 sm:p-10 lg:min-h-[720px] lg:p-14">

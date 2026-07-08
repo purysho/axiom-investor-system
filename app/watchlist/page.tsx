@@ -136,7 +136,7 @@ export default function WatchlistPage() {
 
   return (
     <div>
-      <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${locked ? "bg-[#241111]" : "bg-[#e7eee8]"}`}>
+      <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${locked ? "bg-[#241111]" : "bg-[#EFF6F1]"}`}>
         {locked ? <LockKeyhole size={25} className="text-[#F4645C]" /> : <Lightbulb size={25} className="text-[#456555]" />}
         <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">
           {locked ? "New trade ideas can wait today." : "Keep ideas here until the facts earn your attention."}
@@ -155,7 +155,7 @@ export default function WatchlistPage() {
           <div className="page-kicker">Worth a closer look</div>
           <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">{firedAlerts.length} condition{firedAlerts.length === 1 ? " has" : "s have"} been met</h2>
           <p className="mt-3 text-sm leading-relaxed text-mut">A condition firing is a fact, not a buy signal. The next step is to review the idea and plan risk.</p>
-          <div className="mt-5 divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+          <div className="mt-5 divide-y divide-[#27312B] border-y border-[#27312B]">
             {firedAlerts.map((a) => (
               <div key={a.rule.id} className="grid gap-3 py-5 sm:grid-cols-[44px_1fr_auto] sm:items-center">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f2eadb] text-[#F0B429]"><Bell size={18} /></span>
@@ -174,15 +174,15 @@ export default function WatchlistPage() {
         </div>
 
         {state.watchRules.length === 0 ? (
-          <div className="border-y border-[#d9d2c6] py-8">
+          <div className="border-y border-[#27312B] py-8">
             <div className="max-w-2xl">
-              <CircleHelp size={22} className="text-[#7b837e]" />
+              <CircleHelp size={22} className="text-[#77897E]" />
               <h3 className="mt-4 font-display text-[1.8rem] font-semibold tracking-[-0.03em]">What belongs here?</h3>
               <p className="mt-3 text-sm leading-relaxed text-mut">Example: “Look at ABC again if the price reaches 52” or “Review XYZ if volume rises above 1.5× average.” The alert tells you a fact changed; it never tells you to trade.</p>
             </div>
           </div>
         ) : (
-          <div className="divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+          <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
             {state.watchRules.map((rule) => {
               const current = state.watchData.rows.find((r) => r.ticker === rule.ticker)?.values[rule.metric] ?? null;
               const alert = digest?.find((a) => a.rule.id === rule.id);
@@ -220,7 +220,7 @@ export default function WatchlistPage() {
       )}
 
       {state.watchRules.length > 0 && (
-        <section className="border-t border-[#d7d0c4] pt-10">
+        <section className="border-t border-[#27312B] pt-10">
           <details>
             <summary className="cursor-pointer list-none">
               <div className="flex items-center justify-between gap-4">

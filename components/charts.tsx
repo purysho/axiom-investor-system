@@ -17,19 +17,19 @@ import {
 
 // ── shared tokens ──────────────────────────────────────────────────────────
 const C = {
-  allowed: "#2F6B52",
-  reduced: "#A8732F",
-  closed:  "#A84D45",
+  allowed: "#34D399",
+  reduced: "#F0B429",
+  closed:  "#F4645C",
   steel:   "#93A39A",
-  line:    "#DED7CA",
-  mut:     "#68716B",
+  line:    "#27312B",
+  mut:     "#9FB0A6",
   faint:   "#979D96",
   ink:     "#1E2A24",
-  bg:      "#FFFEFA",
+  bg:      "#121714",
 };
 
 const tooltipStyle = {
-  backgroundColor: "#FFFEFA",
+  backgroundColor: "#121714",
   border: `1px solid ${C.line}`,
   borderRadius: 14,
   fontSize: 12,

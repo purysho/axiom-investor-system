@@ -91,7 +91,7 @@ export default function TodayPage() {
 
       {empty ? (
         <>
-          <section className="mb-8 rounded-[26px] bg-[#e7eee8] p-6 sm:p-9">
+          <section className="mb-8 rounded-[26px] bg-[#EFF6F1] p-6 sm:p-9">
             <div className="max-w-2xl">
               <span className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#B4F03C] text-[#f5e9d5]"><Leaf size={21} /></span>
               <h2 className="font-display text-[2.15rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[#243d33] sm:text-[3rem]">Start with a routine, not a watchlist.</h2>
@@ -109,7 +109,7 @@ export default function TodayPage() {
               ["2", "Look after what you own", "Review holdings on a schedule instead of reacting to every market move."],
               ["3", "Learn from real decisions", "Close every trade with a short reflection and review patterns once a month."],
             ].map(([n, title, text]) => (
-              <div key={n} className="border-t border-[#cfc8bc] pt-5">
+              <div key={n} className="border-t border-[#3A453E] pt-5">
                 <div className="text-sm font-bold text-[#a16b4c]">{n}</div>
                 <h3 className="mt-3 font-display text-2xl font-semibold tracking-[-0.025em]">{title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-mut">{text}</p>
@@ -119,17 +119,17 @@ export default function TodayPage() {
         </>
       ) : (
         <>
-          <section className="mb-10 grid gap-7 border-b border-[#d9d2c6] pb-10 lg:grid-cols-[1.45fr_.55fr] lg:items-end">
+          <section className="mb-10 grid gap-7 border-b border-[#27312B] pb-10 lg:grid-cols-[1.45fr_.55fr] lg:items-end">
             <div>
-              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#627269]"><ShieldCheck size={17} /> Today's answer</div>
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#9FB0A6]"><ShieldCheck size={17} /> Today's answer</div>
               <h2 className="max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.06] tracking-[-0.04em] sm:text-[3.6rem]">{plainAction(action)}</h2>
               <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">{because ? `Why: ${because}.` : "Complete today's check to see what your rules permit."}</p>
               <Link href={todaysCheck ? firstOpen.href : "/daily"} className="btn-primary mt-7">
                 {todaysCheck ? firstOpen.cta : "Start today's 15-minute check"} <ArrowRight size={16} />
               </Link>
             </div>
-            <div className="rounded-[20px] bg-[#ebe7dc] p-5">
-              <div className="text-sm font-semibold text-[#5e6b64]">Risk check</div>
+            <div className="rounded-[20px] bg-[#151B17] p-5">
+              <div className="text-sm font-semibold text-[#9FB0A6]">Risk check</div>
               <div className="mt-2 font-display text-[1.75rem] font-semibold tracking-[-0.03em]">{gate.checks.filter((c) => c.pass).length} of {gate.checks.length} checks are clear</div>
               <p className="mt-2 text-sm leading-relaxed text-mut">{state.gateInputs.asOf ? "The latest saved risk conditions are being used." : "Market conditions still need to be updated."}</p>
               <Link href="/gate" className="quiet-link mt-4">See what AXIOM checked <ArrowRight size={14} /></Link>
@@ -141,10 +141,10 @@ export default function TodayPage() {
               <div className="page-kicker">Start here</div>
               <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em] sm:text-[2.6rem]">Your next few steps</h2>
             </div>
-            <div className="divide-y divide-[#dcd5c9] border-y border-[#dcd5c9]">
+            <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
               {steps.map(({ done, title, text, href, cta, Icon }, index) => (
                 <Link href={href} key={title} className="group grid gap-4 py-6 sm:grid-cols-[48px_1fr_auto] sm:items-center">
-                  <span className={`flex h-11 w-11 items-center justify-center rounded-full ${done ? "bg-[#10241C] text-[#34D399]" : index === steps.findIndex((s) => !s.done) ? "bg-[#B4F03C] text-white" : "bg-[#eee9df] text-[#7b837e]"}`}>
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-full ${done ? "bg-[#10241C] text-[#34D399]" : index === steps.findIndex((s) => !s.done) ? "bg-[#B4F03C] text-[#0B0F0D]" : "bg-[#1A211D] text-[#77897E]"}`}>
                     {done ? <Check size={18} strokeWidth={2.4} /> : <Icon size={18} />}
                   </span>
                   <span>
@@ -167,7 +167,7 @@ export default function TodayPage() {
                 <p className="mt-2 text-sm leading-relaxed text-mut">Spend 15 minutes checking risk, events and existing positions. Stop when the check is done.</p>
                 <Link href="/daily" className="quiet-link mt-3">Daily check</Link>
               </div>
-              <div className="border-l-2 border-[#c3a66f] pl-5">
+              <div className="border-l-2 border-[#F0B429] pl-5">
                 <CalendarDays size={19} className="text-[#9b7435]" />
                 <h3 className="mt-3 text-lg font-semibold">This week</h3>
                 <p className="mt-2 text-sm leading-relaxed text-mut">Review long-term holdings once. Decide whether anything has changed enough to act.</p>
@@ -198,7 +198,7 @@ export default function TodayPage() {
           </section>
 
           {!monthDone && (
-            <div className="flex items-start gap-4 border-t border-[#d9d2c6] pt-7">
+            <div className="flex items-start gap-4 border-t border-[#27312B] pt-7">
               <CircleCheckBig size={20} className="mt-1 shrink-0 text-[#49695a]" />
               <div>
                 <div className="font-semibold">The goal is not to keep AXIOM open.</div>

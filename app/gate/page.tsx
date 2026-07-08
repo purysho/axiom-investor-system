@@ -72,7 +72,7 @@ export default function GatePage() {
   };
 
   const stateMeta = gate.state === "RISK ALLOWED"
-    ? { Icon: ShieldCheck, answer: "Yes — you may consider new swing risk.", copy: "All six checks are clear. This does not make any trade good; it only means your process allows you to review ideas and size them normally.", bg: "#e6efe8", ink: "#34D399" }
+    ? { Icon: ShieldCheck, answer: "Yes — you may consider new swing risk.", copy: "All six checks are clear. This does not make any trade good; it only means your process allows you to review ideas and size them normally.", bg: "#EFF6F1", ink: "#34D399" }
     : gate.state === "REDUCED RISK ONLY"
       ? { Icon: AlertTriangle, answer: "Only with extra caution.", copy: "One check is outside your normal limit. Smaller risk or standing aside is the default. Any exception should be written down before a trade is planned.", bg: "#241C0E", ink: "#F0B429" }
       : { Icon: ShieldOff, answer: "No — do not take new swing risk today.", copy: "Two or more checks are failing or unresolved. Manage existing positions and leave new trade ideas alone until the conditions are understood.", bg: "#241111", ink: "#F4645C" };
@@ -104,10 +104,10 @@ export default function GatePage() {
           <p className="mt-3 text-sm leading-relaxed text-mut">Unknown facts stay unknown. AXIOM never treats missing information as a pass.</p>
         </div>
 
-        <div className="divide-y divide-[#d9d2c6] border-y border-[#d9d2c6]">
+        <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
           {gate.checks.map((c) => {
             const plain = PLAIN_CHECKS[c.id];
-            const tone = c.pass ? { Icon: Check, label: "Clear", ink: "#34D399", bg: "#e8efe9" } : c.unknown ? { Icon: CircleHelp, label: "Not known", ink: "#767e79", bg: "#eeeae1" } : { Icon: AlertTriangle, label: "Outside limit", ink: "#F4645C", bg: "#f7eae5" };
+            const tone = c.pass ? { Icon: Check, label: "Clear", ink: "#34D399", bg: "#EFF6F1" } : c.unknown ? { Icon: CircleHelp, label: "Not known", ink: "#767e79", bg: "#1A211D" } : { Icon: AlertTriangle, label: "Outside limit", ink: "#F4645C", bg: "#f7eae5" };
             return (
               <div key={c.id} className="grid gap-4 py-6 sm:grid-cols-[48px_1fr_auto] sm:items-start">
                 <span className="flex h-11 w-11 items-center justify-center rounded-full" style={{ background: tone.bg, color: tone.ink }}><tone.Icon size={18} /></span>
@@ -130,7 +130,7 @@ export default function GatePage() {
         </div>
       </section>
 
-      <section className="mb-12 border-t border-[#d7d0c4] pt-10">
+      <section className="mb-12 border-t border-[#27312B] pt-10">
         <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr]">
           <div>
             <div className="page-kicker">Two things only you can answer</div>
@@ -191,7 +191,7 @@ export default function GatePage() {
         </details>
       </section>
 
-      <section className="border-t border-[#d7d0c4] pt-10">
+      <section className="border-t border-[#27312B] pt-10">
         <details>
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-5">
@@ -200,7 +200,7 @@ export default function GatePage() {
                 <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Size a trade from the loss I can accept</h2>
                 <p className="mt-3 text-sm leading-relaxed text-mut">Open the calculator when you have a real entry and stop. AXIOM works backwards from your planned risk budget instead of asking how confident you feel.</p>
               </div>
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#ebe7dc] text-[#49695a]"><Gauge size={18} /></span>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><Gauge size={18} /></span>
             </div>
           </summary>
 

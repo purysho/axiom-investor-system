@@ -26,7 +26,7 @@ interface Invite {
 }
 
 const gateColor = (s: string) =>
-  s === "RISK ALLOWED" ? "#2FBF8F" : s === "REDUCED RISK ONLY" ? "#E7A83E" : s === "NO NEW SWINGS" ? "#E5484D" : "#7E8C99";
+  s === "RISK ALLOWED" ? "#2FBF8F" : s === "REDUCED RISK ONLY" ? "#F0B429" : s === "NO NEW SWINGS" ? "#E5484D" : "#7E8C99";
 
 export default function GroupPage() {
   const [members, setMembers] = useState<Member[] | null>(null);
