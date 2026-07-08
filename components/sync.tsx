@@ -42,7 +42,7 @@ function ConflictBanner() {
 export function SyncBadge() {
   const s = useSyncStatus();
   const color =
-    s.mode === "synced" ? "#2FBF8F" : s.mode === "conflict" || s.mode === "offline-error" ? "#F0B429" : "#55636F";
+    s.mode === "synced" ? "#10241C" : s.mode === "conflict" || s.mode === "offline-error" ? "#F0B429" : "#55636F";
   return (
     <span className="font-mono text-[10px]" style={{ color }} title={s.detail}>
       {syncLabel(s)}

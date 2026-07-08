@@ -43,7 +43,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <section className="mb-10 rounded-[26px] bg-[#EFF6F1] p-6 sm:p-9">
+      <section className="mb-10 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
         <ShieldCheck size={25} className="text-[#456555]" />
         <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Set the few rules AXIOM needs to guide you.</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">You can start with the defaults. The important thing is to use one consistent set of limits instead of changing risk because a trade feels exciting.</p>
@@ -98,7 +98,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="mb-12 rounded-[24px] bg-[#fffdf8]/76 p-6 sm:p-8">
+      <section className="mb-12 rounded-[24px] bg-[#241C0E]/76 p-6 sm:p-8">
         <div className="flex items-start gap-4">
           <Check size={21} className="mt-1 shrink-0 text-[#49695a]" />
           <div>
@@ -123,7 +123,7 @@ export default function SettingsPage() {
               <div><div className="text-[17px] font-semibold">Backup and restore</div><p className="mt-1 text-sm text-mut">Keep a portable copy of your holdings, journal, reviews and settings.</p></div>
               <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
             </summary>
-            <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:ml-14 sm:p-7">
+            <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:ml-14 sm:p-7">
               <p className="text-sm leading-relaxed text-mut">Your backup contains {counts.holdings} holding{counts.holdings === 1 ? "" : "s"}, {counts.trades} trade{counts.trades === 1 ? "" : "s"}, {counts.watch} idea rule{counts.watch === 1 ? "" : "s"}, {counts.days} daily check{counts.days === 1 ? "" : "s"}, and {counts.months} monthly review{counts.months === 1 ? "" : "s"}.</p>
               <div className="mt-5 flex flex-wrap gap-3"><button type="button" className="btn" onClick={doExport}><Download size={15} />Download backup</button><button type="button" className="btn" onClick={() => fileRef.current?.click()}><Upload size={15} />Restore backup</button><input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void onImport(f); e.target.value = ""; }} /></div>
             </div>
@@ -135,7 +135,7 @@ export default function SettingsPage() {
               <div><div className="text-[17px] font-semibold">Example data</div><p className="mt-1 text-sm text-mut">See the full site filled with a realistic sample before entering your own information.</p></div>
               <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
             </summary>
-            <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:ml-14 sm:p-7"><p className="text-sm leading-relaxed text-mut">Loading example data replaces the current local state with sample holdings, swing trades, trade ideas, daily checks and monthly reviews.</p><button type="button" className="btn mt-5" onClick={loadDemo}>Load example data</button></div>
+            <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:ml-14 sm:p-7"><p className="text-sm leading-relaxed text-mut">Loading example data replaces the current local state with sample holdings, swing trades, trade ideas, daily checks and monthly reviews.</p><button type="button" className="btn mt-5" onClick={loadDemo}>Load example data</button></div>
           </details>
 
           <details className="group">
@@ -144,7 +144,7 @@ export default function SettingsPage() {
               <div><div className="text-[17px] font-semibold">Reset AXIOM</div><p className="mt-1 text-sm text-mut">Clear all holdings, trades, ideas, daily checks and monthly reviews from this browser.</p></div>
               <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
             </summary>
-            <div className="mb-6 rounded-[20px] bg-[#fff8f5] p-5 sm:ml-14 sm:p-7"><p className="text-sm leading-relaxed text-mut">Download a backup first if there is any chance you will want the data again.</p><div className="mt-5 flex flex-wrap items-center gap-3"><button type="button" className="btn-danger" onClick={doReset} disabled={!hasData && !confirmReset}>{confirmReset ? "Click again to erase everything" : "Reset all data"}</button>{confirmReset && <button type="button" className="btn" onClick={() => setConfirmReset(false)}>Cancel</button>}</div></div>
+            <div className="mb-6 rounded-[20px] bg-[#241111] p-5 sm:ml-14 sm:p-7"><p className="text-sm leading-relaxed text-mut">Download a backup first if there is any chance you will want the data again.</p><div className="mt-5 flex flex-wrap items-center gap-3"><button type="button" className="btn-danger" onClick={doReset} disabled={!hasData && !confirmReset}>{confirmReset ? "Click again to erase everything" : "Reset all data"}</button>{confirmReset && <button type="button" className="btn" onClick={() => setConfirmReset(false)}>Cancel</button>}</div></div>
           </details>
         </div>
       </section>
@@ -193,7 +193,7 @@ function AccountPanel() {
         <div><div className="text-[17px] font-semibold">Account and sync</div><p className="mt-1 text-sm text-mut">{offline ? "This browser is currently keeping the AXIOM data locally." : account ? `Signed in as ${account.username}.` : "Checking account status…"}</p></div>
         <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
       </summary>
-      <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:ml-14 sm:p-7">
+      <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:ml-14 sm:p-7">
         {offline ? <p className="text-sm leading-relaxed text-mut">You are using offline mode. Data stays in this browser and does not sync across devices. <a href="/login" className="quiet-link">Sign in or join with an invite</a> to enable account sync.</p> : account ? <div className="grid gap-5"><div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end"><label className="field-label">Display name<input className="field mt-1.5" value={dn} onChange={(e) => setDn(e.target.value)} /></label><button type="button" className="btn" onClick={() => void saveName()}>Save name</button></div><div className="grid gap-4 sm:grid-cols-2"><label className="field-label">Current passphrase<input className="field mt-1.5" type="password" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} /></label><label className="field-label">New passphrase<input className="field mt-1.5" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} /></label></div><div className="flex flex-wrap gap-3"><button type="button" className="btn" onClick={() => void changePass()}>Change passphrase</button><button type="button" className="btn" onClick={() => void signOut()}>Sign out</button></div>{msg && <p className="text-sm text-mut" role="status">{msg}</p>}</div> : <p className="text-sm text-mut">Checking your account…</p>}
       </div>
     </details>

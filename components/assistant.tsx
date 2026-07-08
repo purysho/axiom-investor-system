@@ -131,7 +131,7 @@ export default function AssistantWidget() {
                       key={s}
                       type="button"
                       onClick={() => void send(s)}
-                      className="rounded-[14px] border border-[#232B26] bg-white/70 px-3.5 py-2.5 text-left text-sm text-ink transition-colors hover:border-[#5C6B62]"
+                      className="rounded-[14px] border border-[#232B26] bg-white/[0.06] px-3.5 py-2.5 text-left text-sm text-ink transition-colors hover:border-[#5C6B62]"
                     >
                       {s}
                     </button>

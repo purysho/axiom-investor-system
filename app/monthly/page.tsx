@@ -56,7 +56,7 @@ export default function MonthlyPage() {
 
   return (
     <div>
-      <section className="mb-10 rounded-[26px] bg-[#EFF6F1] p-6 sm:p-9">
+      <section className="mb-10 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
         <Sparkles size={25} className="text-[#456555]" />
         <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Did your process improve this month?</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Do this once at month-end. First compare results, then explain them, then look for repeated process problems. Change one rule only when the evidence deserves it.</p>
@@ -99,12 +99,12 @@ export default function MonthlyPage() {
         <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Look for a repeated process problem</h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-mut">These journal numbers are context, not grades. A rule deserves review when the same behaviour keeps appearing or the current risk control is clearly inadequate.</p>
         <div className="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="border-l-2 border-[#8fa296] pl-5"><BarChart3 size={18} className="text-[#49695a]" /><div className="mt-3 text-xs font-semibold text-faint">Closed trades</div><div className="mt-1 text-2xl font-semibold">{js.closedCount}</div></div>
-          <div className="border-l-2 border-[#8fa296] pl-5"><Scale size={18} className="text-[#49695a]" /><div className="mt-3 text-xs font-semibold text-faint">Average R</div><div className="mt-1 text-2xl font-semibold">{fmtR(js.avgR)}</div></div>
+          <div className="border-l-2 border-[#1A211D] pl-5"><BarChart3 size={18} className="text-[#49695a]" /><div className="mt-3 text-xs font-semibold text-faint">Closed trades</div><div className="mt-1 text-2xl font-semibold">{js.closedCount}</div></div>
+          <div className="border-l-2 border-[#1A211D] pl-5"><Scale size={18} className="text-[#49695a]" /><div className="mt-3 text-xs font-semibold text-faint">Average R</div><div className="mt-1 text-2xl font-semibold">{fmtR(js.avgR)}</div></div>
           <div className="border-l-2 border-[#F0B429] pl-5"><RefreshCcw size={18} className="text-[#a16b4c]" /><div className="mt-3 text-xs font-semibold text-faint">Largest loss</div><div className="mt-1 text-2xl font-semibold">{js.largestLossR !== null ? fmtR(js.largestLossR) : "—"}</div></div>
-          <div className="border-l-2 border-[#8fa296] pl-5"><CircleCheckBig size={18} className="text-[#49695a]" /><div className="mt-3 text-xs font-semibold text-faint">Rule adherence</div><div className="mt-1 text-2xl font-semibold">{fmtPct(js.adherencePct, 0)}</div></div>
+          <div className="border-l-2 border-[#1A211D] pl-5"><CircleCheckBig size={18} className="text-[#49695a]" /><div className="mt-3 text-xs font-semibold text-faint">Rule adherence</div><div className="mt-1 text-2xl font-semibold">{fmtPct(js.adherencePct, 0)}</div></div>
         </div>
-        {js.mistakeCounts.length > 0 && <div className="mt-7 rounded-[18px] bg-[#fffdf8]/75 p-5"><div className="font-semibold">Repeated journal tags</div><p className="mt-2 text-sm leading-relaxed text-mut">{js.mistakeCounts.map(([tag, n]) => `${tag} ×${n}`).join(" · ")}. A repeated tag is a question to investigate, not an automatic new rule.</p></div>}
+        {js.mistakeCounts.length > 0 && <div className="mt-7 rounded-[18px] bg-[#241C0E]/75 p-5"><div className="font-semibold">Repeated journal tags</div><p className="mt-2 text-sm leading-relaxed text-mut">{js.mistakeCounts.map(([tag, n]) => `${tag} ×${n}`).join(" · ")}. A repeated tag is a question to investigate, not an automatic new rule.</p></div>}
       </section>
 
       <section className="mb-12 border-t border-[#27312B] pt-10">
@@ -113,12 +113,12 @@ export default function MonthlyPage() {
           <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Does one rule need to change?</h2>
           <p className="mt-3 text-sm leading-relaxed text-mut">Most months, the correct answer may be no. Do not redesign your process after one painful loss or one lucky streak.</p>
         </div>
-        <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-[18px] bg-[#fffdf8]/70 p-5">
+        <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-[18px] bg-[#241C0E]/70 p-5">
           <input type="checkbox" className="mt-1" checked={draft.changeRule} onChange={(e) => setDraft({ ...draft, changeRule: e.target.checked })} />
           <span><span className="block font-semibold">Yes, I have enough evidence to test one rule change</span><span className="mt-1 block text-sm text-mut">The change will be exact, linked to evidence, and given a review date.</span></span>
         </label>
         {draft.changeRule && (
-          <div className="mt-5 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:p-8">
+          <div className="mt-5 rounded-[22px] bg-[#241C0E]/76 p-6 sm:p-8">
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="field-label">What is the current rule?<textarea className="field mt-1.5 min-h-24" value={draft.oldRule} onChange={(e) => setDraft({ ...draft, oldRule: e.target.value })} /></label>
               <label className="field-label">What exactly will the new rule be?<textarea className="field mt-1.5 min-h-24" value={draft.newRule} onChange={(e) => setDraft({ ...draft, newRule: e.target.value })} /></label>
@@ -148,7 +148,7 @@ export default function MonthlyPage() {
                       <div className="sm:text-right"><div className="font-semibold">{fmtPct(ret, 2)}</div><div className="text-xs text-faint">Portfolio return</div></div>
                       <div className="flex items-center gap-1 text-sm font-semibold text-[#49695a]">Read review <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></div>
                     </summary>
-                    <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:p-7">
+                    <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:p-7">
                       <div className="grid gap-5 sm:grid-cols-3"><div><div className="text-xs font-semibold text-faint">Return</div><div className="mt-1 text-xl font-semibold">{fmtPct(ret, 2)}</div></div><div><div className="text-xs font-semibold text-faint">Benchmark</div><div className="mt-1 text-xl font-semibold">{fmtPct(m.benchmarkReturnPct, 2)}</div></div><div><div className="text-xs font-semibold text-faint">Gap</div><div className="mt-1 text-xl font-semibold">{gap === null ? "—" : `${gap >= 0 ? "+" : "−"}${Math.abs(gap).toFixed(2)}%`}</div></div></div>
                       <div className="mt-6 border-l-2 border-[#F0B429] pl-5"><div className="text-xs font-semibold text-faint">What drove the month</div><p className="mt-2 text-sm leading-relaxed text-ink">{m.notes || "No attribution note was saved."}</p></div>
                       {m.ruleChange && <div className="mt-6 rounded-[16px] bg-[#151B17] p-5"><div className="text-xs font-semibold text-faint">Rule experiment</div><p className="mt-2 text-sm leading-relaxed text-ink"><strong>{m.ruleChange.oldRule}</strong> → <strong>{m.ruleChange.newRule}</strong></p><p className="mt-2 text-sm text-mut">Evidence: {m.ruleChange.evidence}. Review: {m.ruleChange.reviewDate || "not dated"}.</p></div>}

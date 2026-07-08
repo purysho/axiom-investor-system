@@ -136,7 +136,7 @@ export default function WatchlistPage() {
 
   return (
     <div>
-      <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${locked ? "bg-[#241111]" : "bg-[#EFF6F1]"}`}>
+      <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${locked ? "bg-[#241111]" : "bg-[#141B17]"}`}>
         {locked ? <LockKeyhole size={25} className="text-[#F4645C]" /> : <Lightbulb size={25} className="text-[#456555]" />}
         <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">
           {locked ? "New trade ideas can wait today." : "Keep ideas here until the facts earn your attention."}
@@ -158,7 +158,7 @@ export default function WatchlistPage() {
           <div className="mt-5 divide-y divide-[#27312B] border-y border-[#27312B]">
             {firedAlerts.map((a) => (
               <div key={a.rule.id} className="grid gap-3 py-5 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f2eadb] text-[#F0B429]"><Bell size={18} /></span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#241C0E] text-[#F0B429]"><Bell size={18} /></span>
                 <div><div className="text-[17px] font-semibold">{a.rule.ticker}</div><p className="mt-1 text-sm text-mut">{conditionText(a.rule)}. Current reading: {a.current ?? "not available"}.{a.rule.note ? ` ${a.rule.note}` : ""}</p></div>
                 <Link href="/charts" className="quiet-link">Review the evidence <ArrowRight size={14} /></Link>
               </div>
@@ -189,7 +189,7 @@ export default function WatchlistPage() {
               return (
                 <div key={rule.id} className="grid gap-4 py-5 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div>
-                    <div className="flex flex-wrap items-center gap-3"><span className="text-[18px] font-bold">{rule.ticker}</span>{alert?.fired && <span className="badge bg-[#f2eadb] text-[#F0B429]">Condition met</span>}</div>
+                    <div className="flex flex-wrap items-center gap-3"><span className="text-[18px] font-bold">{rule.ticker}</span>{alert?.fired && <span className="badge bg-[#241C0E] text-[#F0B429]">Condition met</span>}</div>
                     <p className="mt-1 text-sm text-mut">{conditionText(rule)}{rule.note ? ` · ${rule.note}` : ""}</p>
                     <p className="mt-1 text-xs text-faint">Latest saved {METRIC_LABELS[rule.metric] ?? rule.metric}: {current ?? "not available"}</p>
                   </div>
@@ -202,7 +202,7 @@ export default function WatchlistPage() {
       </section>
 
       {!locked && (
-        <section className="mb-12 rounded-[24px] bg-[#fffdf8]/76 p-6 sm:p-8">
+        <section className="mb-12 rounded-[24px] bg-[#241C0E]/76 p-6 sm:p-8">
           <div className="max-w-2xl">
             <div className="page-kicker">Add one clear reason to look again</div>
             <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Add a trade idea</h2>
@@ -228,7 +228,7 @@ export default function WatchlistPage() {
                 <ChevronDown size={20} className="shrink-0 text-faint" />
               </div>
             </summary>
-            <div className="mt-7 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:p-8">
+            <div className="mt-7 rounded-[22px] bg-[#241C0E]/76 p-6 sm:p-8">
               <div className="flex flex-wrap items-center gap-3">
                 <button type="button" className="btn" onClick={() => void fetchData()} disabled={fetching}><RefreshCw size={15} />{fetching ? "Updating…" : "Update data"}</button>
                 <button type="button" className="btn" onClick={runCheck}>Run alert check</button>

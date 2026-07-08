@@ -91,10 +91,10 @@ export default function TodayPage() {
 
       {empty ? (
         <>
-          <section className="mb-8 rounded-[26px] bg-[#EFF6F1] p-6 sm:p-9">
+          <section className="mb-8 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
             <div className="max-w-2xl">
-              <span className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#B4F03C] text-[#f5e9d5]"><Leaf size={21} /></span>
-              <h2 className="font-display text-[2.15rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[#243d33] sm:text-[3rem]">Start with a routine, not a watchlist.</h2>
+              <span className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#B4F03C] text-[#241C0E]"><Leaf size={21} /></span>
+              <h2 className="font-display text-[2.15rem] font-semibold leading-[1.05] tracking-[-0.04em] text-ink sm:text-[3rem]">Start with a routine, not a watchlist.</h2>
               <p className="mt-4 text-[16px] leading-relaxed text-[#607067]">Tell AXIOM about your portfolio and starting risk limits. From there, it guides you through a 15-minute daily check, a weekly portfolio review and a monthly learning loop.</p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link className="btn-primary" href="/settings">Set up AXIOM <ArrowRight size={16} /></Link>
@@ -151,7 +151,7 @@ export default function TodayPage() {
                     <span className="block text-[17px] font-semibold text-ink">{title}</span>
                     <span className="mt-1 block max-w-2xl text-sm leading-relaxed text-mut">{text}</span>
                   </span>
-                  <span className="inline-flex items-center gap-1 text-sm font-bold text-[#315e4d] group-hover:underline">{cta} <ArrowRight size={14} /></span>
+                  <span className="inline-flex items-center gap-1 text-sm font-bold text-[#B4F03C] group-hover:underline">{cta} <ArrowRight size={14} /></span>
                 </Link>
               ))}
             </div>
@@ -182,7 +182,7 @@ export default function TodayPage() {
             </div>
           </section>
 
-          <section className="mb-10 rounded-[22px] bg-[#fffdf8]/70 px-6 py-6 sm:px-8">
+          <section className="mb-10 rounded-[22px] bg-[#241C0E]/70 px-6 py-6 sm:px-8">
             <div className="flex items-start gap-4">
               <Lightbulb size={21} className="mt-1 shrink-0 text-[#a16b4c]" />
               <div className="min-w-0 flex-1">

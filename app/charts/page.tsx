@@ -29,7 +29,7 @@ const ALL_INDICATORS = [
   { key: "sma50",  label: "SMA 50",  color: "#A8732F" },
   { key: "sma200", label: "SMA 200", color: "#A84D45" },
   { key: "ema20",  label: "EMA 20",  color: "#8C6F87" },
-  { key: "bb",     label: "Bollinger Bands", color: "#979D96" },
+  { key: "bb",     label: "Bollinger Bands", color: "#1A211D" },
   { key: "volume", label: "Volume",  color: "#27312B" },
   { key: "rsi",    label: "RSI 14",  color: "#93A39A" },
   { key: "macd",   label: "MACD",    color: "#2F6B52" },
@@ -113,7 +113,7 @@ export default function ChartsPage() {
               key={m}
               onClick={() => setMode(m)}
               className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-all"
-              style={mode === m ? { background: "var(--gate)", color: "white" } : { color: "#93A39A" }}
+              style={mode === m ? { background: "#B4F03C", color: "#0B0F0D" } : { color: "#93A39A" }}
             >
               {m === "simple" ? <Activity size={14} /> : <BarChart2 size={14} />}
               {m === "simple" ? "Simple" : "Pro"}
@@ -178,7 +178,7 @@ export default function ChartsPage() {
                 key={r}
                 onClick={() => setRangeAndLoad(r)}
                 className="px-3 py-1.5 text-xs font-medium transition-colors"
-                style={range === r ? { background: "var(--gate)", color: "white" } : { color: "#93A39A" }}
+                style={range === r ? { background: "#B4F03C", color: "#0B0F0D" } : { color: "#93A39A" }}
               >
                 {r.toUpperCase()}
               </button>
@@ -196,7 +196,7 @@ export default function ChartsPage() {
                   style={
                     indicators[key as keyof typeof indicators]
                       ? { background: color + "18", borderColor: color, color }
-                      : { borderColor: "#27312B", color: "#979D96" }
+                      : { borderColor: "#27312B", color: "#1A211D" }
                   }
                 >
                   <span

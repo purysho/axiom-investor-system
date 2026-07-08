@@ -58,7 +58,7 @@ const LESSONS: Array<{
 export default function GuidesPage() {
   return (
     <div>
-      <section className="mb-12 rounded-[26px] bg-[#EFF6F1] p-6 sm:p-9">
+      <section className="mb-12 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
         <Lightbulb size={25} className="text-[#456555]" />
         <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Learn the routine in the order you will use it.</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">You do not need to become a market technician before using AXIOM. Read one lesson, use the related page, and let the repetition teach the method.</p>
@@ -86,7 +86,7 @@ export default function GuidesPage() {
                 <div><div className="text-xs font-bold text-[#a16b4c]">{lesson.number}</div><h3 className="mt-1 font-display text-[1.75rem] font-semibold leading-tight tracking-[-0.03em]">{lesson.title}</h3><p className="mt-1 text-[15px] font-semibold text-[#5f6c65]">{lesson.question}</p><p className="mt-2 max-w-2xl text-sm leading-relaxed text-mut">{lesson.summary}</p></div>
                 <span className="flex items-center gap-1 text-sm font-semibold text-[#49695a]">Read <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></span>
               </summary>
-              <div className="mb-7 ml-0 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:ml-16 sm:p-8">
+              <div className="mb-7 ml-0 rounded-[22px] bg-[#241C0E]/76 p-6 sm:ml-16 sm:p-8">
                 <div className="max-w-3xl space-y-4 text-[15px] leading-relaxed text-mut [&_strong]:font-semibold [&_strong]:text-ink">{lesson.body}</div>
                 {lesson.href && <Link href={lesson.href} className="btn-primary mt-7">{lesson.cta} <ArrowRight size={15} /></Link>}
               </div>
@@ -100,7 +100,7 @@ export default function GuidesPage() {
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-4"><div><div className="page-kicker">For the curious</div><h2 className="mt-1 font-display text-[1.9rem] font-semibold tracking-[-0.03em]">Why AXIOM is benchmark-first</h2><p className="mt-2 text-sm text-mut">The evidence that shaped the system's bias toward a benchmark-aware core and a separately measured active sleeve.</p></div><ChevronDown size={20} className="shrink-0 text-faint" /></div>
           </summary>
-          <div className="mt-7 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:p-8">
+          <div className="mt-7 rounded-[22px] bg-[#241C0E]/76 p-6 sm:p-8">
             <div className="flex items-start gap-4"><CircleHelp size={20} className="mt-1 shrink-0 text-[#a16b4c]" /><div className="max-w-3xl space-y-4 text-sm leading-relaxed text-mut"><p>The evidence pack bundled with the original system uses SPIVA large-cap observations from 2001–2025. In that series, actively managed large-cap funds underperformed the S&amp;P 500 in an average of 65.04% of the annual observations, and a majority underperformed in 22 of 25 calendar years.</p><p>That does not prove an individual swing method cannot add value. It does place the burden of proof on active decisions. AXIOM therefore keeps the long-term core benchmark-aware and treats swing trading as a capped, journalled experiment whose results must be measured separately.</p><p>The default risk thresholds are governance starting points, not statistically proven alpha signals. They should be reviewed against your own evidence and changed carefully.</p></div></div>
           </div>
         </details>

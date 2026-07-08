@@ -107,7 +107,7 @@ export default function GatePage() {
         <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
           {gate.checks.map((c) => {
             const plain = PLAIN_CHECKS[c.id];
-            const tone = c.pass ? { Icon: Check, label: "Clear", ink: "#34D399", bg: "#EFF6F1" } : c.unknown ? { Icon: CircleHelp, label: "Not known", ink: "#767e79", bg: "#1A211D" } : { Icon: AlertTriangle, label: "Outside limit", ink: "#F4645C", bg: "#f7eae5" };
+            const tone = c.pass ? { Icon: Check, label: "Clear", ink: "#34D399", bg: "#EFF6F1" } : c.unknown ? { Icon: CircleHelp, label: "Not known", ink: "#767e79", bg: "#1A211D" } : { Icon: AlertTriangle, label: "Outside limit", ink: "#F4645C", bg: "#241111" };
             return (
               <div key={c.id} className="grid gap-4 py-6 sm:grid-cols-[48px_1fr_auto] sm:items-start">
                 <span className="flex h-11 w-11 items-center justify-center rounded-full" style={{ background: tone.bg, color: tone.ink }}><tone.Icon size={18} /></span>
@@ -146,7 +146,7 @@ export default function GatePage() {
                 <option value="">Not sure yet</option><option value="no">No</option><option value="yes">Yes</option>
               </select>
             </label>
-            <details className="mt-2 rounded-[18px] bg-[#fffdf8]/70 p-5">
+            <details className="mt-2 rounded-[18px] bg-[#241C0E]/70 p-5">
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-4"><div><div className="text-sm font-semibold text-ink">Enter market facts manually</div><p className="mt-1 text-sm text-mut">Only use this when the automatic update is unavailable or you are verifying a delayed reading.</p></div><ChevronDown size={18} className="shrink-0 text-faint" /></div>
               </summary>
@@ -165,7 +165,7 @@ export default function GatePage() {
         </div>
       </section>
 
-      <section className="mb-12 rounded-[22px] bg-[#fffdf8]/75 p-6 sm:p-8">
+      <section className="mb-12 rounded-[22px] bg-[#241C0E]/75 p-6 sm:p-8">
         <details>
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-4">
@@ -204,7 +204,7 @@ export default function GatePage() {
             </div>
           </summary>
 
-          <div className="mt-7 rounded-[22px] bg-[#fffdf8]/75 p-6 sm:p-8">
+          <div className="mt-7 rounded-[22px] bg-[#241C0E]/75 p-6 sm:p-8">
             <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr]">
               <div className="grid gap-4">
                 <label className="field-label">Planned entry ($)<input className="field mt-1.5" inputMode="decimal" value={entry} onChange={(e) => setEntry(e.target.value)} /></label>
@@ -219,7 +219,7 @@ export default function GatePage() {
                   <Stat label="Reward versus risk" value={sizing.rewardRisk !== null ? `${fmtN(sizing.rewardRisk, 2)} to 1` : "—"} />
                 </div>
                 {sizing.capApplied && <p className="mt-4 text-sm text-[#F0B429]">Your {settings.notionalCapPct}% single-position cap reduced the size below the pure risk-based {sizing.maxSharesByRisk} shares.</p>}
-                <div className="mt-6 flex items-start gap-3 rounded-[18px] bg-[#f8ece7] p-5">
+                <div className="mt-6 flex items-start gap-3 rounded-[18px] bg-[#241111] p-5">
                   <Gauge size={19} className="mt-0.5 shrink-0 text-[#b56b4e]" />
                   <div><div className="font-semibold">A stop does not guarantee your maximum loss.</div><p className="mt-1 text-sm leading-relaxed text-mut">A gap through the stop to {fmtUsd(sizing.gapExamplePrice)} would mean roughly {fmtUsd(sizing.gapExampleLoss ? -sizing.gapExampleLoss : null)} gross instead of about {fmtUsd(sizing.riskDollars)}. Stops can slip.</p></div>
                 </div>

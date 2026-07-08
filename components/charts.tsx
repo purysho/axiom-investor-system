@@ -23,8 +23,8 @@ const C = {
   steel:   "#93A39A",
   line:    "#27312B",
   mut:     "#9FB0A6",
-  faint:   "#979D96",
-  ink:     "#1E2A24",
+  faint:   "#1A211D",
+  ink:     "#34D399",
   bg:      "#121714",
 };
 

@@ -111,7 +111,7 @@ export default function PortfolioPage() {
   return (
     <div>
       {state.holdings.length === 0 ? (
-        <section className="rounded-[26px] bg-[#EFF6F1] p-6 sm:p-9">
+        <section className="rounded-[26px] bg-[#141B17] p-6 sm:p-9">
           <WalletCards size={25} className="text-[#456555]" />
           <h2 className="mt-5 max-w-2xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.25rem]">Add the investments you actually plan to hold.</h2>
           <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Start with your long-term portfolio. You do not need every data point on day one. Ticker, shares and a rough role are enough to begin.</p>
@@ -147,7 +147,7 @@ export default function PortfolioPage() {
           <div className="mt-5 divide-y divide-[#27312B] border-y border-[#27312B]">
             {attention.map(({ h, row, reasons }) => (
               <div key={h.id} className="grid gap-3 py-5 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f6e9e4] text-[#F4645C]"><CircleAlert size={18} /></span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#241111] text-[#F4645C]"><CircleAlert size={18} /></span>
                 <div><div className="text-[17px] font-semibold">{h.ticker}</div><p className="mt-1 text-sm text-mut">{reasons.join(" · ")}</p></div>
                 <div className="text-sm text-mut">{row?.weightPct !== null && row?.weightPct !== undefined ? `${fmtPct(row.weightPct)} of portfolio` : "Weight unavailable"}</div>
               </div>
@@ -157,19 +157,19 @@ export default function PortfolioPage() {
       )}
 
       {state.holdings.length > 0 && (
-        <section className="mb-12 rounded-[24px] bg-[#fffdf8]/76 p-6 sm:p-8">
+        <section className="mb-12 rounded-[24px] bg-[#241C0E]/76 p-6 sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="max-w-2xl">
               <div className="page-kicker">Once a week</div>
               <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Do the portfolio review</h2>
               <p className="mt-3 text-sm leading-relaxed text-mut">This is not a hunt for something to buy or sell. You are checking whether the reasons for owning your investments still make sense.</p>
             </div>
-            {reviewed ? <span className="badge bg-[#10241C] text-[#34D399]"><CircleCheckBig size={15} />Reviewed this week</span> : <span className="badge bg-[#f2eadb] text-[#F0B429]">Review due</span>}
+            {reviewed ? <span className="badge bg-[#10241C] text-[#34D399]"><CircleCheckBig size={15} />Reviewed this week</span> : <span className="badge bg-[#241C0E] text-[#F0B429]">Review due</span>}
           </div>
           <div className="mt-7 divide-y divide-[#27312B] border-y border-[#27312B]">
             {REVIEW_STEPS.map((item, i) => (
               <label key={item.title} className="flex cursor-pointer items-start gap-4 py-5">
-                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${checked[i] ? "bg-[#B4F03C] text-[#0B0F0D]" : "border border-[#3A453E] bg-[#fffdf8] text-transparent"}`}><Check size={14} /></span>
+                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${checked[i] ? "bg-[#B4F03C] text-[#0B0F0D]" : "border border-[#3A453E] bg-[#241C0E] text-transparent"}`}><Check size={14} /></span>
                 <input type="checkbox" className="sr-only" checked={checked[i]} onChange={() => setChecked((prev) => prev.map((v, j) => j === i ? !v : v))} />
                 <span><span className="block font-semibold">{item.title}</span><span className="mt-1 block text-sm leading-relaxed text-mut">{item.text}</span></span>
               </label>
@@ -202,7 +202,7 @@ export default function PortfolioPage() {
                     <div className="text-sm sm:text-right"><div className="font-semibold">{fmtUsd(row?.marketValue ?? null)}</div><div className="text-xs text-faint">{fmtPct(row?.weightPct ?? null)} of portfolio</div></div>
                     <div className="flex items-center gap-2 text-sm font-semibold text-[#49695a]">Review <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></div>
                   </summary>
-                  <div className="mb-6 rounded-[20px] bg-[#fffdf8]/76 p-5 sm:p-7">
+                  <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:p-7">
                     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                       <label className="field-label">Role in portfolio<select className="field mt-1.5" value={h.sleeve} onChange={(e) => patchHolding(h.id, { sleeve: e.target.value as Sleeve })}>{(["Core", "Income", "Satellite", "Cash"] as Sleeve[]).map((s) => <option key={s}>{s}</option>)}</select></label>
                       <label className="field-label">Thesis status<select className="field mt-1.5" value={h.thesisStatus} onChange={(e) => patchHolding(h.id, { thesisStatus: e.target.value as ThesisStatus })}><option value="">Not reviewed</option>{THESIS_STATUSES.map((s) => <option key={s}>{s}</option>)}</select></label>
@@ -238,7 +238,7 @@ export default function PortfolioPage() {
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><Plus size={18} /></span>
             </div>
           </summary>
-          <div className="mt-7 rounded-[22px] bg-[#fffdf8]/76 p-6 sm:p-8">
+          <div className="mt-7 rounded-[22px] bg-[#241C0E]/76 p-6 sm:p-8">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <label className="field-label">Ticker<input className="field mt-1.5" value={add.ticker} onChange={(e) => setAdd({ ...add, ticker: e.target.value })} placeholder="e.g. VUSA" /></label>
               <label className="field-label">What is it?<select className="field mt-1.5" value={add.type} onChange={(e) => setAdd({ ...add, type: e.target.value as Holding["type"] })}>{(["Stock", "ETF", "Fund", "Bond", "Cash", "Other"] as const).map((t) => <option key={t}>{t}</option>)}</select></label>
