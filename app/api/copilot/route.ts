@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { clientIp, limited } from "@/lib/server/ratelimit";
-import { mapToStooq, parseStooqDaily, rsi, sma, type DailyRow } from "@/lib/engine/quotes";
+import { calendarDaysFor, mapToStooq, parseStooqDaily, rsi, sma, WARMUP_BARS, type DailyRow } from "@/lib/engine/quotes";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +39,8 @@ function atr14(rows: DailyRow[]): number | null {
 async function featuresFor(ticker: string): Promise<Features | null> {
   const stooq = mapToStooq(ticker);
   const d2 = new Date();
-  const d1 = new Date(d2.getTime() - 420 * 86400000);
+  // Same warm-up as the charts so the numbers the user sees match the numbers we trade on.
+  const d1 = new Date(d2.getTime() - calendarDaysFor(WARMUP_BARS) * 86400000);
   const fmt = (d: Date) => `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}${String(d.getUTCDate()).padStart(2, "0")}`;
   try {
     const res = await fetch(`https://stooq.com/q/d/l/?s=${encodeURIComponent(stooq)}&i=d&d1=${fmt(d1)}&d2=${fmt(d2)}`, {

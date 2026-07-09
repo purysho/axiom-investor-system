@@ -6,6 +6,9 @@ import { clientOrderId, liveTradingEnabled, preflight } from "@/lib/broker/prefl
 import { getBroker, getConnection, ordersToday } from "@/lib/server/broker-store";
 import { db } from "@/lib/server/db";
 import { clientIp, limited } from "@/lib/server/ratelimit";
+import { loadUserState } from "@/lib/server/user-state";
+import { evaluateGate } from "@/lib/engine/gate";
+import { describeRemaining, evaluateProtections, lockFor } from "@/lib/engine/protections";
 
 export const dynamic = "force-dynamic";
 
@@ -41,10 +44,34 @@ export async function POST(req: Request) {
   const broker = await getBroker(user.id);
   if (!conn || !broker) return NextResponse.json({ error: "No broker connected. Connect one in Settings." }, { status: 400 });
 
-  // ── Interlock 1: the risk gate. Server-side, non-negotiable. ─────────────
-  if (b.gateState === "NO NEW SWINGS") {
-    await audit("order.blocked", { userId: user.id, username: user.username, req, detail: `${b.symbol}: gate closed` });
-    return NextResponse.json({ error: "The risk check says NO NEW SWINGS. Axiom will not open new risk today." }, { status: 403 });
+  // ── Interlock 1: the risk gate and behavioural protections, re-derived from
+  //    the user's SYNCED state. The client's `gateState` is a hint, not a source
+  //    of truth: a tampered request cannot talk its way past a closed gate.
+  const synced = await loadUserState(user.id);
+  if (synced) {
+    const gate = evaluateGate(synced.gateInputs, synced.settings, synced.trades);
+    if (gate.state === "NO NEW SWINGS") {
+      await audit("order.blocked", { userId: user.id, username: user.username, req, detail: `${b.symbol}: gate closed (server)` });
+      return NextResponse.json({ error: "The risk check says NO NEW SWINGS. Axiom will not open new risk today." }, { status: 403 });
+    }
+    const lock = lockFor(evaluateProtections(synced), b.symbol);
+    if (lock) {
+      await audit("order.blocked", { userId: user.id, username: user.username, req, detail: `${b.symbol}: ${lock.id}` });
+      return NextResponse.json(
+        { error: lock.reason, remedy: lock.remedy, lockedFor: describeRemaining(lock.until), protection: lock.id },
+        { status: 403 },
+      );
+    }
+  } else {
+    // No synced state on the server. We cannot verify the gate or the protections,
+    // and a client's word is not evidence. Refuse rather than trust — the same
+    // fail-closed stance the session secret takes.
+    await audit("order.blocked", { userId: user.id, username: user.username, req, detail: `${b.symbol}: no synced state` });
+    return NextResponse.json(
+      { error: "Axiom can't verify your risk check on the server yet.",
+        remedy: "Open Axiom while signed in so your data syncs, then try again. Orders are never placed on unverified state." },
+      { status: 409 },
+    );
   }
 
   // ── Interlock 2: live trading must be enabled at deploy level AND confirmed. ──

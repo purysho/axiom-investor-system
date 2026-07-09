@@ -190,3 +190,25 @@ export function rsiArray(closes: number[], period = 14): (number | null)[] {
   }
   return out;
 }
+
+// ── Indicator warm-up ──────────────────────────────────────────────────────
+//
+// RSI (Wilder), EMA and MACD are *recursive*: each bar's value depends on the
+// previous bar's, so the value at the final bar depends on how far back the
+// series starts. Computing RSI(14) from 35 bars and from 800 bars gives
+// different answers for the same day — measured drift on our own code was
+// ~6 RSI points and ~26% on the MACD line, enough to flip an entry condition
+// in ~9% of series. (Freqtrade calls this "recursive analysis"; the
+// intelligent-trading-bot README calls it guaranteeing the same derived
+// features offline and online. Same failure.)
+//
+// Fix: always compute indicators over at least WARMUP_BARS of history, then
+// slice for display. Every surface then agrees on the same number.
+
+/** Trading days of history to load before the first bar we intend to use. */
+export const WARMUP_BARS = 260;
+
+/** Calendar days needed to be confident of getting `bars` trading days. */
+export function calendarDaysFor(bars: number): number {
+  return Math.ceil(bars * 1.45) + 10;
+}

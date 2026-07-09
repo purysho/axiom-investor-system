@@ -1,3 +1,4 @@
+import type { ProtectionSettings } from "@/lib/engine/protections";
 import type { CopilotSettings, Recommendation } from "@/lib/copilot/types";
 /**
  * Unified data model.
@@ -257,6 +258,7 @@ export interface AppState {
   weeklyReviews: string[];
   /** Copilot recommendations (proposed/approved/dismissed/expired/rejected). */
   recommendations: Recommendation[];
+  protections: ProtectionSettings;
   copilot: CopilotSettings;
 }
 

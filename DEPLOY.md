@@ -132,6 +132,28 @@ key, the assistant degrades to a friendly setup message; nothing else breaks.
 Rotate `SESSION_SECRET` if you ever suspect it leaked: every session dies, and 2FA enrolments will need
 redoing unless you set an explicit `ENCRYPTION_KEY` first.
 
+## Behavioural protections
+
+The risk gate reads the *market*. Protections read *you*. They lock new entries when your
+own recent trading says stop:
+
+| Protection | Default trigger | Scope |
+|---|---|---|
+| Reflections outstanding | any closed trade without a lesson | global, until done |
+| Cooldown | after any losing trade | global, 60 min |
+| Revenge guard | entry within 30 min of a loss | global |
+| Stoploss guard | 3 stop-outs in 5 days | global, 24 h |
+| Max drawdown | 4% realised in 14 days | global, 48 h |
+| Symbol loss | 2 losses in one symbol in 30 days | that symbol, 14 days |
+
+A lock lifts only when **both** its cooldown has elapsed **and** the triggering condition has
+stopped holding (offending trades age out of the lookback). Releasing on the timer alone would
+unlock you while the drawdown that caused it is still real.
+
+Protections are enforced **server-side on the order route**, re-derived from your synced state —
+a tampered client cannot claim its way past them. If the server has no synced state for you, it
+refuses to place orders rather than trusting the client.
+
 ## Broker connection
 
 Axiom can place real orders through **your own** broker account. Each user connects their own Alpaca API

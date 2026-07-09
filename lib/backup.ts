@@ -1,3 +1,4 @@
+import { DEFAULT_PROTECTIONS } from "@/lib/engine/protections";
 import { DEFAULT_COPILOT } from "@/lib/copilot/types";
 import { defaultState } from "@/lib/store";
 import type { AppState, Trade } from "@/lib/engine/types";
@@ -148,6 +149,7 @@ export function demoState(): AppState {
     ],
     weeklyReviews: [],
     recommendations: [],
+    protections: { ...DEFAULT_PROTECTIONS },
     copilot: { ...DEFAULT_COPILOT },
   };
 }

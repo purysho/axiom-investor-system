@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Bot, Lock, Power, RefreshCw, ShieldAlert, Zap } from "lucide-react";
 import { Panel } from "@/components/chrome";
+import { ProtectionBanner } from "@/components/protection-banner";
 import { toast } from "@/components/toast";
 import { validateRecommendation } from "@/lib/copilot/validate";
 import type { Recommendation } from "@/lib/copilot/types";
@@ -227,6 +228,8 @@ export default function CopilotPage() {
         </div>
         <Link href="/gate" className="btn-ghost text-xs">Risk check →</Link>
       </div>
+
+      <ProtectionBanner />
 
       {/* Scan */}
       <Panel

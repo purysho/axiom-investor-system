@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {
-  bollingerBands, ema, macd, mapToStooq, parseStooqDaily,
-  rsiArray, round, sma,
+  bollingerBands, calendarDaysFor, ema, macd, mapToStooq, parseStooqDaily,
+  rsiArray, round, sma, WARMUP_BARS,
 } from "@/lib/engine/quotes";
 
 export const revalidate = 1800; // 30-min server cache
@@ -19,10 +19,15 @@ export async function GET(req: Request) {
   if (!ticker) return NextResponse.json({ error: "symbol is required" }, { status: 400 });
 
   const stooq = mapToStooq(ticker);
-  const days  = { "1w": 10, "1m": 35, "3m": 95, "6m": 190, "1y": 380, "2y": 760 }[range] ?? 190;
+  const visibleDays = { "1w": 10, "1m": 35, "3m": 95, "6m": 190, "1y": 380, "2y": 760 }[range] ?? 190;
+
+  // Load extra history purely to warm the recursive indicators, then hide it.
+  // Without this, RSI/EMA/MACD on a 1-month chart disagree with the same
+  // indicators the Copilot uses — see WARMUP_BARS in lib/engine/quotes.ts.
+  const fetchDays = visibleDays + calendarDaysFor(WARMUP_BARS);
 
   const d2 = new Date();
-  const d1 = new Date(d2.getTime() - days * 86400000);
+  const d1 = new Date(d2.getTime() - fetchDays * 86400000);
   const fmt = (d: Date) =>
     `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}${String(d.getUTCDate()).padStart(2, "0")}`;
 
@@ -50,7 +55,10 @@ export async function GET(req: Request) {
     const macdI  = macd(closes);
     const rsiI   = rsiArray(closes, 14);
 
-    const candles = rows.map((r, i) => ({
+    // Only bars inside the requested range are returned; the warm-up is discarded
+    // *after* the indicators have been computed over the full series.
+    const cutoffMs = Date.now() - visibleDays * 86400000;
+    const allCandles = rows.map((r, i) => ({
       time:   r.date,
       open:   round(r.open, 4),
       high:   round(r.high, 4),
@@ -70,6 +78,7 @@ export async function GET(req: Request) {
       macdHist:round(macdI.hist[i], 4),
       rsi:    round(rsiI[i], 2),
     }));
+    const candles = allCandles.filter((c) => new Date(c.time).getTime() >= cutoffMs);
 
     // Summary stats for the header
     const last   = rows[rows.length - 1];
@@ -95,6 +104,7 @@ export async function GET(req: Request) {
         lo52:    round(lo52, 4),
         date:    last.date,
       },
+      warmupBars: rows.length - candles.length,
       source: "Stooq (delayed EOD)",
       note: "Delayed end-of-day data. Verify before acting.",
     });

@@ -1,5 +1,6 @@
 "use client";
 
+import { DEFAULT_PROTECTIONS } from "@/lib/engine/protections";
 import { DEFAULT_COPILOT } from "@/lib/copilot/types";
 import { useSyncExternalStore } from "react";
 import type { AppState } from "./engine/types";
@@ -34,6 +35,7 @@ export const defaultState: AppState = {
   monthly: [],
   weeklyReviews: [],
   recommendations: [],
+  protections: { ...DEFAULT_PROTECTIONS },
   copilot: { ...DEFAULT_COPILOT },
 };
 

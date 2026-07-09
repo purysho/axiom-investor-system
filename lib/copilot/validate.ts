@@ -1,4 +1,5 @@
 import { evaluateGate, openPlannedRiskUsd } from "@/lib/engine/gate";
+import { describeRemaining, evaluateProtections, lockFor } from "@/lib/engine/protections";
 import { computeSizing } from "@/lib/engine/sizing";
 import type { AppState } from "@/lib/engine/types";
 import type { Recommendation } from "./types";
@@ -30,7 +31,20 @@ export function validateRecommendation(rec: Recommendation, state: AppState): Re
     notes.push("Gate is REDUCED RISK ONLY — size halved; approving records a documented exception.");
   }
 
-  // 2) Kill switch
+  // 2) Behavioural protections — your own recent trading, not the market's.
+  if (isNewRisk) {
+    const lock = lockFor(evaluateProtections(state), rec.asset);
+    if (lock) {
+      notes.push(`Blocked: ${lock.reason}${lock.remedy ? ` ${lock.remedy}` : ""} (${describeRemaining(lock.until)})`);
+      out.validation = { ok: false, notes };
+      out.status = "rejected";
+      out.positionSize = null;
+      out.maxRiskUsd = null;
+      return out;
+    }
+  }
+
+  // 3) Kill switch
   if (state.copilot.killSwitch) {
     notes.push("Blocked: the kill switch is on.");
     out.validation = { ok: false, notes };
