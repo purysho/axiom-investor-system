@@ -130,6 +130,13 @@ export default function PortfolioPage() {
                 {ps.forwardIncome > 0 ? `Your current inputs imply about ${fmtUsd(ps.forwardIncome)} of forward annual income. ` : ""}
                 {attention.length ? `${attention.length} holding${attention.length === 1 ? "" : "s"} deserve a closer look this week.` : "Nothing currently crosses the simple attention rules."}
               </p>
+              {ps.pricedCount > 0 && (
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-faint">
+                  {ps.totalUnrealizedUsd !== null ? `Unrealized: ${ps.totalUnrealizedUsd >= 0 ? "+" : ""}${fmtUsd(ps.totalUnrealizedUsd)}. ` : ""}
+                  {ps.effectiveHoldings !== null ? `Diversification: behaves like ${ps.effectiveHoldings.toFixed(1)} equal positions. ` : ""}
+                  {ps.sleeves.length > 1 ? `Mix: ${ps.sleeves.map((s) => `${s.sleeve} ${fmtPct(s.weightPct, 0)}`).join(" · ")}.` : ""}
+                </p>
+              )}
             </div>
             <div className="flex flex-wrap gap-3 lg:justify-end">
               <button type="button" className="btn" onClick={() => void refreshPrices()} disabled={refreshing}><RefreshCw size={15} />{refreshing ? "Updating…" : "Update prices"}</button>
