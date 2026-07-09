@@ -13,6 +13,7 @@ import { getBroker, getConnection, ordersToday } from "./broker-store";
 import { db } from "./db";
 import { executeVerifiedOrder } from "./execute-order";
 import { fetchDailyHistory } from "./history";
+import { reconcileClosedPositions } from "./positions-sync";
 import { loadUserState } from "./user-state";
 
 /**
@@ -209,6 +210,16 @@ export async function runBotForUser(userId: string, source: "manual" | "cron", d
     // The invariant. Not a setting, not an env flag — the bot does not trade live money.
     if (!check("paper only", conn!.mode === "paper", conn!.mode === "paper" ? "paper account" : "LIVE account connected — the bot only trades paper."))
       return finish("stood-down", "Your broker connection is LIVE. The AXIOM bot only ever trades paper accounts; switch the connection to paper to use it.");
+
+    // Before judging risk, sync reality: close journal trades whose bracket
+    // finished at the broker, then re-read the state those numbers feed.
+    try {
+      const { closed } = await reconcileClosedPositions(userId, broker!);
+      if (closed.length > 0) {
+        check("position sync", true, `closed ${closed.length}: ${closed.map((x) => `${x.symbol} (${x.exitReason})`).join(", ")}`);
+        state = (await loadUserState(userId)) ?? state;
+      }
+    } catch { /* non-fatal — sync can catch up later */ }
 
     let clock;
     try { clock = await broker!.getClock(); } catch (e) {
