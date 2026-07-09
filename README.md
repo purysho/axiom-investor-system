@@ -12,9 +12,9 @@ The app guides a user through five recurring jobs:
 
 The main navigation is intentionally plain:
 
-**Today · My portfolio · Trade ideas · Journal · Review · Learn**
+**Today · My portfolio · Copilot · Trade ideas · Journal · Review · Learn**
 
-Risk Check, Charts, Group, and Settings remain available under **More**.
+Risk Check, AXIOM Bot, Charts, Group, and Settings remain available under **More**.
 
 ## Run locally
 
@@ -107,6 +107,16 @@ Incomplete closed-trade reflections can be reopened directly and completed with 
 4. Decide whether one rule deserves a controlled test.
 
 The app deliberately discourages rewriting rules because of one painful loss or one lucky streak.
+
+### Copilot, backtesting, and the AXIOM bot
+
+`/copilot` scans your trade-idea tickers and proposes paper trades with evidence; a deterministic
+validator (gate, protections, sizing, heat cap) decides what is approvable, and you approve each one.
+
+`/bot` is the autopilot. It runs the same pipeline on a schedule and submits **paper** bracket
+orders only — a live broker connection stands it down, in code. The page also backtests the exact
+strategy code the bot trades over up to ten years of daily history, with conservative fills.
+Architecture, interlocks, and scheduling live in `BOT.md`.
 
 ### Learn
 

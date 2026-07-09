@@ -152,10 +152,11 @@ export class AlpacaBroker implements Broker {
       const o = await this.call<AlpacaOrder>(`/v2/orders:by_client_order_id?client_order_id=${encodeURIComponent(clientOrderId)}`);
       return toOrder(o);
     } catch (e) {
+      // ONLY a definitive 404 means "no such order". Any other failure (network,
+      // 429, 5xx) must propagate: reading it as "missing" would let reconciliation
+      // mark a possibly-live order as never-sent, or let a submit duplicate it.
       if (e instanceof BrokerError && e.status === 404) return null;
-      // A lookup failure must not be read as "no order exists" — that would risk a duplicate.
-      if (e instanceof BrokerError && e.status === undefined) throw e;
-      return null;
+      throw e;
     }
   }
 

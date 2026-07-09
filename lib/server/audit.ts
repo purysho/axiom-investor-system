@@ -9,7 +9,9 @@ export type AuditEvent =
   | "recovery.regenerated"
   | "mfa.enabled" | "mfa.disabled" | "mfa.failed" | "mfa.backup_used"
   | "broker.connected" | "broker.disconnected"
-  | "order.submitted" | "order.rejected" | "order.blocked";
+  | "order.submitted" | "order.rejected" | "order.blocked"
+  | "bot.enabled" | "bot.disabled"
+  | "bot.order.submitted" | "bot.order.failed" | "bot.run.error";
 
 /** Append-only security trail. Never throws into the caller's path. */
 export async function audit(

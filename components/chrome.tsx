@@ -6,7 +6,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Home, PieChart, Lightbulb, BookOpenText, CalendarCheck2, Library,
-  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Bot,
+  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Bot, Cpu,
 } from "lucide-react";
 import { SyncBadge } from "@/components/sync";
 import { AxiomMark } from "@/components/logo";
@@ -25,6 +25,7 @@ const PRIMARY_NAV: NavItem[] = [
 
 const MORE_NAV: NavItem[] = [
   { href: "/gate", label: "Risk check", key: "2", Icon: ShieldCheck },
+  { href: "/bot", label: "AXIOM Bot", key: "b", Icon: Cpu },
   { href: "/charts", label: "Charts", key: "6", Icon: LineChart },
   { href: "/group", label: "Group", key: "9", Icon: Users },
   { href: "/settings", label: "Settings", key: "", Icon: Settings },
@@ -35,7 +36,7 @@ const NAV = [...PRIMARY_NAV, ...MORE_NAV, { href: "/daily", label: "Daily check"
 const TITLES: Record<string, string> = {
   "/": "Today", "/daily": "Daily check", "/gate": "Risk check",
   "/journal": "Journal", "/portfolio": "My portfolio", "/copilot": "Copilot",
-  "/watchlist": "Trade ideas",
+  "/bot": "AXIOM Bot", "/watchlist": "Trade ideas",
   "/charts": "Charts", "/monthly": "Monthly review", "/guides": "Learn", "/group": "Group",
   "/settings": "Settings", "/login": "Sign in", "/join": "Join",
 };

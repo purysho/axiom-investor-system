@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bot, Lock, Power, RefreshCw, ShieldAlert, Zap } from "lucide-react";
+import { Bot, Power, RefreshCw, ShieldAlert, Zap } from "lucide-react";
 import { Panel } from "@/components/chrome";
 import { ProtectionBanner } from "@/components/protection-banner";
 import { toast } from "@/components/toast";
@@ -341,15 +341,15 @@ export default function CopilotPage() {
         </Panel>
       )}
 
-      {/* Autopilot locked */}
+      {/* Autopilot */}
       <div className="flex items-center gap-3 rounded-lg border border-dashed border-line bg-panel px-4 py-3.5">
-        <Lock size={16} className="text-faint" />
-        <div className="flex-1 text-sm text-mut">
-          <span className="font-semibold text-ink">Autopilot — locked.</span> Unlocks after the paper co-pilot
-          earns it: 20+ approved paper trades with positive expectancy and no heat-cap breaches. Even then, the
-          deterministic engine executes; the AI only ever proposes.
-        </div>
         <Bot size={16} className="text-faint" />
+        <div className="flex-1 text-sm text-mut">
+          <span className="font-semibold text-ink">Autopilot — paper only.</span> The AXIOM bot runs this same
+          pipeline on a schedule: shared strategy engine, your risk engine, every interlock. It never touches a
+          live account — that stays human-approved, order by order, and only after the paper record earns it.
+        </div>
+        <Link href="/bot" className="btn-ghost text-xs">AXIOM Bot →</Link>
       </div>
     </div>
   );

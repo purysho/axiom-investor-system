@@ -108,6 +108,36 @@ async function migrate(c: Client) {
     )`,
   );
   try { await c.execute("CREATE INDEX IF NOT EXISTS idx_orders_user ON broker_orders (user_id, submitted_at DESC)"); } catch { /* ok */ }
+
+  // AXIOM bot: per-user autopilot settings. The bot only ever trades PAPER
+  // accounts; that invariant lives in code (lib/server/bot.ts), not in a flag here.
+  await c.execute(
+    `CREATE TABLE IF NOT EXISTS bot_settings (
+      user_id TEXT PRIMARY KEY REFERENCES users(id),
+      enabled INTEGER NOT NULL DEFAULT 0,
+      universe TEXT NOT NULL DEFAULT '[]',
+      max_orders_per_run INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )`,
+  );
+
+  // Every bot run is logged whether or not it traded — the "why it did nothing"
+  // record matters as much as the orders.
+  await c.execute(
+    `CREATE TABLE IF NOT EXISTS bot_runs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      trigger_source TEXT NOT NULL DEFAULT 'manual',
+      started_at TEXT NOT NULL,
+      finished_at TEXT,
+      outcome TEXT NOT NULL DEFAULT 'running',
+      summary TEXT NOT NULL DEFAULT '',
+      detail TEXT NOT NULL DEFAULT '{}',
+      orders_placed INTEGER NOT NULL DEFAULT 0
+    )`,
+  );
+  try { await c.execute("CREATE INDEX IF NOT EXISTS idx_bot_runs_user ON bot_runs (user_id, started_at DESC)"); } catch { /* ok */ }
 }
 
 /** First run on an empty database: mint one invite and print it to the server log. */

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { clientIp, limited } from "@/lib/server/ratelimit";
-import { calendarDaysFor, mapToStooq, parseStooqDaily, rsi, sma, WARMUP_BARS, type DailyRow } from "@/lib/engine/quotes";
+import { WARMUP_BARS, type DailyRow } from "@/lib/engine/quotes";
+import { computeIndicators, latestSignal } from "@/lib/engine/strategy";
+import { fetchDailyHistory } from "@/lib/server/history";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +12,9 @@ export const dynamic = "force-dynamic";
  * (Claude if ANTHROPIC_API_KEY is set, deterministic rules otherwise) for candidate
  * recommendations. Returns RAW candidates — the client runs every one through the
  * deterministic validator against live state before anything is shown as approvable.
+ *
+ * The rules analyst is the shared strategy engine (lib/engine/strategy.ts) — the
+ * same code the backtester replays and the bot trades.
  */
 
 interface Features {
@@ -25,97 +30,30 @@ interface Features {
   ret20dPct: number | null;
 }
 
-function atr14(rows: DailyRow[]): number | null {
-  if (rows.length < 15) return null;
-  const trs: number[] = [];
-  for (let i = 1; i < rows.length; i++) {
-    const h = rows[i].high, l = rows[i].low, pc = rows[i - 1].close;
-    trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
-  }
-  const last14 = trs.slice(-14);
-  return last14.reduce((a, b) => a + b, 0) / last14.length;
-}
-
-async function featuresFor(ticker: string): Promise<Features | null> {
-  const stooq = mapToStooq(ticker);
-  const d2 = new Date();
-  // Same warm-up as the charts so the numbers the user sees match the numbers we trade on.
-  const d1 = new Date(d2.getTime() - calendarDaysFor(WARMUP_BARS) * 86400000);
-  const fmt = (d: Date) => `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}${String(d.getUTCDate()).padStart(2, "0")}`;
-  try {
-    const res = await fetch(`https://stooq.com/q/d/l/?s=${encodeURIComponent(stooq)}&i=d&d1=${fmt(d1)}&d2=${fmt(d2)}`, {
-      next: { revalidate: 1800 },
-      signal: AbortSignal.timeout(9000),
-      headers: { "User-Agent": "axiom-investor-system/1.0" },
-    });
-    if (!res.ok) return null;
-    const rows = parseStooqDaily(await res.text());
-    if (rows.length < 30) return null;
-    const closes = rows.map((r) => r.close);
-    const last = rows[rows.length - 1];
-    const s20 = sma(closes, 20), s50 = sma(closes, 50), s200 = sma(closes, 200);
-    const yearHigh = Math.max(...rows.slice(-252).map((r) => r.high));
-    const ret20 = closes.length > 21 ? ((last.close / closes[closes.length - 21]) - 1) * 100 : null;
-    return {
-      symbol: ticker.toUpperCase(),
-      close: last.close,
-      date: last.date,
-      sma20: s20[s20.length - 1],
-      sma50: s50[s50.length - 1],
-      sma200: s200[s200.length - 1],
-      rsi14: rsi(closes, 14),
-      atr14: atr14(rows),
-      pctFrom52wHigh: yearHigh > 0 ? ((last.close / yearHigh) - 1) * 100 : null,
-      ret20dPct: ret20,
-    };
-  } catch {
-    return null;
-  }
+function featuresFrom(ticker: string, rows: DailyRow[]): Features {
+  const ind = computeIndicators(rows);
+  const i = rows.length - 1;
+  const last = rows[i];
+  const closes = rows.map((r) => r.close);
+  const yearHigh = Math.max(...rows.slice(-252).map((r) => r.high));
+  return {
+    symbol: ticker.toUpperCase(),
+    close: last.close,
+    date: last.date,
+    sma20: ind.sma20[i],
+    sma50: ind.sma50[i],
+    sma200: ind.sma200[i],
+    rsi14: ind.rsi14[i],
+    atr14: ind.atr14[i],
+    pctFrom52wHigh: yearHigh > 0 ? ((last.close / yearHigh) - 1) * 100 : null,
+    ret20dPct: closes.length > 21 ? ((last.close / closes[closes.length - 21]) - 1) * 100 : null,
+  };
 }
 
 interface RawRec {
   asset: string; side: "Long"; strategy: "Trend pullback" | "Mean reversion";
   entry: number; stop: number; takeProfits: number[];
   confidence: number; evidence: string[]; technical: Record<string, number | string | null>;
-}
-
-/** Deterministic analyst — always available, keyless. */
-function rulesAnalyst(f: Features): RawRec | null {
-  const round2 = (n: number) => Math.round(n * 100) / 100;
-  const atr = f.atr14 ?? f.close * 0.02;
-  // Trend pullback: long-term uptrend, pulled back near the 20-day, momentum not overheated
-  if (f.sma200 && f.close > f.sma200 && f.sma20 && f.rsi14 !== null && f.rsi14 >= 38 && f.rsi14 <= 55 && Math.abs(f.close - f.sma20) / f.close < 0.02) {
-    const entry = round2(f.close);
-    const stop = round2(entry - 2 * atr);
-    return {
-      asset: f.symbol, side: "Long", strategy: "Trend pullback",
-      entry, stop, takeProfits: [round2(entry + 2 * (entry - stop))],
-      confidence: 0.55,
-      evidence: [
-        `Price ${round2(f.close)} is above its 200-day average (${round2(f.sma200)}) — long-term uptrend intact.`,
-        `Pulled back to the 20-day average with RSI ${f.rsi14?.toFixed(0)} — resting, not overheated.`,
-        `Stop set 2×ATR below entry (ATR14 ≈ ${round2(atr)}).`,
-      ],
-      technical: { close: f.close, sma20: f.sma20, sma200: f.sma200, rsi14: f.rsi14, atr14: round2(atr) },
-    };
-  }
-  // Mean reversion: uptrend + washed-out RSI
-  if (f.sma200 && f.close > f.sma200 && f.rsi14 !== null && f.rsi14 < 32) {
-    const entry = round2(f.close);
-    const stop = round2(entry - 2.5 * atr);
-    return {
-      asset: f.symbol, side: "Long", strategy: "Mean reversion",
-      entry, stop, takeProfits: [round2(entry + 1.5 * (entry - stop))],
-      confidence: 0.5,
-      evidence: [
-        `RSI ${f.rsi14.toFixed(0)} — short-term washed out while still above the 200-day average.`,
-        `Betting on reversion toward the mean, not a new trend; smaller reward target (1.5R).`,
-        `Wider 2.5×ATR stop to survive the noise that created the setup.`,
-      ],
-      technical: { close: f.close, sma200: f.sma200, rsi14: f.rsi14, atr14: round2(atr) },
-    };
-  }
-  return null;
 }
 
 async function aiAnalyst(features: Features[], gateState: string, key: string): Promise<RawRec[] | null> {
@@ -161,8 +99,11 @@ export async function POST(req: Request) {
   if (symbols.length === 0) return NextResponse.json({ error: "Send symbols: []." }, { status: 400 });
   const gateState = typeof body.gateState === "string" ? body.gateState : "UNKNOWN";
 
-  const features = (await Promise.all(symbols.map(featuresFor))).filter((f): f is Features => f !== null);
-  const missing = symbols.filter((s) => !features.some((f) => f.symbol === s));
+  // Same warm-up as the charts so the numbers the user sees match the numbers we trade on.
+  const histories = await Promise.all(symbols.map(async (s) => ({ symbol: s, rows: await fetchDailyHistory(s, WARMUP_BARS) })));
+  const withData = histories.filter((h): h is { symbol: string; rows: DailyRow[] } => h.rows !== null && h.rows.length >= 30);
+  const features = withData.map((h) => featuresFrom(h.symbol, h.rows));
+  const missing = symbols.filter((s) => !withData.some((h) => h.symbol === s));
 
   let recs: RawRec[] = [];
   let analyst: "ai" | "rules" = "rules";
@@ -172,7 +113,15 @@ export async function POST(req: Request) {
     if (ai) { recs = ai; analyst = "ai"; }
   }
   if (analyst === "rules") {
-    recs = features.map(rulesAnalyst).filter((r): r is RawRec => r !== null).slice(0, 3);
+    recs = withData
+      .map((h) => latestSignal(h.symbol, h.rows))
+      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .map((s) => ({
+        asset: s.symbol, side: "Long" as const, strategy: s.strategy,
+        entry: s.entry, stop: s.stop, takeProfits: [s.takeProfit],
+        confidence: s.confidence, evidence: s.evidence, technical: s.technical,
+      }))
+      .slice(0, 3);
   }
 
   return NextResponse.json({

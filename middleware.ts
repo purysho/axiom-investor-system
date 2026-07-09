@@ -62,7 +62,8 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // Everything except Next internals, static assets, and auth endpoints.
-    "/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|sw.js|api/health|api/auth/|terms|privacy|reset).*)",
+    // Everything except Next internals, static assets, auth endpoints, and the
+    // bot's cron tick (which authenticates itself with BOT_CRON_TOKEN, not a session).
+    "/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|sw.js|api/health|api/auth/|api/bot/tick|terms|privacy|reset).*)",
   ],
 };
