@@ -8,6 +8,7 @@
 export type RecStatus = "proposed" | "approved" | "dismissed" | "expired" | "rejected";
 export type RecSide = "Long" | "Short";
 export type RecStrategy = "Trend pullback" | "Mean reversion" | "Rebalance" | "DCA" | "Exit review";
+export type AssetClass = "Equity" | "ETF" | "Crypto" | "Metal" | "FX" | "Other";
 
 export interface Recommendation {
   id: string;
@@ -17,7 +18,7 @@ export interface Recommendation {
 
   // Spec: Recommendation Object
   asset: string;                // ticker as the user knows it
-  market: "Equity" | "ETF" | "Crypto" | "Metal" | "FX" | "Other";
+  market: AssetClass;
   timeframe: "Daily";
   side: RecSide;
   strategy: RecStrategy;
@@ -28,6 +29,10 @@ export interface Recommendation {
   maxRiskUsd: number | null;    // planned 1R in dollars at approved size
   confidence: number;           // 0–1, model/heuristic self-rating — not a probability of profit
   evidence: string[];           // plain-English reasons, one per line
+  /** Plain-English condition that voids the thesis (e.g. "daily close below the stop"). */
+  invalidation?: string | null;
+  /** Date/timestamp of the newest data bar the proposal was built from. */
+  dataAsOf?: string | null;
   technical: Record<string, number | string | null>;
   macro: { gateState: string; note?: string };
   sentiment?: string | null;

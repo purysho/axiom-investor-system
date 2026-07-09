@@ -260,6 +260,8 @@ export async function runBotForUser(userId: string, source: "manual" | "cron", d
         maxRiskUsd: null,
         confidence: sig.confidence,
         evidence: sig.evidence,
+        invalidation: sig.invalidation,
+        dataAsOf: sig.dataAsOf,
         technical: sig.technical,
         macro: { gateState: gate.state },
         sentiment: null,

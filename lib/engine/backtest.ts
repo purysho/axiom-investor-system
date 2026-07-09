@@ -123,7 +123,8 @@ export function runBacktest(
   const skipped = { benchmark: 0, heat: 0, concurrency: 0, size: 0, gapThroughStop: 0 };
 
   const symbols = Object.keys(series).filter((s) => (series[s]?.length ?? 0) > 0);
-  const usable = symbols.filter((s) => series[s].length > FIRST_TRADABLE_BAR + 2);
+  // Minimum usable length: a signal at FIRST_TRADABLE_BAR needs one more bar to fill on.
+  const usable = symbols.filter((s) => series[s].length >= FIRST_TRADABLE_BAR + 2);
   for (const s of symbols) {
     if (!usable.includes(s)) warnings.push(`${s}: only ${series[s].length} bars of history — needs ${FIRST_TRADABLE_BAR + 2}+ for indicator warm-up, skipped.`);
   }

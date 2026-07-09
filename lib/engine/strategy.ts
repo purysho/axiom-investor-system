@@ -24,6 +24,10 @@ export interface StrategySignal {
   takeProfit: number;
   confidence: number;
   evidence: string[];
+  /** Plain-English condition that voids the thesis. */
+  invalidation: string;
+  /** Date of the signal bar — the newest data the signal is built on. */
+  dataAsOf: string;
   technical: Record<string, number | string | null>;
 }
 
@@ -151,6 +155,8 @@ export function signalAt(
         `Pulled back to the 20-day average with RSI ${rsi14.toFixed(0)} — resting, not overheated.`,
         `Stop set 2×ATR below entry (ATR14 ≈ ${round2(atr)}).`,
       ],
+      invalidation: `A daily close below the stop (${stop}) or below the 200-day average voids the trend thesis.`,
+      dataAsOf: rows[i].date,
       technical: { close, sma20, sma200, rsi14, atr14: round2(atr) },
     };
   }
@@ -172,6 +178,8 @@ export function signalAt(
         `Betting on reversion toward the mean, not a new trend; smaller reward target (1.5R).`,
         `Wider 2.5×ATR stop to survive the noise that created the setup.`,
       ],
+      invalidation: `A daily close below the stop (${stop}) or a break of the 200-day average ends the reversion case.`,
+      dataAsOf: rows[i].date,
       technical: { close, sma200, rsi14, atr14: round2(atr) },
     };
   }

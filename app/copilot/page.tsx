@@ -16,6 +16,8 @@ interface ApiCandidate {
   asset: string; side: "Long"; strategy: Recommendation["strategy"];
   entry: number; stop: number; takeProfits: number[];
   confidence: number; evidence: string[]; technical: Record<string, number | string | null>;
+  invalidation?: string | null;
+  dataAsOf?: string | null;
 }
 
 export default function CopilotPage() {
@@ -120,6 +122,8 @@ export default function CopilotPage() {
         maxRiskUsd: null,
         confidence: Math.max(0, Math.min(1, c.confidence ?? 0.5)),
         evidence: (c.evidence ?? []).slice(0, 4),
+        invalidation: typeof c.invalidation === "string" ? c.invalidation.slice(0, 200) : null,
+        dataAsOf: c.dataAsOf ?? null,
         technical: c.technical ?? {},
         macro: { gateState: gate.state },
         sentiment: null,
@@ -279,6 +283,9 @@ export default function CopilotPage() {
                 {r.evidence.map((e, i) => (
                   <li key={i} className="flex gap-2"><span style={{ color: "#B4F03C" }}>·</span><span>{e}</span></li>
                 ))}
+                {r.invalidation && (
+                  <li className="flex gap-2"><span style={{ color: "#F4645C" }}>✕</span><span><span className="text-faint">Invalid if:</span> {r.invalidation}</span></li>
+                )}
               </ul>
               {r.validation.notes.length > 0 && (
                 <p className="text-[11px] text-faint">{r.validation.notes.join(" ")}</p>

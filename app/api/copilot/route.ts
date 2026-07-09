@@ -54,10 +54,12 @@ interface RawRec {
   asset: string; side: "Long"; strategy: "Trend pullback" | "Mean reversion";
   entry: number; stop: number; takeProfits: number[];
   confidence: number; evidence: string[]; technical: Record<string, number | string | null>;
+  invalidation?: string | null;
+  dataAsOf?: string | null;
 }
 
 async function aiAnalyst(features: Features[], gateState: string, key: string): Promise<RawRec[] | null> {
-  const sys = `You are the Copilot analyst inside Axiom Investor System. You receive engineered daily features for a handful of symbols and the current risk-gate state. Propose at most 3 LONG swing candidates as STRICT JSON — an array of objects with keys exactly: asset, side ("Long"), strategy ("Trend pullback" or "Mean reversion"), entry, stop, takeProfits (array of 1-2 numbers), confidence (0-1), evidence (array of 2-4 short plain-English strings citing the supplied numbers), technical (object echoing the key numbers used). Rules: entry = latest close; stop 1.5-3 ATR below entry; only propose when the long-term trend (price vs sma200) supports it; if nothing qualifies return []. No prose, no markdown — JSON only. You do not size positions and you do not execute anything.`;
+  const sys = `You are the Copilot analyst inside Axiom Investor System. You receive engineered daily features for a handful of symbols and the current risk-gate state. Propose at most 3 LONG swing candidates as STRICT JSON — an array of objects with keys exactly: asset, side ("Long"), strategy ("Trend pullback" or "Mean reversion"), entry, stop, takeProfits (array of 1-2 numbers), confidence (0-1), evidence (array of 2-4 short plain-English strings citing the supplied numbers), invalidation (one short sentence: the condition that voids the thesis), technical (object echoing the key numbers used). Rules: entry = latest close; stop 1.5-3 ATR below entry; first target at least 1.5R above entry; only propose when the long-term trend (price vs sma200) supports it; if nothing qualifies return []. No prose, no markdown — JSON only. You do not size positions and you do not execute anything.`;
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -110,7 +112,14 @@ export async function POST(req: Request) {
   const key = process.env.ANTHROPIC_API_KEY;
   if (key && features.length) {
     const ai = await aiAnalyst(features, gateState, key);
-    if (ai) { recs = ai; analyst = "ai"; }
+    if (ai) {
+      // Stamp each AI candidate with the date of the data it actually saw.
+      recs = ai.map((r) => ({
+        ...r,
+        dataAsOf: r.dataAsOf ?? features.find((f) => f.symbol === r.asset?.toUpperCase())?.date ?? null,
+      }));
+      analyst = "ai";
+    }
   }
   if (analyst === "rules") {
     recs = withData
@@ -120,6 +129,7 @@ export async function POST(req: Request) {
         asset: s.symbol, side: "Long" as const, strategy: s.strategy,
         entry: s.entry, stop: s.stop, takeProfits: [s.takeProfit],
         confidence: s.confidence, evidence: s.evidence, technical: s.technical,
+        invalidation: s.invalidation, dataAsOf: s.dataAsOf,
       }))
       .slice(0, 3);
   }
