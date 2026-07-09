@@ -5,6 +5,7 @@ import {
   ArrowRight, BarChart3, Check, ChevronDown, CircleCheckBig, RefreshCcw, Scale, Sparkles,
 } from "lucide-react";
 import { fmtPct, fmtR, fmtUsd } from "@/components/chrome";
+import { BenchmarksPanel } from "@/components/benchmarks-panel";
 import { flowAdjustedReturnPct, journalStats } from "@/lib/engine/stats";
 import type { MonthlyRow } from "@/lib/engine/types";
 import { uid, update, useAppState } from "@/lib/store";
@@ -130,6 +131,8 @@ export default function MonthlyPage() {
         )}
         <div className="mt-7 flex flex-wrap items-center gap-4"><button type="button" className="btn-primary" onClick={saveMonth}>Save this month's review <Check size={15} /></button>{notice && <span className="text-sm text-mut">{notice}</span>}</div>
       </section>
+
+      <BenchmarksPanel />
 
       {state.monthly.length > 0 && (
         <section className="border-t border-[#27312B] pt-10">
