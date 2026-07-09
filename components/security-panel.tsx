@@ -22,6 +22,11 @@ const EVENT_LABELS: Record<string, string> = {
   "mfa.disabled": "Two-factor turned off",
   "mfa.failed": "Failed two-factor code",
   "mfa.backup_used": "Backup code used",
+  "broker.connected": "Broker connected",
+  "broker.disconnected": "Broker disconnected",
+  "order.submitted": "Order submitted",
+  "order.rejected": "Order rejected",
+  "order.blocked": "Order blocked by risk rules",
 };
 
 export function SecurityPanel({ mfaOn }: { mfaOn: boolean }) {

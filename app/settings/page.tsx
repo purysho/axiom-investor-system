@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/components/toast";
 import { SecurityPanel } from "@/components/security-panel";
+import { BrokerPanel } from "@/components/broker-panel";
 import { fmtUsd } from "@/components/chrome";
 import { demoState, exportBackup, importBackup } from "@/lib/backup";
 import { downloadText } from "@/lib/csv";
@@ -227,6 +228,10 @@ function AccountPanel() {
 
 <div className="border-t border-line pt-5">
   <SecurityPanel mfaOn={Boolean(account.mfaEnabled)} />
+</div>
+
+<div className="border-t border-line pt-5">
+  <BrokerPanel />
 </div>
 
 <div className="border-t border-line pt-5">

@@ -132,6 +132,40 @@ key, the assistant degrades to a friendly setup message; nothing else breaks.
 Rotate `SESSION_SECRET` if you ever suspect it leaked: every session dies, and 2FA enrolments will need
 redoing unless you set an explicit `ENCRYPTION_KEY` first.
 
+## Broker connection
+
+Axiom can place real orders through **your own** broker account. Each user connects their own Alpaca API
+keys in Settings; keys are verified against the broker before being stored, then encrypted at rest with
+AES-256-GCM. Axiom never holds funds, never sees a bank card, and API keys grant trading — not withdrawals.
+
+**Paper by default.** Live trading additionally requires `ALLOW_LIVE_TRADING=true` in the environment *and*
+the user typing `PLACE LIVE ORDER` per order. Both. The UI cannot switch live mode on by itself.
+
+Every order passes deterministic server-side checks before submission, in this order:
+
+1. Risk gate — `NO NEW SWINGS` blocks all new risk, no exceptions
+2. Live-trading flag and typed confirmation (live only)
+3. Preflight against *live broker state*: account not restricted, market open, sufficient buying power,
+   position within the concentration cap **measured on real broker equity**, planned risk under 5% of
+   equity as a hard backstop, and a 5-orders-per-day discipline limit
+4. Write-ahead: intent is recorded in `broker_orders` *before* submission
+5. Idempotency: the client order id is derived from the recommendation, so resubmitting the same
+   recommendation can never open a second position
+
+Orders are submitted as **brackets** — entry, protective stop, and optional take-profit together. Axiom
+does not submit unprotected orders.
+
+If the network fails mid-submission the order is marked `pending`, never silently retried, and
+**Sync orders** reconciles against the broker (the source of truth for fills). Intents the broker never
+received are marked as such rather than assumed dead.
+
+### Regulatory note
+
+Trading your own account with your own credentials is not a regulated activity. Operating a service where
+*other people* fund accounts or have deals arranged for them is: in the UK that engages the general
+prohibition in s19 FSMA 2000, and permissions such as *arranging deals in investments* or *safeguarding
+and administering investments*. Take specialist FCA advice before offering execution to anyone but yourself.
+
 ## Going public
 
 By default `SIGNUPS_OPEN=true`: anyone who reaches `/join` can create an account. Set it to `false` to go back

@@ -7,7 +7,9 @@ export type AuditEvent =
   | "logout" | "logout.all"
   | "passphrase.changed" | "passphrase.reset"
   | "recovery.regenerated"
-  | "mfa.enabled" | "mfa.disabled" | "mfa.failed" | "mfa.backup_used";
+  | "mfa.enabled" | "mfa.disabled" | "mfa.failed" | "mfa.backup_used"
+  | "broker.connected" | "broker.disconnected"
+  | "order.submitted" | "order.rejected" | "order.blocked";
 
 /** Append-only security trail. Never throws into the caller's path. */
 export async function audit(

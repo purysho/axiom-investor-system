@@ -61,6 +61,11 @@ async function migrate(c: Client) {
     "ALTER TABLE users ADD COLUMN backup_codes TEXT",
     "ALTER TABLE users ADD COLUMN failed_attempts INTEGER NOT NULL DEFAULT 0",
     "ALTER TABLE users ADD COLUMN locked_until TEXT",
+    "ALTER TABLE users ADD COLUMN broker TEXT",
+    "ALTER TABLE users ADD COLUMN broker_key_id TEXT",
+    "ALTER TABLE users ADD COLUMN broker_secret TEXT",
+    "ALTER TABLE users ADD COLUMN broker_mode TEXT NOT NULL DEFAULT 'paper'",
+    "ALTER TABLE users ADD COLUMN broker_connected_at TEXT",
   ]) {
     try { await c.execute(sql); } catch { /* column already exists */ }
   }
@@ -77,6 +82,32 @@ async function migrate(c: Client) {
     )`,
   );
   try { await c.execute("CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log (user_id, created_at DESC)"); } catch { /* ok */ }
+
+  // Every order Axiom submits, recorded before it is sent. The broker is the source of
+  // truth for fills; this table is the source of truth for intent and idempotency.
+  await c.execute(
+    `CREATE TABLE IF NOT EXISTS broker_orders (
+      client_order_id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      recommendation_id TEXT,
+      broker TEXT NOT NULL,
+      mode TEXT NOT NULL,
+      symbol TEXT NOT NULL,
+      side TEXT NOT NULL,
+      qty REAL NOT NULL,
+      entry REAL,
+      stop REAL,
+      take_profit REAL,
+      broker_order_id TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      filled_qty REAL NOT NULL DEFAULT 0,
+      filled_avg_price REAL,
+      submitted_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      error TEXT
+    )`,
+  );
+  try { await c.execute("CREATE INDEX IF NOT EXISTS idx_orders_user ON broker_orders (user_id, submitted_at DESC)"); } catch { /* ok */ }
 }
 
 /** First run on an empty database: mint one invite and print it to the server log. */

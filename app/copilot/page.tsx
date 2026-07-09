@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bot, Lock, Power, RefreshCw, ShieldAlert } from "lucide-react";
+import { Bot, Lock, Power, RefreshCw, ShieldAlert, Zap } from "lucide-react";
 import { Panel } from "@/components/chrome";
 import { toast } from "@/components/toast";
 import { validateRecommendation } from "@/lib/copilot/validate";
@@ -22,6 +22,53 @@ export default function CopilotPage() {
   const gate = evaluateGate(state.gateInputs, state.settings, state.trades);
   const [scanning, setScanning] = useState(false);
   const [analyst, setAnalyst] = useState<"ai" | "rules" | null>(null);
+  const [brokerMode, setBrokerMode] = useState<"paper" | "live" | null>(null);
+  const [placing, setPlacing] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetch("/api/broker/status")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => setBrokerMode(j?.connected ? j.mode : null))
+      .catch(() => {});
+  }, []);
+
+  /** Sends a validated recommendation to the connected broker. Server re-checks everything. */
+  const placeOrder = async (rec: Recommendation) => {
+    const fresh = validateRecommendation(rec, getState());
+    if (!fresh.validation.ok || !fresh.entry || !fresh.stop || !fresh.positionSize) {
+      toast(fresh.validation.notes[0] ?? "No longer valid.", "error");
+      return;
+    }
+    let confirmation: string | undefined;
+    if (brokerMode === "live") {
+      const typed = window.prompt(
+        `REAL MONEY ORDER\n\n${fresh.asset}: buy ${fresh.positionSize} @ ~${fresh.entry}, stop ${fresh.stop}.\nRisk about $${fresh.maxRiskUsd}.\n\nType PLACE LIVE ORDER to confirm.`,
+      );
+      if (!typed) return;
+      confirmation = typed;
+    }
+    setPlacing(rec.id);
+    try {
+      const res = await fetch("/api/broker/order", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recommendationId: fresh.id, symbol: fresh.asset, qty: fresh.positionSize,
+          entry: fresh.entry, stop: fresh.stop, takeProfit: fresh.takeProfits[0] ?? null,
+          gateState: fresh.macro.gateState, notionalCapPct: state.settings.notionalCapPct, confirmation,
+        }),
+      });
+      const j = await res.json();
+      if (j.blocked) { toast(j.reasons?.[0] ?? "Blocked by the risk engine.", "warning"); return; }
+      if (!res.ok) { toast(j.hint ? `${j.error} ${j.hint}` : (j.error ?? "Order failed."), "error"); return; }
+      if (j.duplicate) { toast(j.message, "warning"); return; }
+
+      const o = j.order;
+      approve(rec, { broker: true, filledQty: o?.filledQty ?? null, filledPrice: o?.filledAvgPrice ?? null, status: o?.status });
+      toast(`Order ${o?.status ?? "sent"} — ${fresh.asset} ${o?.filledQty ?? fresh.positionSize}${o?.filledAvgPrice ? ` @ ${o.filledAvgPrice}` : ""}.`);
+    } catch {
+      toast("Couldn't reach the server. Run Sync before retrying.", "error");
+    } finally { setPlacing(null); }
+  };
 
   const live = useMemo(
     () =>
@@ -99,7 +146,7 @@ export default function CopilotPage() {
     }
   };
 
-  const approve = (rec: Recommendation) => {
+  const approve = (rec: Recommendation, fill?: { broker: boolean; filledQty: number | null; filledPrice: number | null; status?: string }) => {
     // Re-validate at the moment of approval — state may have moved
     const fresh = validateRecommendation(rec, getState());
     if (!fresh.validation.ok || fresh.entry === null || fresh.stop === null || !fresh.positionSize) {
@@ -118,15 +165,15 @@ export default function CopilotPage() {
       sleeve: "Satellite",
       entryDate: todayKey(),
       exitDate: "",
-      entry: fresh.entry,
+      entry: fill?.filledPrice ?? fresh.entry,
       stop: fresh.stop,
       target: fresh.takeProfits[0] ?? null,
-      shares: fresh.positionSize,
+      shares: fill?.filledQty ?? fresh.positionSize,
       exitPrice: null, fees: null, mfePct: null, maePct: null,
       thesisGrade: "", emotion: null, ruleFollowed: "", exitReason: "", mistakeTag: "",
       thesis: `Copilot (${fresh.source}): ${fresh.evidence[0] ?? fresh.strategy}`,
       lesson: "", nextRuleChange: "",
-      tags: "copilot;paper",
+      tags: fill?.broker ? `copilot;${brokerMode ?? "paper"}` : "copilot;paper",
       exceptionNote: exception ? "Copilot approval under REDUCED RISK ONLY (half size)." : undefined,
     };
     update((prev) => ({
@@ -134,7 +181,7 @@ export default function CopilotPage() {
       trades: [...prev.trades, t],
       recommendations: prev.recommendations.map((r) => (r.id === rec.id ? { ...fresh, id: rec.id, status: "approved", executedTradeId: t.id } : r)),
     }));
-    toast(`Paper order recorded — ${t.ticker} ${t.shares} @ ${t.entry}, stop ${t.stop}. It's in your journal.`);
+    if (!fill?.broker) toast(`Paper order recorded — ${t.ticker} ${t.shares} @ ${t.entry}, stop ${t.stop}. It's in your journal.`);
   };
 
   const dismiss = (id: string) =>
@@ -235,9 +282,22 @@ export default function CopilotPage() {
               )}
 
               <div className="mt-auto flex gap-2">
-                <button type="button" className="btn-primary flex-1" onClick={() => approve(r)}>
-                  Approve paper trade
-                </button>
+                {brokerMode ? (
+                  <button
+                    type="button"
+                    className="btn-primary flex-1"
+                    onClick={() => void placeOrder(r)}
+                    disabled={placing === r.id}
+                    style={brokerMode === "live" ? { background: "#F4645C", color: "#0B0F0D" } : {}}
+                  >
+                    <Zap size={14} />
+                    {placing === r.id ? "Placing…" : brokerMode === "live" ? "Place LIVE order" : "Place paper order"}
+                  </button>
+                ) : (
+                  <button type="button" className="btn-primary flex-1" onClick={() => approve(r)}>
+                    Record paper trade
+                  </button>
+                )}
                 <button type="button" className="btn" onClick={() => dismiss(r.id)}>Dismiss</button>
               </div>
               <p className="text-[10px] text-faint">
