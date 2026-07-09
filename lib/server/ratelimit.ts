@@ -21,3 +21,14 @@ export function limited(key: string, max: number, windowMs: number): boolean {
 export function clientIp(req: Request): string {
   return (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "local";
 }
+
+/**
+ * Same-origin guard for routes the middleware matcher skips (everything under
+ * /api/auth/). Returns true when the request must be rejected.
+ */
+export function crossSite(req: Request): boolean {
+  const origin = req.headers.get("origin");
+  if (!origin) return false; // non-browser client (curl, mobile app)
+  const host = req.headers.get("host");
+  try { return new URL(origin).host !== host; } catch { return true; }
+}

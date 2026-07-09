@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { hashPassphrase, verifyPassphrase } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
-import { clientIp, limited } from "@/lib/server/ratelimit";
+import { clientIp, crossSite, limited } from "@/lib/server/ratelimit";
+import { audit } from "@/lib/server/audit";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ function makeRecoveryCode(): string {
 }
 
 export async function POST(req: Request) {
+  if (crossSite(req)) return NextResponse.json({ error: "Cross-site request blocked." }, { status: 403 });
   if (limited(`reset:${clientIp(req)}`, 5, 15 * 60_000))
     return NextResponse.json({ error: "Too many attempts — try again in 15 minutes." }, { status: 429 });
 
@@ -37,8 +39,9 @@ export async function POST(req: Request) {
   const fresh = makeRecoveryCode();
   const rec = hashPassphrase(fresh);
   await c.execute({
-    sql: "UPDATE users SET pass_salt = ?, pass_hash = ?, recovery_salt = ?, recovery_hash = ? WHERE id = ?",
+    sql: "UPDATE users SET pass_salt = ?, pass_hash = ?, recovery_salt = ?, recovery_hash = ?, token_version = token_version + 1, failed_attempts = 0, locked_until = NULL WHERE id = ?",
     args: [salt, hash, rec.salt, rec.hash, row.id],
   });
+  await audit("passphrase.reset", { userId: String(row.id), username, req, detail: "via recovery code" });
   return NextResponse.json({ ok: true, recoveryCode: fresh });
 }

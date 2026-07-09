@@ -9,6 +9,8 @@ export default function LoginPage() {
   const [passphrase, setPassphrase] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mfa, setMfa] = useState(false);
+  const [code, setCode] = useState("");
 
   const submit = async () => {
     setBusy(true); setError("");
@@ -16,6 +18,20 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, passphrase }) });
       const j = await res.json();
       if (!res.ok) { setError(j.error ?? "Sign-in failed."); setBusy(false); return; }
+      if (j.mfaRequired) { setMfa(true); setBusy(false); setError(""); return; }
+      window.location.href = "/";
+    } catch { setError("Couldn't reach the server."); setBusy(false); }
+  };
+
+  const submitMfa = async () => {
+    setBusy(true); setError("");
+    try {
+      const res = await fetch("/api/auth/mfa", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const j = await res.json();
+      if (!res.ok) { setError(j.error ?? "Verification failed."); setBusy(false); return; }
       window.location.href = "/";
     } catch { setError("Couldn't reach the server."); setBusy(false); }
   };
@@ -24,6 +40,38 @@ export default function LoginPage() {
     document.cookie = "axiom_offline=1; path=/; max-age=31536000; samesite=lax";
     window.location.href = "/";
   };
+
+  if (mfa) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="panel w-full max-w-sm p-8">
+          <div className="eyebrow text-[#B4F03C]">Two-factor</div>
+          <h1 className="mt-2 font-display text-2xl font-semibold text-ink">Enter your code</h1>
+          <p className="mt-3 text-sm leading-relaxed text-mut">
+            Open your authenticator app and type the current 6-digit code. Lost your phone? Use one of your backup codes instead.
+          </p>
+          <form onSubmit={(e) => { e.preventDefault(); void submitMfa(); }} className="mt-6 space-y-4">
+            <input
+              className="field text-center font-mono text-xl tracking-[0.3em]"
+              inputMode="text"
+              autoFocus
+              autoComplete="one-time-code"
+              placeholder="000000"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+            {error && <p className="rounded-[14px] bg-[#241111] px-4 py-3 text-sm text-[#F4645C]">{error}</p>}
+            <button type="submit" className="btn-primary w-full" disabled={busy || !code.trim()}>
+              {busy ? "Verifying…" : "Verify and sign in"}
+            </button>
+          </form>
+          <button type="button" className="btn-ghost mt-4 w-full justify-center text-xs" onClick={() => { setMfa(false); setCode(""); setError(""); }}>
+            Back to sign in
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen px-4 py-8 sm:px-6 lg:flex lg:items-stretch lg:p-5">

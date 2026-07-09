@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { hashPassphrase, setSessionCookie } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
-import { clientIp, limited } from "@/lib/server/ratelimit";
+import { clientIp, crossSite, limited } from "@/lib/server/ratelimit";
 import { signupsOpen } from "@/lib/server/signup";
+import { audit } from "@/lib/server/audit";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,7 @@ function makeRecoveryCode(): string {
 }
 
 export async function POST(req: Request) {
+  if (crossSite(req)) return NextResponse.json({ error: "Cross-site request blocked." }, { status: 403 });
   if (limited(`join:${clientIp(req)}`, 8, 10 * 60_000))
     return NextResponse.json({ error: "Too many sign-up attempts — try again in a few minutes." }, { status: 429 });
 
@@ -64,5 +66,6 @@ export async function POST(req: Request) {
   await c.batch(stmts, "write");
 
   await setSessionCookie({ id, username, displayName });
+  await audit("account.created", { userId: id, username, req, detail: invite ? "with invite" : "open signup" });
   return NextResponse.json({ ok: true, user: { username, displayName }, recoveryCode });
 }

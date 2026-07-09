@@ -55,9 +55,28 @@ async function migrate(c: Client) {
   for (const sql of [
     "ALTER TABLE users ADD COLUMN recovery_salt TEXT",
     "ALTER TABLE users ADD COLUMN recovery_hash TEXT",
+    "ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 1",
+    "ALTER TABLE users ADD COLUMN totp_secret TEXT",
+    "ALTER TABLE users ADD COLUMN totp_enabled INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN backup_codes TEXT",
+    "ALTER TABLE users ADD COLUMN failed_attempts INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN locked_until TEXT",
   ]) {
     try { await c.execute(sql); } catch { /* column already exists */ }
   }
+  await c.execute(
+    `CREATE TABLE IF NOT EXISTS audit_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT,
+      username TEXT,
+      event TEXT NOT NULL,
+      detail TEXT NOT NULL DEFAULT '',
+      ip TEXT NOT NULL DEFAULT '',
+      user_agent TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL
+    )`,
+  );
+  try { await c.execute("CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log (user_id, created_at DESC)"); } catch { /* ok */ }
 }
 
 /** First run on an empty database: mint one invite and print it to the server log. */

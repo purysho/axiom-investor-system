@@ -109,6 +109,29 @@ typical question-and-answer is well under a cent. Each request sends the questio
 that user's own Axiom data (never other members' data, passphrases, or invite codes) to Anthropic. Without the
 key, the assistant degrades to a friendly setup message; nothing else breaks.
 
+## Security
+
+- **`SESSION_SECRET` is mandatory in production.** The app now refuses to serve any request without it,
+  because the previous dev fallback key is committed to this repo — a deployment missing the variable would
+  have allowed forged session cookies. Generate 32+ random characters and set it in your host's environment.
+- **Two-factor authentication** (TOTP, RFC 6238) is available per-account in Settings → Security. Seeds are
+  encrypted at rest with AES-256-GCM. Eight single-use backup codes are issued at enrolment.
+- **Account lockout**: 8 failed passphrase attempts locks an account for 15 minutes, counted server-side so
+  it holds even when an attacker rotates IP addresses. Per-IP rate limits sit in front of that.
+- **Session revocation**: passphrase changes, recovery resets, and "sign out everywhere" bump a token version
+  that immediately invalidates every existing cookie.
+- **Security headers**: CSP, HSTS (2 years, preload-eligible), `X-Frame-Options: DENY`, `nosniff`,
+  `Referrer-Policy`, and a restrictive `Permissions-Policy` are applied to every response.
+- **CSRF**: state-changing API requests must be same-origin; cookies are `httpOnly`, `SameSite=Lax`, and
+  `Secure` in production.
+- **Audit trail**: sign-ins, failures, lockouts, 2FA changes, resets, and deletions are recorded and visible
+  to each user in Settings → Security.
+- **`ENCRYPTION_KEY`** is optional; when unset it is derived from `SESSION_SECRET`. Rotating `SESSION_SECRET`
+  therefore invalidates stored 2FA seeds — users would re-enrol after resetting with a recovery code.
+
+Rotate `SESSION_SECRET` if you ever suspect it leaked: every session dies, and 2FA enrolments will need
+redoing unless you set an explicit `ENCRYPTION_KEY` first.
+
 ## Going public
 
 By default `SIGNUPS_OPEN=true`: anyone who reaches `/join` can create an account. Set it to `false` to go back

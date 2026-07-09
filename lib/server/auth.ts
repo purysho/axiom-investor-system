@@ -10,10 +10,18 @@ const THIRTY_DAYS = 60 * 60 * 24 * 30;
 export function sessionSecret(): Uint8Array {
   const s = process.env.SESSION_SECRET;
   if (s && s.length >= 16) return new TextEncoder().encode(s);
-  // Deterministic dev fallback (matches middleware). Never rely on it in production.
+
+  // Fail closed. The dev fallback is committed to a public repo, so booting production
+  // without a real secret would let anyone forge a session cookie for any account.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "[Axiom] SESSION_SECRET is missing or too short (need 16+ chars). Refusing to start: " +
+      "without it, session cookies could be forged. Set it in your host's environment and redeploy.",
+    );
+  }
   if (!(globalThis as Record<string, unknown>).__axiomDevSecretWarned) {
     (globalThis as Record<string, unknown>).__axiomDevSecretWarned = true;
-    console.warn("[Axiom] SESSION_SECRET is not set — using the built-in dev secret. Set a real one in production.");
+    console.warn("[Axiom] SESSION_SECRET is not set — using the dev-only secret. Production will refuse to boot without a real one.");
   }
   return new TextEncoder().encode("axiom-dev-secret-not-for-production");
 }
@@ -35,10 +43,11 @@ export interface SessionUser {
   id: string;
   username: string;
   displayName: string;
+  tv?: number;
 }
 
-export async function createSessionToken(user: SessionUser): Promise<string> {
-  return new SignJWT({ un: user.username, dn: user.displayName })
+export async function createSessionToken(user: SessionUser, tokenVersion = 1): Promise<string> {
+  return new SignJWT({ un: user.username, dn: user.displayName, tv: tokenVersion })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.id)
     .setIssuedAt()
@@ -50,14 +59,14 @@ export async function readSessionToken(token: string): Promise<SessionUser | nul
   try {
     const { payload } = await jwtVerify(token, sessionSecret());
     if (!payload.sub) return null;
-    return { id: payload.sub, username: String(payload.un ?? ""), displayName: String(payload.dn ?? "") };
+    return { id: payload.sub, username: String(payload.un ?? ""), displayName: String(payload.dn ?? ""), tv: Number(payload.tv ?? 1) };
   } catch {
     return null;
   }
 }
 
-export async function setSessionCookie(user: SessionUser) {
-  const token = await createSessionToken(user);
+export async function setSessionCookie(user: SessionUser, tokenVersion = 1) {
+  const token = await createSessionToken(user, tokenVersion);
   const jar = await cookies();
   jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
@@ -83,8 +92,10 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const claims = await readSessionToken(token);
   if (!claims) return null;
   const c = await db();
-  const row = await c.execute({ sql: "SELECT id, username, display_name FROM users WHERE id = ?", args: [claims.id] });
+  const row = await c.execute({ sql: "SELECT id, username, display_name, token_version FROM users WHERE id = ?", args: [claims.id] });
   if (row.rows.length === 0) return null;
   const r = row.rows[0];
-  return { id: String(r.id), username: String(r.username), displayName: String(r.display_name) };
+  // A bumped token_version (passphrase change, reset, "sign out everywhere") kills old cookies.
+  if (Number(r.token_version ?? 1) !== Number(claims.tv ?? 1)) return null;
+  return { id: String(r.id), username: String(r.username), displayName: String(r.display_name), tv: Number(r.token_version ?? 1) };
 }

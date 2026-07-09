@@ -6,11 +6,12 @@ export async function GET() {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const c = await db();
-  const r = await c.execute({ sql: "SELECT display_name, share_group FROM users WHERE id = ?", args: [user.id] });
+  const r = await c.execute({ sql: "SELECT display_name, share_group, totp_enabled FROM users WHERE id = ?", args: [user.id] });
   return NextResponse.json({
     username: user.username,
     displayName: String(r.rows[0].display_name),
     shareGroup: Number(r.rows[0].share_group) === 1,
+    mfaEnabled: Number(r.rows[0].totp_enabled ?? 0) === 1,
   });
 }
 

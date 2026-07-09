@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUser, hashPassphrase, verifyPassphrase } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
+import { audit } from "@/lib/server/audit";
 
 export async function POST(req: Request) {
   const user = await getSessionUser();
@@ -20,6 +21,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Current passphrase is wrong." }, { status: 401 });
 
   const { salt, hash } = hashPassphrase(body.next);
-  await c.execute({ sql: "UPDATE users SET pass_salt = ?, pass_hash = ? WHERE id = ?", args: [salt, hash, user.id] });
+  await c.execute({ sql: "UPDATE users SET pass_salt = ?, pass_hash = ?, token_version = token_version + 1 WHERE id = ?", args: [salt, hash, user.id] });
   return NextResponse.json({ ok: true });
 }

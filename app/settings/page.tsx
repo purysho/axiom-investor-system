@@ -7,6 +7,7 @@ import {
   ShieldCheck, Sparkles, Upload, UserRound,
 } from "lucide-react";
 import { toast } from "@/components/toast";
+import { SecurityPanel } from "@/components/security-panel";
 import { fmtUsd } from "@/components/chrome";
 import { demoState, exportBackup, importBackup } from "@/lib/backup";
 import { downloadText } from "@/lib/csv";
@@ -174,7 +175,7 @@ function AccountPanel() {
     else toast(j.error ?? "Couldn't delete the account.", "error");
   };
 
-  const [account, setAccount] = useState<{ username: string; displayName: string } | null>(null);
+  const [account, setAccount] = useState<{ username: string; displayName: string; mfaEnabled?: boolean } | null>(null);
   const [offline, setOffline] = useState(false);
   const [dn, setDn] = useState("");
   const [cur, setCur] = useState("");
@@ -222,6 +223,10 @@ function AccountPanel() {
   <p className="mt-1 text-sm leading-relaxed text-mut">The only way to reset a forgotten passphrase. Generating a new one invalidates the old.</p>
   <button type="button" className="btn mt-3" onClick={() => void regenCode()}>Generate a new recovery code</button>
   {newCode && <div className="mt-3 rounded-[14px] border border-[#27312B] bg-[#1A211D] px-4 py-3 font-mono text-base tracking-wider text-[#B4F03C]">{newCode}</div>}
+</div>
+
+<div className="border-t border-line pt-5">
+  <SecurityPanel mfaOn={Boolean(account.mfaEnabled)} />
 </div>
 
 <div className="border-t border-line pt-5">

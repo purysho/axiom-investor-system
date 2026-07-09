@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { clearSessionCookie, getSessionUser, verifyPassphrase } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
+import { audit } from "@/lib/server/audit";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export async function POST(req: Request) {
     ],
     "write",
   );
+  await audit("account.deleted", { userId: null, username: session.username, req, detail: "user-initiated" });
   await clearSessionCookie();
   return NextResponse.json({ ok: true });
 }
