@@ -168,6 +168,7 @@ export function BrokerPanel() {
             <p className="text-[11px] leading-relaxed text-faint">
               Keys are verified against the broker before being saved, then stored encrypted. They never reach your browser again.
               AXIOM cannot withdraw funds — the API keys grant trading only.
+              {" "}<a href="/help#broker" className="quiet-link">Can&apos;t find your keys?</a>
             </p>
           </div>
         )}

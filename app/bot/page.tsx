@@ -282,6 +282,7 @@ export default function BotPage() {
                     ? "Your broker connection is LIVE. The bot refuses live accounts — reconnect in paper mode to enable it."
                     : "Connect a paper broker in Settings to enable the bot — use the built-in simulator (no API keys) or an Alpaca paper account."}
                   {" "}<Link href="/settings" className="underline">Settings →</Link>
+                  {" "}<Link href="/help#bot" className="underline">Help →</Link>
                 </p>
               )}
             </div>

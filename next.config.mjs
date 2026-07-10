@@ -3,13 +3,15 @@
 // Fonts come from Google Fonts; charts and Next need inline styles.
 // 'unsafe-inline' for scripts is required by Next's bootstrap in this setup;
 // everything else is locked down. No remote script origins are allowed.
+// 'unsafe-eval' is a dev-only concession to webpack HMR — production drops it.
+const isDev = process.env.NODE_ENV === "development";
 const csp = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob:",

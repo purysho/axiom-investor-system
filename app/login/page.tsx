@@ -108,7 +108,7 @@ export default function LoginPage() {
               <button type="submit" className="btn-primary w-full" disabled={busy}>{busy ? "Signing in…" : "Sign in"} {!busy && <ArrowRight size={15} />}</button>
             </form>
 
-            <p className="mt-3 text-center"><a href="/reset" className="quiet-link text-xs">Forgot passphrase? Use your recovery code</a></p>
+            <p className="mt-3 text-center text-xs"><a href="/reset" className="quiet-link">Forgot passphrase? Use your recovery code</a> · <a href="/help#account" className="quiet-link">Help</a></p>
             <p className="mt-5 text-center text-sm text-faint">New here? <Link href="/join" className="font-semibold text-[#B4F03C] hover:underline">Create your account</Link></p>
             <div className="mt-8 border-t border-line pt-6 text-center">
               <p className="text-xs leading-relaxed text-faint">Prefer to keep everything on this device?</p>
