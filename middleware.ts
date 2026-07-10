@@ -65,6 +65,6 @@ export const config = {
     // Everything except Next internals, static assets, auth endpoints, and the
     // bot's cron tick (which authenticates itself with BOT_CRON_TOKEN, not a session).
     // /help stays public so a locked-out user can read the account-recovery answers.
-    "/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|sw.js|api/health|api/auth/|api/bot/tick|terms|privacy|reset|help).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icons/|fonts/|manifest.webmanifest|sw.js|api/health|api/auth/|api/bot/tick|terms|privacy|reset|help).*)",
   ],
 };
