@@ -6,7 +6,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Home, PieChart, Lightbulb, BookOpenText, CalendarCheck2, Library,
-  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Bot, Cpu,
+  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Bot, Cpu, LifeBuoy,
 } from "lucide-react";
 import { SyncBadge } from "@/components/sync";
 import { AxiomMark } from "@/components/logo";
@@ -28,6 +28,7 @@ const MORE_NAV: NavItem[] = [
   { href: "/bot", label: "AXIOM Bot", key: "b", Icon: Cpu },
   { href: "/charts", label: "Charts", key: "6", Icon: LineChart },
   { href: "/group", label: "Group", key: "9", Icon: Users },
+  { href: "/help", label: "Help & support", key: "h", Icon: LifeBuoy },
   { href: "/settings", label: "Settings", key: "", Icon: Settings },
 ];
 
@@ -38,7 +39,7 @@ const TITLES: Record<string, string> = {
   "/journal": "Journal", "/portfolio": "My portfolio", "/copilot": "Copilot",
   "/bot": "AXIOM Bot", "/watchlist": "Trade ideas",
   "/charts": "Charts", "/monthly": "Monthly review", "/guides": "Learn", "/group": "Group",
-  "/settings": "Settings", "/login": "Sign in", "/join": "Join",
+  "/help": "Help & support", "/settings": "Settings", "/login": "Sign in", "/join": "Join",
 };
 
 const AUTH_PATHS = ["/login", "/join"];
@@ -212,7 +213,7 @@ export function Footer() {
   return (
     <footer className="site-footer">
       AXIOM is an educational process tool, not investment advice. Market figures may be delayed. Planned stop risk is not a guaranteed maximum loss.
-      <span className="mt-2 block"><Link href="/terms" className="quiet-link">Terms</Link> · <Link href="/privacy" className="quiet-link">Privacy</Link></span>
+      <span className="mt-2 block"><Link href="/help" className="quiet-link">Help &amp; support</Link> · <Link href="/terms" className="quiet-link">Terms</Link> · <Link href="/privacy" className="quiet-link">Privacy</Link></span>
     </footer>
   );
 }
