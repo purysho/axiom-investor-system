@@ -2,8 +2,10 @@
 
 The bot is the Copilot with the click removed. It scans a small universe on
 daily bars, and when the entry rules, your risk engine, and every interlock
-agree, it submits a **paper** bracket order to your connected Alpaca paper
-account. It is at `/bot`.
+agree, it submits a **paper** bracket order to your connected paper broker —
+either an Alpaca paper account or the built-in simulator (`lib/broker/sim.ts`,
+no API keys or signup; fills at last close ± the same 5 bps slippage the
+backtester charges). It is at `/bot`.
 
 ## One pipeline, three consumers
 
@@ -36,7 +38,8 @@ runs that do nothing. See "Run history" on `/bot`.
    outstanding journal reflections. The bot obeys your own history.
 5. **Broker is connected and is a PAPER account.** A live connection stands
    the bot down. This is code (`lib/server/bot.ts`), not a setting, and there
-   is deliberately no flag to change it.
+   is deliberately no flag to change it. The built-in simulator is paper by
+   construction — it has no live mode to misconfigure.
 6. **Market is open** (broker clock). No queuing into the open.
 7. **Daily order cap** — shared with manual orders (5/day).
 8. **Signals** from the shared strategy engine over the universe.

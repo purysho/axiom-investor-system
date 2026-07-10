@@ -14,7 +14,7 @@ The main navigation is intentionally plain:
 
 **Today · My portfolio · Copilot · Trade ideas · Journal · Review · Learn**
 
-Risk Check, AXIOM Bot, Charts, Group, and Settings remain available under **More**.
+Risk Check, AXIOM Bot, Charts, Group, Help & support, and Settings remain available under **More**.
 
 ## Run locally
 
@@ -123,6 +123,20 @@ orders only — a live broker connection stands it down, in code. The page also 
 strategy code the bot trades over up to ten years of daily history, with conservative fills.
 Architecture, interlocks, and scheduling live in `BOT.md`.
 
+Two paper brokers are supported, switchable in Settings:
+
+- **Built-in simulator** — one click, no account, no API keys, no identity/tax paperwork.
+  $10,000 paper balance; fills at the last daily close with the same 5 bps slippage the
+  backtester charges; stops and targets enforced against each new bar.
+- **Alpaca paper account** — free, real market data, more realistic fills. Only an email is
+  needed; identity verification applies only to live accounts, which AXIOM never requires.
+
+### Help & support
+
+`/help` is the product-help surface (distinct from Learn, which teaches the method): a
+searchable FAQ covering broker connection, the bot, account recovery, and troubleshooting.
+It stays reachable without a session so a locked-out user can read the recovery answers.
+
 ### Learn
 
 `/guides` is a short learning path rather than a reference manual. Seven expandable lessons answer the questions a beginner reaches in the order they use AXIOM.
@@ -144,6 +158,10 @@ AXIOM is local-first with optional account sync.
 The browser store is defined in `lib/store.ts`. When signed in, `lib/sync.ts` mirrors state to the server with conflict handling. Offline mode runs the investing process in the browser without an account.
 
 The application includes invite-only account flows, API routes, delayed market-data integrations, backup/restore, CSV journal tools, group features, and PWA support.
+
+Security posture (details in `ARCHITECTURE.md`): fully first-party CSP with self-hosted fonts,
+rate limits on every credential-verifying endpoint, encrypted broker keys that never return to
+the browser, optional TOTP two-factor, and an append-only audit log.
 
 See `DEPLOY.md` for deployment options.
 

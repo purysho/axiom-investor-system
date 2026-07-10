@@ -26,7 +26,7 @@ Market Data ─→ Feature/Strategy ─→ AI Copilot ─→ Proposal Schema
 | Risk validation | `lib/copilot/validate.ts` (`validateRecommendation`, `VALIDATOR_LIMITS`) | Rejects: expired, no evidence, confidence out of bounds, stale data, disallowed asset class, bad stops, reward:risk under floor, gate closed, behavioural locks, kill switch, heat cap, concurrency, and any proposal carrying an execution key. Recomputes size — model numbers are advisory. |
 | Sizing | `lib/engine/sizing.ts` | Risk-first: `floor(risk$ / per-share risk)`, then notional cap. |
 | Gate + protections | `lib/engine/gate.ts`, `lib/engine/protections.ts` | Six-check market gate (unknown = fail). Behavioural locks: reflections owed, cooldown, revenge, stop-out streak, drawdown, per-symbol, daily loss limit. |
-| Execution | `lib/broker/preflight.ts`, `lib/server/execute-order.ts`, `lib/broker/alpaca.ts` | Preflight re-checks against LIVE broker state; write-ahead row before submit; idempotent client order ids; GTC brackets so stops survive overnight. Live mode is double-locked (`ALLOW_LIVE_TRADING` + typed confirmation) and the bot refuses it entirely. |
+| Execution | `lib/broker/preflight.ts`, `lib/server/execute-order.ts`, `lib/broker/alpaca.ts`, `lib/broker/sim.ts` | Preflight re-checks against LIVE broker state; write-ahead row before submit; idempotent client order ids; GTC brackets so stops survive overnight. Live mode is double-locked (`ALLOW_LIVE_TRADING` + typed confirmation) and the bot refuses it entirely. `SimBroker` is the keyless built-in paper broker: fills at last close ± the backtester's 5 bps slippage, positions in `sim_positions`, stop/target enforced against each new daily bar. |
 | Reconciliation | `app/api/broker/sync/route.ts`, `lib/broker/close-detect.ts`, `lib/server/positions-sync.ts` | Broker is truth for fills; `broker_orders` is truth for intent. Bracket exits close journal trades with the real fill. |
 | Bot (paper autopilot) | `lib/server/bot.ts`, `app/api/bot/*`, `app/bot/page.tsx`, `BOT.md` | Walks every interlock in order, logs every run. Paper-only in code. Cron via `BOT_CRON_TOKEN`. |
 | Backtesting | `lib/engine/backtest.ts`, `app/api/backtest/route.ts` | Replays the SAME strategy code. Conservative fills: next-open entry, stop-first on ambiguous bars, gaps at the open, slippage both ways. |
@@ -34,10 +34,30 @@ Market Data ─→ Feature/Strategy ─→ AI Copilot ─→ Proposal Schema
 | Audit | `lib/server/audit.ts` | Append-only trail: auth, broker, orders, bot runs. |
 | State | `lib/store.ts` (client), `lib/server/db.ts` + `app/api/state` (server) | Local-first with optimistic-concurrency sync; server-side writes (bot fills, position closes) win by timestamp. |
 
+## Security posture
+
+- **CSP is fully first-party**: no external origin appears in the policy.
+  Fonts are self-hosted (`app/fonts.css` + `public/fonts`); `'unsafe-eval'`
+  is emitted in development only (webpack HMR). See `next.config.mjs`.
+- **Sessions**: JWT cookie (SameSite=Lax) + middleware origin check on
+  state-changing API calls; `token_version` invalidates all sessions on
+  passphrase change.
+- **Rate limits** (`lib/server/ratelimit.ts`): login/join/reset/MFA by IP;
+  every passphrase-verifying endpoint (password change, account delete, MFA
+  disable) by user — a hijacked session cannot brute-force the passphrase;
+  `bot/tick` failed auth by IP; data proxies capped to protect the free feed.
+- **Broker keys** are verified against the broker before being stored,
+  encrypted at rest, and never returned to the browser.
+- **Audit log** (`lib/server/audit.ts`): append-only — auth events,
+  passphrase changes, MFA changes, broker connects, orders, bot runs.
+- **Public routes** are an explicit allowlist in `middleware.ts`
+  (login/join/reset/terms/privacy/help + static assets); everything else
+  requires a session or offline mode.
+
 ## Invariants — do not relax these
 
 1. **LLMs never touch orders.** Proposals carrying execution-ish keys are rejected by the validator; execution lives behind its own authenticated, preflight-gated path.
-2. **The bot trades paper only.** `lib/server/bot.ts` checks `conn.mode === "paper"` — a code invariant, not a flag.
+2. **The bot trades paper only.** `lib/server/bot.ts` checks `conn.mode === "paper"` — a code invariant, not a flag. The built-in `SimBroker` is paper by construction (`mode` is the literal `"paper"`).
 3. **Backtest what you trade.** Entry rules exist once, in `lib/engine/strategy.ts`.
 4. **Fail closed.** No synced state → no orders. Unknown gate inputs → count as fails. Ambiguous order lookups → propagate, never assume "missing".
 5. **Idempotency everywhere an order can happen.** Client order ids are deterministic; duplicate submits return the original.
