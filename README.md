@@ -29,9 +29,14 @@ For a production build:
 
 ```bash
 npm run typecheck
+npm test
 npm run build
 npm start
 ```
+
+Developer docs: [`ARCHITECTURE.md`](./ARCHITECTURE.md) maps every layer (market data → strategy →
+copilot → proposal schema → validator → execution → audit) and lists the safety invariants;
+[`BOT.md`](./BOT.md) covers the paper-only autopilot, its interlocks, and scheduling.
 
 Optional: copy `.env.local.example` to `.env.local` and add the supported environment values. Without paid market-data keys, AXIOM can use delayed/keyless sources already wired into the app and also allows manual entry.
 
