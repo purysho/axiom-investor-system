@@ -20,6 +20,7 @@ export async function GET() {
     return NextResponse.json({
       connected: true,
       liveAllowed: liveTradingEnabled(),
+      broker: conn.broker,
       mode: conn.mode,
       keyHint: conn.keyHint,
       connectedAt: conn.connectedAt,

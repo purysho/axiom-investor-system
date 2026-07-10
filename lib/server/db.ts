@@ -138,6 +138,34 @@ async function migrate(c: Client) {
     )`,
   );
   try { await c.execute("CREATE INDEX IF NOT EXISTS idx_bot_runs_user ON bot_runs (user_id, started_at DESC)"); } catch { /* ok */ }
+
+  // Built-in paper simulator account state (no external API keys required).
+  await c.execute(
+    `CREATE TABLE IF NOT EXISTS sim_accounts (
+      user_id TEXT PRIMARY KEY REFERENCES users(id),
+      initial_equity REAL NOT NULL DEFAULT 10000,
+      cash REAL NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )`,
+  );
+
+  // Open positions held by the simulator.
+  await c.execute(
+    `CREATE TABLE IF NOT EXISTS sim_positions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      client_order_id TEXT NOT NULL UNIQUE,
+      symbol TEXT NOT NULL,
+      qty REAL NOT NULL,
+      side TEXT NOT NULL DEFAULT 'long',
+      avg_entry_price REAL NOT NULL,
+      stop_price REAL,
+      take_profit_price REAL,
+      opened_at TEXT NOT NULL
+    )`,
+  );
+  try { await c.execute("CREATE INDEX IF NOT EXISTS idx_sim_pos_user ON sim_positions (user_id)"); } catch { /* ok */ }
 }
 
 /** First run on an empty database: mint one invite and print it to the server log. */

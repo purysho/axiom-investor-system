@@ -45,8 +45,8 @@ export async function executeVerifiedOrder(i: ExecuteOrderInput): Promise<Execut
     await c.execute({
       sql: `INSERT INTO broker_orders
             (client_order_id, user_id, recommendation_id, broker, mode, symbol, side, qty, entry, stop, take_profit, status, submitted_at, updated_at)
-            VALUES (?, ?, ?, 'alpaca', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
-      args: [i.clientOrderId, i.userId, i.recommendationId, i.mode, i.symbol, i.side, i.qty, i.entry, i.stop, i.takeProfit, now, now],
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+      args: [i.clientOrderId, i.userId, i.recommendationId, i.broker.id, i.mode, i.symbol, i.side, i.qty, i.entry, i.stop, i.takeProfit, now, now],
     });
   } catch {
     // Primary-key clash = this intent was already submitted. Idempotent: report the existing order.

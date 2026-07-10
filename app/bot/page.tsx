@@ -280,7 +280,7 @@ export default function BotPage() {
                 <p className="text-xs" style={{ color: "#F0B429" }}>
                   {status.broker
                     ? "Your broker connection is LIVE. The bot refuses live accounts — reconnect in paper mode to enable it."
-                    : "Connect an Alpaca paper account in Settings to enable the bot."}
+                    : "Connect a paper broker in Settings to enable the bot — use the built-in simulator (no API keys) or an Alpaca paper account."}
                   {" "}<Link href="/settings" className="underline">Settings →</Link>
                 </p>
               )}

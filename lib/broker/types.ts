@@ -8,7 +8,7 @@
  */
 
 export type BrokerMode = "paper" | "live";
-export type BrokerId = "alpaca";
+export type BrokerId = "alpaca" | "sim";
 
 export interface BrokerAccount {
   accountNumber: string;

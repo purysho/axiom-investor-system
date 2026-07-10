@@ -54,7 +54,7 @@ export async function POST(req: Request) {
     const wantOn = Boolean(b.enabled);
     if (wantOn && !current.enabled) {
       const conn = await getConnection(user.id);
-      if (!conn) return NextResponse.json({ error: "Connect an Alpaca paper account in Settings before enabling the bot." }, { status: 400 });
+      if (!conn) return NextResponse.json({ error: "Connect a paper broker in Settings before enabling the bot (Alpaca paper account or the built-in simulator)." }, { status: 400 });
       if (conn.mode !== "paper") return NextResponse.json({ error: "The bot only trades paper accounts. Your connection is LIVE — reconnect in paper mode to use the bot." }, { status: 400 });
     }
     next.enabled = wantOn;
