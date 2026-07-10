@@ -204,8 +204,10 @@ export default function CopilotPage() {
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight">Copilot</h1>
           <p className="mt-1 max-w-xl text-sm text-mut">
-            Scans your trade-idea tickers, proposes paper trades with evidence, and sizes them with your risk
-            engine. It never executes anything — you approve each one, and approvals are <span className="text-ink">paper only</span> for now.
+            Scans your trade-idea tickers, proposes trades with evidence, and sizes them with your risk
+            engine. It never executes on its own — <span className="text-ink">you approve each one</span>. Approvals
+            record a paper trade, or route to your connected broker (paper by default; a live order needs the
+            deployment flag and your typed confirmation).
           </p>
         </div>
         <div className="flex items-center gap-2">
