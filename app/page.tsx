@@ -8,7 +8,7 @@ import {
 import { fmtPct, fmtUsd } from "@/components/chrome";
 import { StatusStrip } from "@/components/status-strip";
 import { demoState } from "@/lib/backup";
-import { suggestPermittedAction } from "@/lib/engine/action";
+import { checkAlerts, suggestPermittedAction } from "@/lib/engine/action";
 import { evaluateGate, openPlannedRiskUsd } from "@/lib/engine/gate";
 import { journalStats, portfolioStats } from "@/lib/engine/stats";
 import { isoWeekKey, replaceState, todayKey, useAppState } from "@/lib/store";
@@ -52,6 +52,8 @@ export default function TodayPage() {
   const dueJournal = state.trades.filter((t) => t.status === "Closed" && (!t.lesson || !t.ruleFollowed)).length;
   const openRisk = openPlannedRiskUsd(state.trades);
   const openRiskPct = state.settings.portfolioValue > 0 ? (openRisk / state.settings.portfolioValue) * 100 : 0;
+  // Facts, not directives: watch rules whose measurable condition is currently met.
+  const firedAlerts = checkAlerts(state.watchRules, state.watchData).filter((a) => a.fired);
 
   const steps = [
     {
@@ -138,6 +140,22 @@ export default function TodayPage() {
           </section>
 
           <StatusStrip />
+
+          {firedAlerts.length > 0 && (
+            <Link href="/watchlist" className="group mb-10 flex items-start gap-4 rounded-[20px] bg-[#241C0E]/70 px-5 py-4 transition-colors hover:bg-[#241C0E]">
+              <Lightbulb size={19} className="mt-0.5 shrink-0 text-[#F0B429]" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-bold text-ink">
+                  {firedAlerts.length === 1 ? "A trade-idea condition has been met" : `${firedAlerts.length} trade-idea conditions have been met`}
+                </span>
+                <span className="mt-0.5 block truncate text-sm text-mut">
+                  {firedAlerts.slice(0, 3).map((a) => `${a.rule.ticker} ${a.rule.metric} ${a.rule.op} ${a.rule.value}`).join(" · ")}
+                  {firedAlerts.length > 3 ? ` · +${firedAlerts.length - 3} more` : ""} — a fact to review, not an instruction to trade. Today's risk answer still applies.
+                </span>
+              </span>
+              <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-sm font-bold text-[#F0B429] group-hover:underline">Review <ArrowRight size={14} /></span>
+            </Link>
+          )}
 
           <section className="mb-12">
             <div className="mb-6">

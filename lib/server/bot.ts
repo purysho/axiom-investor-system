@@ -205,7 +205,7 @@ export async function runBotForUser(userId: string, source: "manual" | "cron", d
     const conn = await getConnection(userId);
     const broker = await getBroker(userId);
     if (!check("broker", conn !== null && broker !== null, conn ? `${conn.broker} · ${conn.mode}` : "No broker connected."))
-      return finish("stood-down", "No broker connected. Connect Alpaca paper keys in Settings.");
+      return finish("stood-down", "No broker connected. Connect a paper broker in Settings — the built-in simulator needs no keys.");
 
     // The invariant. Not a setting, not an env flag — the bot does not trade live money.
     if (!check("paper only", conn!.mode === "paper", conn!.mode === "paper" ? "paper account" : "LIVE account connected — the bot only trades paper."))
