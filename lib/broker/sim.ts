@@ -20,6 +20,19 @@ import type { DailyRow } from "@/lib/engine/quotes";
 
 export const SIM_INITIAL_EQUITY = 10_000;
 
+/**
+ * Per-side slippage in basis points — the SAME 5 bps the backtester charges
+ * (lib/engine/backtest.ts), so sim results and backtest results stay
+ * comparable: buys fill slightly worse than the reference price, sells too.
+ */
+export const SIM_SLIPPAGE_BPS = 5;
+const SLIP = SIM_SLIPPAGE_BPS / 10_000;
+
+/** Reference price → charged fill price. Pure, exported for tests. */
+export function applySlippage(price: number, side: "buy" | "sell"): number {
+  return side === "buy" ? price * (1 + SLIP) : price * (1 - SLIP);
+}
+
 /** Pure helper: NYSE trading hours, usable in tests without a DB. */
 export function nyseClock(now: Date): MarketClock {
   // Convert to ET. Approximate: use fixed UTC-4 (EDT) and UTC-5 (EST) by month.
@@ -130,7 +143,7 @@ export class SimBroker implements Broker {
       if (lastBar) {
         const exitCheck = checkExitLevel(lastBar, stopPrice, tpPrice);
         if (exitCheck.exit) {
-          await this._closePosition(String(row.id), symbol, qty, exitCheck.price);
+          await this._closePosition(String(row.id), symbol, qty, applySlippage(exitCheck.price, "sell"));
           continue; // position closed — not returned
         }
       }
@@ -184,13 +197,14 @@ export class SimBroker implements Broker {
     const existing = await this._getFilledOrder(req.clientOrderId);
     if (existing) return existing;
 
-    // Fill at last close; fall back to a small buffer above the stop.
+    // Fill at last close plus slippage (same 5 bps the backtester charges);
+    // fall back to a small buffer above the stop when the feed has no bar.
     let fillPrice: number;
     try {
       const bars = await getDailyHistory(req.symbol, 2);
-      fillPrice = bars?.[bars.length - 1]?.close ?? req.stopPrice * 1.05;
+      fillPrice = applySlippage(bars?.[bars.length - 1]?.close ?? req.stopPrice * 1.05, req.side);
     } catch {
-      fillPrice = req.stopPrice * 1.05;
+      fillPrice = applySlippage(req.stopPrice * 1.05, req.side);
     }
 
     const c = await db();

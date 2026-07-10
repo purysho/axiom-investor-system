@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nyseClock, checkExitLevel } from "@/lib/broker/sim";
+import { applySlippage, checkExitLevel, nyseClock, SIM_SLIPPAGE_BPS } from "@/lib/broker/sim";
 
 describe("nyseClock", () => {
   const mkDate = (iso: string) => new Date(iso);
@@ -68,5 +68,25 @@ describe("checkExitLevel", () => {
   it("handles null take-profit gracefully", () => {
     const result = checkExitLevel(bar(88, 105), 90, null);
     expect(result).toMatchObject({ exit: true, reason: "stop" });
+  });
+});
+
+describe("applySlippage", () => {
+  it("charges buys above and sells below the reference price", () => {
+    expect(applySlippage(100, "buy")).toBeGreaterThan(100);
+    expect(applySlippage(100, "sell")).toBeLessThan(100);
+  });
+
+  it("matches the backtester's per-side convention exactly", () => {
+    const slip = SIM_SLIPPAGE_BPS / 10_000;
+    expect(applySlippage(200, "buy")).toBeCloseTo(200 * (1 + slip), 10);
+    expect(applySlippage(200, "sell")).toBeCloseTo(200 * (1 - slip), 10);
+  });
+
+  it("a round trip at the same reference price is a small guaranteed cost", () => {
+    const buy = applySlippage(100, "buy");
+    const sell = applySlippage(100, "sell");
+    expect(sell).toBeLessThan(buy);
+    expect(buy - sell).toBeCloseTo(100 * 2 * (SIM_SLIPPAGE_BPS / 10_000), 10);
   });
 });

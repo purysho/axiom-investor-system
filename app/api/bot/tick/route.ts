@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { listEnabledBotUsers, runBotForUser } from "@/lib/server/bot";
+import { clientIp, limited } from "@/lib/server/ratelimit";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -26,6 +27,10 @@ function authorized(req: Request): boolean {
 
 export async function POST(req: Request) {
   if (!authorized(req)) {
+    // Throttle token guessing hard: a legitimate scheduler with the right
+    // token never hits this branch, so the limit only ever slows an attacker.
+    if (limited(`bot-tick:${clientIp(req)}`, 5, 15 * 60_000))
+      return NextResponse.json({ error: "unauthorized" }, { status: 429 });
     // 503 when unconfigured (so operators notice), 401 when the token is wrong.
     const status = (process.env.BOT_CRON_TOKEN ?? "").length < 16 ? 503 : 401;
     return NextResponse.json({ error: status === 503 ? "Bot scheduling is not configured on this deployment (BOT_CRON_TOKEN)." : "unauthorized" }, { status });

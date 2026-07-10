@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { computeWatchMetrics, mapToStooq, parseStooqDaily, round } from "@/lib/engine/quotes";
+import { clientIp, limited } from "@/lib/server/ratelimit";
 
 /**
  * GET /api/quotes?symbols=AAPL,SPY,XAUUSD,BTCUSD&mode=close|metrics
@@ -56,6 +57,10 @@ export async function GET(req: Request) {
   if (raw.length === 0) return NextResponse.json({ error: "symbols required" }, { status: 400 });
   if (raw.length > MAX_SYMBOLS)
     return NextResponse.json({ error: `Too many symbols — ${MAX_SYMBOLS} max per request.` }, { status: 400 });
+  // Each call can already batch 25 symbols; 20 calls per 5 min is far beyond
+  // human use and keeps scripted loops off the free upstream feed.
+  if (limited(`quotes:${clientIp(req)}`, 20, 5 * 60_000))
+    return NextResponse.json({ error: "Too many quote requests — wait a moment." }, { status: 429 });
 
   // Metrics can lean on a longer cache; closes refresh a little more often.
   const revalidate = mode === "metrics" ? 6 * 3600 : 1800;

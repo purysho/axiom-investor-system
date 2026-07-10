@@ -3,6 +3,7 @@ import {
   bollingerBands, calendarDaysFor, ema, macd, mapToStooq, parseStooqDaily,
   rsiArray, round, sma, WARMUP_BARS,
 } from "@/lib/engine/quotes";
+import { clientIp, limited } from "@/lib/server/ratelimit";
 
 export const revalidate = 1800; // 30-min server cache
 
@@ -17,6 +18,9 @@ export async function GET(req: Request) {
   const range  = url.searchParams.get("range") ?? "6m";
 
   if (!ticker) return NextResponse.json({ error: "symbol is required" }, { status: 400 });
+  // Generous for humans flipping ranges; stops scripted relays to the upstream feed.
+  if (limited(`chart:${clientIp(req)}`, 60, 5 * 60_000))
+    return NextResponse.json({ error: "Too many chart requests — slow down a little." }, { status: 429 });
 
   const stooq = mapToStooq(ticker);
   const visibleDays = { "1w": 10, "1m": 35, "3m": 95, "6m": 190, "1y": 380, "2y": 760 }[range] ?? 190;

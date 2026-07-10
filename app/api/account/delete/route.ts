@@ -2,12 +2,16 @@ import { NextResponse } from "next/server";
 import { clearSessionCookie, getSessionUser, verifyPassphrase } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
+import { limited } from "@/lib/server/ratelimit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const session = await getSessionUser();
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  // Passphrase-verifying endpoint: never allow unlimited guesses from a session.
+  if (limited(`acct-delete:${session.id}`, 5, 15 * 60_000))
+    return NextResponse.json({ error: "Too many attempts — wait a few minutes." }, { status: 429 });
   let body: { passphrase?: string };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid request." }, { status: 400 }); }
 

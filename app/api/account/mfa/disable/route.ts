@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUser, verifyPassphrase } from "@/lib/server/auth";
 import { audit } from "@/lib/server/audit";
 import { db } from "@/lib/server/db";
+import { limited } from "@/lib/server/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,9 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  // Passphrase-verifying endpoint: never allow unlimited guesses from a session.
+  if (limited(`mfa-disable:${user.id}`, 5, 15 * 60_000))
+    return NextResponse.json({ error: "Too many attempts — wait a few minutes." }, { status: 429 });
 
   let body: { passphrase?: string };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid request." }, { status: 400 }); }
