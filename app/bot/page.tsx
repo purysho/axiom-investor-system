@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Bot, Check, FlaskConical, Play, Power, ShieldAlert, X } from "lucide-react";
 import { fmtN, fmtPct, fmtUsd, Panel, Stat } from "@/components/chrome";
@@ -9,7 +9,10 @@ import { ProtectionBanner } from "@/components/protection-banner";
 import { toast } from "@/components/toast";
 import { evaluateGate } from "@/lib/engine/gate";
 import { useAppState } from "@/lib/store";
+import { usePolling } from "@/lib/use-polling";
 import type { BacktestResult } from "@/lib/engine/backtest";
+import type { AccountSummary } from "@/lib/broker/account-summary";
+import type { BrokerPosition, MarketClock } from "@/lib/broker/types";
 
 /* API payload shapes (server types stay server-side; these mirror them). */
 interface BotSettings { enabled: boolean; universe: string[]; maxOrdersPerRun: number }
@@ -28,6 +31,15 @@ interface BotStatus {
   broker: { broker: string; mode: "paper" | "live"; keyHint: string } | null;
   runs: BotRunRow[];
   cronConfigured: boolean;
+}
+interface LiveAccount {
+  connected: boolean;
+  mode?: "paper" | "live";
+  summary?: AccountSummary;
+  positions?: BrokerPosition[];
+  clock?: MarketClock;
+  asOf?: string;
+  error?: string;
 }
 
 const OUTCOME_STYLE: Record<string, { color: string; label: string }> = {
@@ -54,6 +66,9 @@ export default function BotPage() {
   const [btRunning, setBtRunning] = useState(false);
   const [bt, setBt] = useState<{ symbols: string[]; missing: string[]; benchmark: string; result: BacktestResult } | null>(null);
 
+  const [live, setLive] = useState<LiveAccount | null>(null);
+  const universeInitialized = useRef(false);
+
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/bot");
@@ -61,13 +76,29 @@ export default function BotPage() {
       if (!res.ok) throw new Error();
       const j = (await res.json()) as BotStatus;
       setStatus(j);
-      setUniverseText(j.settings.universe.join(", "));
+      // Fill the universe input once — later polls must not clobber typing.
+      if (!universeInitialized.current) {
+        universeInitialized.current = true;
+        setUniverseText(j.settings.universe.join(", "));
+      }
       setLoadError(null);
     } catch {
       setLoadError("Couldn't load the bot's status.");
     }
   }, []);
   useEffect(() => { void load(); }, [load]);
+
+  const loadLive = useCallback(async () => {
+    try {
+      const res = await fetch("/api/broker/positions");
+      if (!res.ok && res.status !== 502) return;
+      setLive((await res.json()) as LiveAccount);
+    } catch { /* keep the last snapshot */ }
+  }, []);
+
+  // Live updates while the tab is visible: account snapshot + run history.
+  usePolling(loadLive, 60_000);
+  usePolling(load, 60_000);
 
   const ideaSymbols = useMemo(() => {
     const s = new Set<string>();
@@ -255,6 +286,58 @@ export default function BotPage() {
               )}
             </div>
           </Panel>
+
+          {/* Live paper account — polled every 60s while the tab is visible */}
+          {live?.connected && live.summary && (
+            <Panel
+              eyebrow={`live · ${live.mode} · ${live.clock?.isOpen ? "market open" : "market closed"}${live.asOf ? ` · as of ${new Date(live.asOf).toLocaleTimeString()}` : ""}`}
+              title="Paper account"
+            >
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <Stat label="Equity" value={fmtUsd(live.summary.equity)} />
+                <Stat label="Cash" value={fmtUsd(live.summary.cash)} />
+                <Stat
+                  label="Unrealized P&L"
+                  value={live.summary.unrealizedPl === null ? "—" : `${live.summary.unrealizedPl >= 0 ? "+" : ""}${fmtUsd(live.summary.unrealizedPl)}`}
+                  tone={live.summary.unrealizedPl === null ? undefined : live.summary.unrealizedPl >= 0 ? "good" : "bad"}
+                />
+                <Stat
+                  label="Positions"
+                  value={String(live.summary.positionCount)}
+                  sub={live.summary.largestSymbol ? `largest: ${live.summary.largestSymbol} (${fmtPct(live.summary.largestPct)})` : undefined}
+                />
+              </div>
+              {live.positions && live.positions.filter((p) => p.qty !== 0).length > 0 && (
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full text-left font-mono text-[11px]">
+                    <thead>
+                      <tr className="text-faint">
+                        <th className="pb-1 pr-3 font-normal">symbol</th>
+                        <th className="pb-1 pr-3 text-right font-normal">qty</th>
+                        <th className="pb-1 pr-3 text-right font-normal">avg entry</th>
+                        <th className="pb-1 pr-3 text-right font-normal">value</th>
+                        <th className="pb-1 text-right font-normal">unrealized</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-mut">
+                      {live.positions.filter((p) => p.qty !== 0).map((p) => (
+                        <tr key={p.symbol} className="border-t border-line">
+                          <td className="py-1 pr-3 text-ink">{p.symbol}</td>
+                          <td className="py-1 pr-3 text-right">{p.qty}</td>
+                          <td className="py-1 pr-3 text-right">{fmtN(p.avgEntryPrice)}</td>
+                          <td className="py-1 pr-3 text-right">{p.marketValue === null ? "—" : fmtUsd(p.marketValue)}</td>
+                          <td className="py-1 text-right" style={{ color: (p.unrealizedPl ?? 0) >= 0 ? "#34D399" : "#F4645C" }}>
+                            {p.unrealizedPl === null ? "—" : `${p.unrealizedPl >= 0 ? "+" : ""}${fmtUsd(p.unrealizedPl)}`}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {live.error && <p className="mt-2 text-xs" style={{ color: "#F0B429" }}>{live.error}</p>}
+            </Panel>
+          )}
 
           {/* Last run report */}
           {lastReport && (
