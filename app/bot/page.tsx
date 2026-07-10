@@ -41,6 +41,22 @@ interface LiveAccount {
   asOf?: string;
   error?: string;
 }
+interface OrderRow {
+  clientOrderId: string;
+  broker: string;
+  mode: string;
+  symbol: string;
+  side: string;
+  qty: number;
+  entry: number | null;
+  stop: number | null;
+  takeProfit: number | null;
+  status: string;
+  filledQty: number;
+  filledAvgPrice: number | null;
+  submittedAt: string;
+  error: string | null;
+}
 
 const OUTCOME_STYLE: Record<string, { color: string; label: string }> = {
   traded: { color: "#34D399", label: "traded" },
@@ -49,6 +65,17 @@ const OUTCOME_STYLE: Record<string, { color: string; label: string }> = {
   "dry-run": { color: "#B4F03C", label: "dry run" },
   error: { color: "#F4645C", label: "error" },
   running: { color: "#93A39A", label: "running" },
+};
+
+const ORDER_STATUS_COLOR: Record<string, string> = {
+  filled: "#34D399",
+  partially_filled: "#B4F03C",
+  new: "#93A39A",
+  accepted: "#93A39A",
+  pending: "#F0B429",
+  canceled: "#93A39A",
+  expired: "#93A39A",
+  rejected: "#F4645C",
 };
 
 export default function BotPage() {
@@ -67,6 +94,7 @@ export default function BotPage() {
   const [bt, setBt] = useState<{ symbols: string[]; missing: string[]; benchmark: string; result: BacktestResult } | null>(null);
 
   const [live, setLive] = useState<LiveAccount | null>(null);
+  const [orders, setOrders] = useState<OrderRow[] | null>(null);
   const universeInitialized = useRef(false);
 
   const load = useCallback(async () => {
@@ -96,9 +124,19 @@ export default function BotPage() {
     } catch { /* keep the last snapshot */ }
   }, []);
 
-  // Live updates while the tab is visible: account snapshot + run history.
+  const loadOrders = useCallback(async () => {
+    try {
+      const res = await fetch("/api/broker/orders");
+      if (!res.ok) return;
+      const j = (await res.json()) as { orders: OrderRow[] };
+      setOrders(j.orders);
+    } catch { /* keep the last snapshot */ }
+  }, []);
+
+  // Live updates while the tab is visible: account snapshot + run history + orders.
   usePolling(loadLive, 60_000);
   usePolling(load, 60_000);
+  usePolling(loadOrders, 60_000);
 
   const ideaSymbols = useMemo(() => {
     const s = new Set<string>();
@@ -393,6 +431,48 @@ export default function BotPage() {
               </ul>
             )}
           </Panel>
+
+          {/* Order log — the write-ahead record of intent, including failures */}
+          {orders && orders.length > 0 && (
+            <Panel
+              eyebrow="what AXIOM decided and submitted — including orders that failed or never landed"
+              title="Order log"
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-left font-mono text-[11px]">
+                  <thead>
+                    <tr className="text-faint">
+                      <th className="pb-1 pr-3 font-normal">submitted</th>
+                      <th className="pb-1 pr-3 font-normal">symbol</th>
+                      <th className="pb-1 pr-3 font-normal">side</th>
+                      <th className="pb-1 pr-3 text-right font-normal">qty</th>
+                      <th className="pb-1 pr-3 text-right font-normal">stop</th>
+                      <th className="pb-1 pr-3 text-right font-normal">target</th>
+                      <th className="pb-1 pr-3 text-right font-normal">fill</th>
+                      <th className="pb-1 pr-3 font-normal">status</th>
+                      <th className="pb-1 font-normal">via</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-mut">
+                    {orders.map((o) => (
+                      <tr key={o.clientOrderId} className="border-t border-line" title={o.error ?? o.clientOrderId}>
+                        <td className="py-1 pr-3 whitespace-nowrap text-faint">{new Date(o.submittedAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
+                        <td className="py-1 pr-3 text-ink">{o.symbol}</td>
+                        <td className="py-1 pr-3">{o.side}</td>
+                        <td className="py-1 pr-3 text-right">{o.qty}</td>
+                        <td className="py-1 pr-3 text-right">{o.stop ?? "—"}</td>
+                        <td className="py-1 pr-3 text-right">{o.takeProfit ?? "—"}</td>
+                        <td className="py-1 pr-3 text-right">{o.filledAvgPrice != null ? `${o.filledQty} @ ${fmtN(o.filledAvgPrice)}` : "—"}</td>
+                        <td className="py-1 pr-3" style={{ color: ORDER_STATUS_COLOR[o.status] ?? "#93A39A" }}>{o.status.replace("_", " ")}{o.error ? " *" : ""}</td>
+                        <td className="py-1">{o.clientOrderId.startsWith("axiom-bot") ? "bot" : o.broker === "sim" && o.clientOrderId.startsWith("sim-exit") ? "bracket" : "manual"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="mt-1 text-[10px] text-faint">Most recent {orders.length} orders. * hover a row for the error detail. &quot;pending&quot; after a network failure means the order may exist at the broker — Sync orders in Settings resolves it.</p>
+              </div>
+            </Panel>
+          )}
         </>
       )}
 
