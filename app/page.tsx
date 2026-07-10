@@ -6,6 +6,7 @@ import {
   ShieldCheck, Sparkles, CalendarDays, Lightbulb, CircleCheckBig,
 } from "lucide-react";
 import { fmtPct, fmtUsd } from "@/components/chrome";
+import { StatusStrip } from "@/components/status-strip";
 import { demoState } from "@/lib/backup";
 import { suggestPermittedAction } from "@/lib/engine/action";
 import { evaluateGate, openPlannedRiskUsd } from "@/lib/engine/gate";
@@ -135,6 +136,8 @@ export default function TodayPage() {
               <Link href="/gate" className="quiet-link mt-4">See what AXIOM checked <ArrowRight size={14} /></Link>
             </div>
           </section>
+
+          <StatusStrip />
 
           <section className="mb-12">
             <div className="mb-6">
