@@ -69,6 +69,14 @@ npm run dev        # local app
 npm run typecheck  # tsc --noEmit
 npm test           # vitest (tests/)
 npm run build      # production build
+npm run e2e        # e2e/smoke.mjs — signed-in journey against a RUNNING server
 ```
 
-CI (`.github/workflows/ci.yml`) runs all three on every push to main and every PR.
+CI (`.github/workflows/ci.yml`) runs typecheck, tests, and build on every push
+to main and every PR.
+
+The e2e smoke test needs a live server on a fresh database (see the header of
+`e2e/smoke.mjs` for the two-command setup). It walks the real new-user journey:
+join with the bootstrap invite → sync a baseline state → connect the built-in
+simulator → dry-run the bot → verify status, run history, and the order log.
+It is deliberately not in CI — it wants a live server and outbound market data.
