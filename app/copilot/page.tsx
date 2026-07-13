@@ -256,6 +256,51 @@ export default function CopilotPage() {
         </p>
       </Panel>
 
+      {/* Dense proposal blotter */}
+      {live.length > 0 && (
+        <div className="overflow-x-auto border border-line bg-panel">
+          <div className="border-b border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+            Live proposals — {live.length}
+          </div>
+          <table className="w-full font-mono text-[11px] tnum">
+            <thead>
+              <tr className="border-b border-line text-faint">
+                <th className="px-3 py-1.5 text-left font-normal">Asset</th>
+                <th className="px-2 py-1.5 text-left font-normal">Strategy</th>
+                <th className="px-2 py-1.5 text-right font-normal">Entry</th>
+                <th className="px-2 py-1.5 text-right font-normal">Stop</th>
+                <th className="px-2 py-1.5 text-right font-normal">Target</th>
+                <th className="px-2 py-1.5 text-right font-normal">Size</th>
+                <th className="px-2 py-1.5 text-right font-normal">R:R</th>
+                <th className="px-2 py-1.5 text-right font-normal">Conf</th>
+                <th className="px-3 py-1.5 text-left font-normal">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {live.map((r) => {
+                const tp = r.takeProfits[0] ?? null;
+                const rr = tp != null && r.entry != null && r.stop != null && r.entry !== r.stop
+                  ? (tp - r.entry) / (r.entry - r.stop) : null;
+                const ok = r.validation?.ok;
+                return (
+                  <tr key={r.id} className="border-b border-line/60 last:border-0 hover:bg-panel2">
+                    <td className="px-3 py-1.5 text-ink">{r.asset}</td>
+                    <td className="px-2 py-1.5 text-mut">{r.strategy}</td>
+                    <td className="px-2 py-1.5 text-right text-ink">{r.entry}</td>
+                    <td className="px-2 py-1.5 text-right" style={{ color: "#F4645C" }}>{r.stop}</td>
+                    <td className="px-2 py-1.5 text-right" style={{ color: "#34D399" }}>{tp ?? "—"}</td>
+                    <td className="px-2 py-1.5 text-right text-mut">{r.positionSize ?? "—"}</td>
+                    <td className="px-2 py-1.5 text-right text-mut">{rr == null ? "—" : `${rr.toFixed(1)}`}</td>
+                    <td className="px-2 py-1.5 text-right" style={{ color: "rgb(var(--c-volt))" }}>{Math.round(r.confidence * 100)}%</td>
+                    <td className="px-3 py-1.5" style={{ color: ok ? "#34D399" : "#F0B429" }}>{ok ? "approvable" : "blocked"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* Proposal cards */}
       {live.length > 0 && (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
