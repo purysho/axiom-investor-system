@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Bot, Check, FlaskConical, Play, Power, ShieldAlert, X } from "lucide-react";
+import { Bot, Check, FileDown, FlaskConical, Play, Power, ShieldAlert, X } from "lucide-react";
 import { fmtN, fmtPct, fmtUsd, Panel, Stat } from "@/components/chrome";
 import { BacktestEquityChart } from "@/components/charts";
 import { ProtectionBanner } from "@/components/protection-banner";
 import { toast } from "@/components/toast";
+import { downloadText } from "@/lib/csv";
+import { buildAlgorithmReportMarkdown, buildAlgorithmReportJson } from "@/lib/engine/algo-report";
 import { evaluateGate } from "@/lib/engine/gate";
 import { useAppState } from "@/lib/store";
 import { usePolling } from "@/lib/use-polling";
@@ -218,6 +220,22 @@ export default function BotPage() {
     } catch {
       toast("Couldn't reach the server.", "error");
     } finally { setBtRunning(false); }
+  };
+
+  const exportReport = (format: "md" | "json") => {
+    if (!bt) return;
+    const input = {
+      symbols: bt.symbols, missing: bt.missing, benchmark: bt.benchmark,
+      years: btYears, result: bt.result, generatedAt: new Date().toISOString(),
+    };
+    const stamp = new Date().toISOString().slice(0, 10);
+    if (format === "md") {
+      downloadText(`axiom-algorithm-report-${stamp}.md`, buildAlgorithmReportMarkdown(input));
+      toast("Report downloaded — hand the .md file to any AI and ask it to evaluate the algorithm.");
+    } else {
+      downloadText(`axiom-algorithm-report-${stamp}.json`, buildAlgorithmReportJson(input));
+      toast("JSON report downloaded — the machine-readable twin of the Markdown report.");
+    }
   };
 
   const enabled = status?.settings.enabled ?? false;
@@ -483,7 +501,7 @@ export default function BotPage() {
         right={
           <div className="flex items-center gap-2">
             <select className="field w-28" value={btYears} onChange={(e) => setBtYears(Number(e.target.value))}>
-              <option value={3}>3 years</option><option value={5}>5 years</option><option value={10}>10 years</option>
+              <option value={1}>1 year</option><option value={2}>2 years</option><option value={3}>3 years</option><option value={5}>5 years</option><option value={10}>10 years</option>
             </select>
             <button type="button" className="btn-primary" onClick={() => void runBacktest()} disabled={btRunning}>
               <Bot size={14} />{btRunning ? "Replaying…" : "Run backtest"}
@@ -512,6 +530,22 @@ export default function BotPage() {
             </div>
 
             <BacktestEquityChart curve={bt.result.equityCurve} startingEquity={bt.result.params.startingEquity} />
+
+            {/* Export for a second opinion from any AI */}
+            <div className="flex flex-col gap-2 rounded-lg border border-dashed border-line bg-panel px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-xs leading-relaxed text-mut">
+                <span className="font-semibold text-ink">Want a second opinion?</span> Download a self-contained report — the exact
+                algorithm plus these {btYears}-year results — and hand it to ChatGPT, Gemini, or any AI to critique.
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button type="button" className="btn" onClick={() => exportReport("md")}>
+                  <FileDown size={14} /> Report (.md)
+                </button>
+                <button type="button" className="btn" onClick={() => exportReport("json")}>
+                  <FileDown size={14} /> .json
+                </button>
+              </div>
+            </div>
 
             <p className="font-mono text-[11px] text-faint">
               {m.startDate} → {m.endDate} · {bt.symbols.join(", ")}{bt.missing.length ? ` · no data: ${bt.missing.join(", ")}` : ""} ·

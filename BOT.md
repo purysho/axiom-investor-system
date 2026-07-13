@@ -93,6 +93,17 @@ What it does **not** model: the VIX/NFCI/drawdown gate checks (only the
 benchmark-trend check is replayed), behavioural protections, and dividends.
 Read results as evidence about the process, not a promised return.
 
+### Export for a second opinion
+
+After a backtest, **Report (.md)** / **.json** download a single self-contained
+document (`lib/engine/algo-report.ts`): the exact algorithm — every entry rule,
+the sizing formula, the exits, the risk layers — followed by the run's config
+and results (metrics, sampled equity curve, trade table), plus a framing that
+asks an external reviewer to be skeptical and hunt for overfitting. Hand it to
+any other AI (ChatGPT, Gemini, Claude) or a human to get an independent read on
+what AXIOM actually does and how it performed. It carries every caveat; it makes
+no forward-looking claim.
+
 ## The path to live
 
 Live autopilot does not exist and is not planned as a switch. The stated
