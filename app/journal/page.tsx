@@ -143,8 +143,8 @@ export default function JournalPage() {
 
   return (
     <div>
-      <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${reflectionDue.length ? "bg-[#241C0E]" : "bg-[#141B17]"}`}>
-        {reflectionDue.length ? <CircleAlert size={25} className="text-[#F0B429]" /> : <BookOpenText size={25} className="text-[#456555]" />}
+      <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${reflectionDue.length ? "bg-panel2" : "bg-panel"}`}>
+        {reflectionDue.length ? <CircleAlert size={25} className="text-[#F0B429]" /> : <BookOpenText size={25} className="text-faint" />}
         <h2 className="mt-5 max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">
           {reflectionDue.length ? `${reflectionDue.length} closed trade${reflectionDue.length === 1 ? " still needs" : "s still need"} a reflection.` : closed.length ? "Your trade notes are up to date." : "The journal starts with a plan, not a result."}
         </h2>
@@ -161,17 +161,17 @@ export default function JournalPage() {
         </div>
 
         {open.length === 0 ? (
-          <div className="border-y border-[#27312B] py-8">
-            <CircleCheckBig size={22} className="text-[#49695a]" />
+          <div className="border-y border-line py-8">
+            <CircleCheckBig size={22} className="text-faint" />
             <h3 className="mt-4 font-display text-[1.8rem] font-semibold tracking-[-0.03em]">No open swing trades.</h3>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-mut">That is a valid portfolio state. Add a trade only after the risk check and a real trade plan.</p>
           </div>
         ) : (
-          <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
+          <div className="divide-y divide-line border-y border-line">
             {open.map((t) => (
               <div key={t.id} className="grid gap-4 py-5 sm:grid-cols-[1fr_auto] sm:items-center">
                 <div>
-                  <div className="flex flex-wrap items-center gap-3"><span className="text-[18px] font-bold">{t.ticker}</span><span className="badge bg-[#1A211D] text-[#69736d]">{t.direction}</span>{t.strategy && <span className="text-sm text-mut">{t.strategy}</span>}</div>
+                  <div className="flex flex-wrap items-center gap-3"><span className="text-[18px] font-bold">{t.ticker}</span><span className="badge bg-panel2 text-faint">{t.direction}</span>{t.strategy && <span className="text-sm text-mut">{t.strategy}</span>}</div>
                   <p className="mt-2 text-sm text-mut">Entered at {t.entry ?? "—"} · Initial stop {t.stop ?? "—"} · Planned risk {fmtUsd(plannedRiskUsd(t))}</p>
                   {t.thesis && <p className="mt-1 max-w-2xl text-sm text-mut">Plan: {t.thesis}</p>}
                   <p className="mt-1 text-xs text-faint">Risk check at entry: {t.gateAtEntry || "not recorded"}</p>
@@ -184,7 +184,7 @@ export default function JournalPage() {
       </section>
 
       {closingId && (
-        <section id="close-trade" className="mb-12 rounded-[24px] bg-[#241C0E]/78 p-6 sm:p-9">
+        <section id="close-trade" className="mb-12 rounded-[24px] bg-panel2/78 p-6 sm:p-9">
           <div className="max-w-2xl">
             <div className="page-kicker">Close the loop</div>
             <h2 className="mt-1 font-display text-[2.1rem] font-semibold tracking-[-0.035em]">What happened, and did you follow the plan?</h2>
@@ -199,7 +199,7 @@ export default function JournalPage() {
             <label className="field-label">Should a rule change be reviewed later?<select className="field mt-1.5" value={closeForm.nextRuleChange} onChange={(e) => setCloseForm({ ...closeForm, nextRuleChange: e.target.value as "Yes" | "No" | "Review" })}><option value="">Not decided</option><option>No</option><option>Review</option><option>Yes</option></select></label>
           </div>
           <details className="mt-6">
-            <summary className="cursor-pointer text-sm font-semibold text-[#49695a]">Optional trade analytics</summary>
+            <summary className="cursor-pointer text-sm font-semibold text-faint">Optional trade analytics</summary>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <label className="field-label">Exit date<input className="field mt-1.5" value={closeForm.exitDate} onChange={(e) => setCloseForm({ ...closeForm, exitDate: e.target.value })} /></label>
               <label className="field-label">Fees / slippage ($)<input className="field mt-1.5" inputMode="decimal" value={closeForm.fees} onChange={(e) => setCloseForm({ ...closeForm, fees: e.target.value })} /></label>
@@ -212,15 +212,15 @@ export default function JournalPage() {
         </section>
       )}
 
-      <section className="mb-12 border-t border-[#27312B] pt-10">
+      <section className="mb-12 border-t border-line pt-10">
         <details>
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-4">
               <div><div className="page-kicker">Only after the plan exists</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Add a new open trade</h2><p className="mt-2 text-sm text-mut">Record the entry, initial stop and reason for the trade before the outcome changes the story.</p></div>
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><Plus size={18} /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-panel text-faint"><Plus size={18} /></span>
             </div>
           </summary>
-          <div className="mt-7 rounded-[22px] bg-[#241C0E]/78 p-6 sm:p-8">
+          <div className="mt-7 rounded-[22px] bg-panel2/78 p-6 sm:p-8">
             {!gateOpen && (
               <div className="mb-6 flex items-start gap-3 rounded-[18px] bg-[#241111] p-5"><ShieldAlert size={20} className="mt-0.5 shrink-0 text-[#F4645C]" /><div><div className="font-semibold">Today's risk check is {gate.state.toLowerCase()}.</div><p className="mt-1 text-sm leading-relaxed text-mut">Your process says {gate.state === "NO NEW SWINGS" ? "manage existing positions only" : "use smaller risk or stand aside"}. Logging a new trade requires a written exception that stays on the record.</p><Link href="/gate" className="quiet-link mt-3">Review the risk check <ArrowRight size={14} /></Link></div></div>
             )}
@@ -236,19 +236,19 @@ export default function JournalPage() {
               <label className="field-label sm:col-span-2 lg:col-span-4">Why does this trade exist?<textarea className="field mt-1.5 min-h-24" value={entry.thesis} onChange={(e) => setEntry({ ...entry, thesis: e.target.value })} placeholder="Write the setup, what would prove the idea wrong, and why the target is reasonable." /></label>
               {!gateOpen && <label className="field-label sm:col-span-2 lg:col-span-4 text-[#98493e]">Written exception required<input className="field mt-1.5" value={entry.exceptionNote} onChange={(e) => setEntry({ ...entry, exceptionNote: e.target.value })} placeholder="Why are you overriding today's risk permission?" /></label>}
             </div>
-            <div className="mt-5 rounded-[16px] bg-[#151B17] p-4 text-sm text-mut">Based on your current risk settings and entry/stop, AXIOM suggests at most <strong className="text-ink">{suggested.cappedShares ?? "—"} shares</strong> and a planned loss budget of <strong className="text-ink">{fmtUsd(suggested.riskDollars)}</strong>. This is planned stop risk, not a guaranteed maximum loss.</div>
+            <div className="mt-5 rounded-[16px] bg-panel p-4 text-sm text-mut">Based on your current risk settings and entry/stop, AXIOM suggests at most <strong className="text-ink">{suggested.cappedShares ?? "—"} shares</strong> and a planned loss budget of <strong className="text-ink">{fmtUsd(suggested.riskDollars)}</strong>. This is planned stop risk, not a guaranteed maximum loss.</div>
             <button type="button" className="btn-primary mt-6" onClick={logTrade}>Add open trade <Plus size={15} /></button>
           </div>
         </details>
       </section>
 
-      <section id="closed-trades" className="mb-12 border-t border-[#27312B] pt-10">
+      <section id="closed-trades" className="mb-12 border-t border-line pt-10">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div><div className="page-kicker">The learning record</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Closed trades</h2><p className="mt-2 text-sm text-mut">Read the process diagnosis before the profit or loss. A lucky win should not teach the wrong lesson.</p></div>
           <span className="text-sm text-mut">{closed.length} closed trade{closed.length === 1 ? "" : "s"}</span>
         </div>
         {closed.length === 0 ? (
-          <div className="border-y border-[#27312B] py-8"><Sparkles size={22} className="text-[#a16b4c]" /><h3 className="mt-4 font-display text-[1.8rem] font-semibold tracking-[-0.03em]">Your evidence will build one trade at a time.</h3><p className="mt-2 max-w-2xl text-sm leading-relaxed text-mut">The first goal is not a high win rate. It is a clean record of plans, outcomes and rule adherence.</p></div>
+          <div className="border-y border-line py-8"><Sparkles size={22} className="text-[#a16b4c]" /><h3 className="mt-4 font-display text-[1.8rem] font-semibold tracking-[-0.03em]">Your evidence will build one trade at a time.</h3><p className="mt-2 max-w-2xl text-sm leading-relaxed text-mut">The first goal is not a high win rate. It is a clean record of plans, outcomes and rule adherence.</p></div>
         ) : (
           <>
           {/* Dense blotter — the scannable record */}
@@ -286,7 +286,7 @@ export default function JournalPage() {
             </table>
           </div>
 
-          <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
+          <div className="divide-y divide-line border-y border-line">
             {closed.map((t) => {
               const diagnosis = tradeDiagnosis(t);
               const r = rMultiple(t);
@@ -294,11 +294,11 @@ export default function JournalPage() {
               return (
                 <details key={t.id} className="group">
                   <summary className="grid cursor-pointer list-none gap-4 py-5 sm:grid-cols-[1fr_auto_auto] sm:items-center">
-                    <div><div className="flex flex-wrap items-center gap-3"><span className="text-[18px] font-bold">{t.ticker}</span><span className="badge" style={{ background: diagnosis.bg, color: diagnosis.ink }}>{diagnosis.short}</span>{!t.lesson && <span className="badge bg-[#241C0E] text-[#F0B429]">Reflection incomplete</span>}</div><p className="mt-1 text-sm text-mut">{diagnosis.label} · {t.exitReason || "exit reason not recorded"}</p></div>
+                    <div><div className="flex flex-wrap items-center gap-3"><span className="text-[18px] font-bold">{t.ticker}</span><span className="badge" style={{ background: diagnosis.bg, color: diagnosis.ink }}>{diagnosis.short}</span>{!t.lesson && <span className="badge bg-panel2 text-[#F0B429]">Reflection incomplete</span>}</div><p className="mt-1 text-sm text-mut">{diagnosis.label} · {t.exitReason || "exit reason not recorded"}</p></div>
                     <div className="sm:text-right"><div className="text-lg font-semibold" style={{ color: r !== null && r >= 0 ? "#34D399" : "#F4645C" }}>{fmtR(r)}</div><div className="text-xs text-faint">{fmtUsd(n)} net</div></div>
-                    <div className="flex items-center gap-1 text-sm font-semibold text-[#49695a]">Read reflection <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></div>
+                    <div className="flex items-center gap-1 text-sm font-semibold text-faint">Read reflection <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></div>
                   </summary>
-                  <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:p-7">
+                  <div className="mb-6 rounded-[20px] bg-panel2/76 p-5 sm:p-7">
                     <div className="grid gap-5 sm:grid-cols-3">
                       <div><div className="text-xs font-semibold text-faint">Did I follow the plan?</div><div className="mt-1 font-semibold">{t.ruleFollowed || "Not answered"}</div></div>
                       <div><div className="text-xs font-semibold text-faint">Primary mistake</div><div className="mt-1 font-semibold">{t.mistakeTag || "Not recorded"}</div></div>
@@ -319,7 +319,7 @@ export default function JournalPage() {
       </section>
 
       {closed.length > 0 && (
-        <section className="border-t border-[#27312B] pt-10">
+        <section className="border-t border-line pt-10">
           <details>
             <summary className="cursor-pointer list-none">
               <div className="flex items-center justify-between gap-4">
@@ -327,16 +327,16 @@ export default function JournalPage() {
                 <ChevronDown size={20} className="shrink-0 text-faint" />
               </div>
             </summary>
-            <div className="mt-7 rounded-[22px] bg-[#241C0E]/76 p-6 sm:p-8">
+            <div className="mt-7 rounded-[22px] bg-panel2/76 p-6 sm:p-8">
               <div className="grid gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="stat-line"><div className="stat-label">Net P&L</div><div className="stat-value">{fmtUsd(stats.netPnlUsd)}</div></div>
                 <div className="stat-line"><div className="stat-label">Expectancy</div><div className="stat-value">{fmtR(stats.expectancyR)}</div></div>
                 <div className="stat-line"><div className="stat-label">Win rate</div><div className="stat-value">{fmtPct(stats.winRatePct, 0)}</div></div>
                 <div className="stat-line"><div className="stat-label">Rule adherence</div><div className="stat-value">{fmtPct(stats.adherencePct, 0)}</div></div>
               </div>
-              {(stats.mistakeCounts.length > 0 || stats.leakFlags.length > 0) && <div className="mt-6 border-t border-[#27312B] pt-5"><div className="font-semibold">Repeated tags</div><p className="mt-2 text-sm leading-relaxed text-mut">{stats.mistakeCounts.map(([tag, n]) => `${tag} ×${n}`).join(" · ") || "No mistake tags yet"}{stats.leakFlags.length ? ` · Behavioural leaks: ${stats.leakFlags.map(([tag, n]) => `${tag} ×${n}`).join(" · ")}` : ""}</p></div>}
+              {(stats.mistakeCounts.length > 0 || stats.leakFlags.length > 0) && <div className="mt-6 border-t border-line pt-5"><div className="font-semibold">Repeated tags</div><p className="mt-2 text-sm leading-relaxed text-mut">{stats.mistakeCounts.map(([tag, n]) => `${tag} ×${n}`).join(" · ") || "No mistake tags yet"}{stats.leakFlags.length ? ` · Behavioural leaks: ${stats.leakFlags.map(([tag, n]) => `${tag} ×${n}`).join(" · ")}` : ""}</p></div>}
               {stats.closedCount >= 2 && <div className="mt-7 grid gap-6 md:grid-cols-2"><div><div className="mb-3 font-semibold">Cumulative R</div><EquityCurve trades={state.trades} /></div><div><div className="mb-3 font-semibold">Outcome distribution</div><RDistribution trades={state.trades} /></div></div>}
-              <div className="mt-7 flex flex-wrap gap-3 border-t border-[#27312B] pt-5"><button type="button" className="btn" onClick={() => downloadText("trading-journal.csv", exportJournalCsv(state.trades))}><Download size={15} />Export journal</button><button type="button" className="btn" onClick={() => fileRef.current?.click()}><Upload size={15} />Import journal</button><input ref={fileRef} type="file" accept=".csv,.txt,.md" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void onImport(f); e.target.value = ""; }} /></div>
+              <div className="mt-7 flex flex-wrap gap-3 border-t border-line pt-5"><button type="button" className="btn" onClick={() => downloadText("trading-journal.csv", exportJournalCsv(state.trades))}><Download size={15} />Export journal</button><button type="button" className="btn" onClick={() => fileRef.current?.click()}><Upload size={15} />Import journal</button><input ref={fileRef} type="file" accept=".csv,.txt,.md" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void onImport(f); e.target.value = ""; }} /></div>
             </div>
           </details>
         </section>

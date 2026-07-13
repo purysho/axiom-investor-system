@@ -5,7 +5,7 @@ export const metadata = { title: "Terms" };
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-2xl px-5 py-14">
-      <div className="eyebrow text-[#B4F03C]">The deal, in plain English</div>
+      <div className="eyebrow text-volt">The deal, in plain English</div>
       <h1 className="mt-2 font-display text-3xl font-semibold text-ink">Terms of use</h1>
       <div className="mt-8 space-y-6 text-[15px] leading-relaxed text-mut">
         <p><span className="font-semibold text-ink">Educational tool, not advice.</span> AXIOM is software that helps you follow your own investing process. Nothing here — pages, charts, the assistant, the Copilot — is investment advice, a recommendation, or a solicitation to buy or sell anything. The decisions and their consequences are yours.</p>

@@ -45,7 +45,7 @@ export default function LoginPage() {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="panel w-full max-w-sm p-8">
-          <div className="eyebrow text-[#B4F03C]">Two-factor</div>
+          <div className="eyebrow text-volt">Two-factor</div>
           <h1 className="mt-2 font-display text-2xl font-semibold text-ink">Enter your code</h1>
           <p className="mt-3 text-sm leading-relaxed text-mut">
             Open your authenticator app and type the current 6-digit code. Lost your phone? Use one of your backup codes instead.
@@ -94,7 +94,7 @@ export default function LoginPage() {
         <section className="flex min-h-[680px] items-center justify-center p-6 sm:p-10 lg:min-h-[720px] lg:p-14">
           <div className="w-full max-w-[390px]">
             <div className="mb-9 flex items-center gap-3 lg:hidden">
-              <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[#B4F03C] text-[#0B0F0D]"><Leaf size={18} strokeWidth={2.2} /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-volt text-[#0B0F0D]"><Leaf size={18} strokeWidth={2.2} /></span>
               <div className="font-display text-2xl font-semibold text-ink">Axiom</div>
             </div>
             <div className="eyebrow">Welcome back</div>
@@ -109,7 +109,7 @@ export default function LoginPage() {
             </form>
 
             <p className="mt-3 text-center text-xs"><a href="/reset" className="quiet-link">Forgot passphrase? Use your recovery code</a> · <a href="/help#account" className="quiet-link">Help</a></p>
-            <p className="mt-5 text-center text-sm text-faint">New here? <Link href="/join" className="font-semibold text-[#B4F03C] hover:underline">Create your account</Link></p>
+            <p className="mt-5 text-center text-sm text-faint">New here? <Link href="/join" className="font-semibold text-volt hover:underline">Create your account</Link></p>
             <div className="mt-8 border-t border-line pt-6 text-center">
               <p className="text-xs leading-relaxed text-faint">Prefer to keep everything on this device?</p>
               <button onClick={goOffline} className="btn-ghost mt-2">Continue offline <ArrowRight size={14} /></button>

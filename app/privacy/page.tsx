@@ -5,7 +5,7 @@ export const metadata = { title: "Privacy" };
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-2xl px-5 py-14">
-      <div className="eyebrow text-[#B4F03C]">What we store and where it goes</div>
+      <div className="eyebrow text-volt">What we store and where it goes</div>
       <h1 className="mt-2 font-display text-3xl font-semibold text-ink">Privacy note</h1>
       <div className="mt-8 space-y-6 text-[15px] leading-relaxed text-mut">
         <p><span className="font-semibold text-ink">What's stored.</span> Your username, display name, hashed passphrase and hashed recovery code, and — when signed in — your synced AXIOM data (settings, journal, portfolio, watchlist, reviews, Copilot records). It lives in the app's own database. In offline mode nothing leaves your browser.</p>

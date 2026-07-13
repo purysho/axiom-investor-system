@@ -116,7 +116,7 @@ export function BrokerPanel() {
         </div>
 
         {tab === "sim" ? (
-          <div className="mt-4 max-w-md rounded-[18px] bg-[#151B17] p-5">
+          <div className="mt-4 max-w-md rounded-[18px] bg-panel p-5">
             <p className="text-sm leading-relaxed text-mut">
               The built-in simulator fills bracket orders against the same free daily-close data that powers
               the backtester. No signup, no API keys, no tax information.
@@ -209,7 +209,7 @@ export function BrokerPanel() {
           </div>
 
           {status.account?.restricted && (
-            <p className="mt-3 flex items-start gap-2 rounded-[14px] bg-[#241C0E] px-4 py-3 text-sm" style={{ color: "#F0B429" }}>
+            <p className="mt-3 flex items-start gap-2 rounded-[14px] bg-panel2 px-4 py-3 text-sm" style={{ color: "#F0B429" }}>
               <AlertTriangle size={15} className="mt-0.5 shrink-0" />
               Your broker has restricted this account. Axiom will refuse to submit orders until that clears.
             </p>

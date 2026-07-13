@@ -155,12 +155,12 @@ export default function HelpPage() {
 
   return (
     <div>
-      <section className="mb-10 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
-        <LifeBuoy size={25} className="text-[#456555]" />
+      <section className="mb-10 rounded-[26px] bg-panel p-6 sm:p-9">
+        <LifeBuoy size={25} className="text-faint" />
         <h2 className="mt-5 max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">Help &amp; support</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Practical answers for using the software — connecting a broker, the bot, your account, and fixing data. Looking for the <em>investing</em> method instead? That lives in <Link href="/guides" className="quiet-link">Learn</Link>.</p>
 
-        <div className="mt-6 flex max-w-lg items-center gap-2 rounded-[16px] bg-[#0E130F] px-4 py-3 ring-1 ring-[#27312B] focus-within:ring-[#B4F03C]">
+        <div className="mt-6 flex max-w-lg items-center gap-2 rounded-[16px] bg-bg px-4 py-3 ring-1 ring-[#27312B] focus-within:ring-[#B4F03C]">
           <Search size={17} className="shrink-0 text-faint" />
           <input
             className="w-full bg-transparent text-[15px] text-ink outline-none placeholder:text-faint"
@@ -176,11 +176,11 @@ export default function HelpPage() {
         <section>
           <div className="mb-5 page-kicker">{matches.length} result{matches.length === 1 ? "" : "s"} for “{query.trim()}”</div>
           {matches.length === 0 ? (
-            <div className="rounded-[22px] bg-[#151B17] p-6 text-[15px] leading-relaxed text-mut">
+            <div className="rounded-[22px] bg-panel p-6 text-[15px] leading-relaxed text-mut">
               <p>No answer matched that. Try a shorter keyword, or reach out below — the <Link href="/guides" className="quiet-link">Learn</Link> section covers the investing method if that is what you were after.</p>
             </div>
           ) : (
-            <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
+            <div className="divide-y divide-line border-y border-line">
               {matches.map((f) => <FaqRow key={f.q} faq={f} tag={f.groupTitle} defaultOpen={matches.length <= 3} />)}
             </div>
           )}
@@ -197,7 +197,7 @@ export default function HelpPage() {
                 ["2", "Connect a paper broker", "One-click built-in simulator, or an Alpaca paper account. No real money, no tax paperwork.", "/settings", "Connect a broker"],
                 ["3", "Try the bot with a dry run", "Watch the autopilot walk every interlock and show what it would trade — nothing is submitted.", "/bot", "Open the bot"],
               ].map(([n, title, text, href, cta]) => (
-                <div key={n} className="border-t border-[#3A453E] pt-5">
+                <div key={n} className="border-t border-line pt-5">
                   <div className="text-sm font-bold text-[#a16b4c]">{n}</div>
                   <h3 className="mt-3 font-display text-2xl font-semibold tracking-[-0.025em]">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-mut">{text}</p>
@@ -210,13 +210,13 @@ export default function HelpPage() {
           {GROUPS.map((g) => (
             <section key={g.id} id={g.id} className="mb-11 scroll-mt-28">
               <div className="mb-4 flex items-start gap-3">
-                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><g.Icon size={19} /></span>
+                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-panel text-faint"><g.Icon size={19} /></span>
                 <div>
                   <h2 className="font-display text-[1.7rem] font-semibold tracking-[-0.03em]">{g.title}</h2>
                   <p className="mt-1 max-w-2xl text-sm leading-relaxed text-mut">{g.blurb}</p>
                 </div>
               </div>
-              <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
+              <div className="divide-y divide-line border-y border-line">
                 {g.faqs.map((f) => <FaqRow key={f.q} faq={f} />)}
               </div>
             </section>
@@ -225,7 +225,7 @@ export default function HelpPage() {
       )}
 
       {/* Still stuck */}
-      <section className="mt-12 rounded-[24px] bg-[#241C0E]/76 p-6 sm:p-8">
+      <section className="mt-12 rounded-[24px] bg-panel2/76 p-6 sm:p-8">
         <div className="flex items-start gap-4">
           <ShieldCheck size={21} className="mt-1 shrink-0 text-[#a16b4c]" />
           <div>
@@ -252,9 +252,9 @@ function FaqRow({ faq, tag, defaultOpen }: { faq: Faq; tag?: string; defaultOpen
           {tag && <div className="mb-1 text-xs font-semibold text-[#a16b4c]">{tag}</div>}
           <h3 className="font-display text-[1.2rem] font-semibold leading-snug tracking-[-0.02em] text-ink">{faq.q}</h3>
         </div>
-        <span className="flex items-center gap-1 text-sm font-semibold text-[#49695a]"><ChevronDown size={16} className="transition-transform group-open:rotate-180" /></span>
+        <span className="flex items-center gap-1 text-sm font-semibold text-faint"><ChevronDown size={16} className="transition-transform group-open:rotate-180" /></span>
       </summary>
-      <div className="mb-5 max-w-3xl space-y-3 text-[15px] leading-relaxed text-mut [&_a]:underline [&_code]:rounded [&_code]:bg-[#0E130F] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[13px] [&_code]:text-ink [&_li]:ml-1 [&_strong]:font-semibold [&_strong]:text-ink [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5">
+      <div className="mb-5 max-w-3xl space-y-3 text-[15px] leading-relaxed text-mut [&_a]:underline [&_code]:rounded [&_code]:bg-bg [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[13px] [&_code]:text-ink [&_li]:ml-1 [&_strong]:font-semibold [&_strong]:text-ink [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5">
         {faq.a}
       </div>
     </details>

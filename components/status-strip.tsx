@@ -90,8 +90,8 @@ export function StatusStrip() {
   return (
     <section className="mb-10 grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="System status">
       {tiles.slice(0, 4).map(({ key, href, Icon, label, value, sub, color }) => (
-        <Link key={key} href={href} className="group rounded-[16px] bg-[#151B17] p-4 transition-colors hover:bg-[#1A211D]">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#9FB0A6]"><Icon size={13} /> {label}</div>
+        <Link key={key} href={href} className="group rounded-[16px] bg-panel p-4 transition-colors hover:bg-panel2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-mut"><Icon size={13} /> {label}</div>
           <div className="mt-1.5 truncate font-display text-lg font-semibold tracking-[-0.02em]" style={{ color }}>{value}</div>
           <div className="mt-0.5 truncate text-xs text-faint">{sub}</div>
         </Link>
