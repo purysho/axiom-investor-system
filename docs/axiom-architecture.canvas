@@ -1,0 +1,627 @@
+{
+  "nodes": [
+    {
+      "id": "ad83f3ae459f",
+      "type": "text",
+      "text": "AXIOM Investor System\nrisk-first trading platform",
+      "x": -160,
+      "y": -65,
+      "width": 320,
+      "height": 130
+    },
+    {
+      "id": "aeaf5e0507d4",
+      "type": "text",
+      "text": "Market Data",
+      "color": "5",
+      "x": -130,
+      "y": -870,
+      "width": 260,
+      "height": 100
+    },
+    {
+      "id": "5103578e7c61",
+      "type": "text",
+      "text": "Alpaca IEX real bars via your keys",
+      "color": "5",
+      "x": -696,
+      "y": -1877,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "958a8e98a3fc",
+      "type": "text",
+      "text": "Stooq delayed EOD fallback",
+      "color": "5",
+      "x": -120,
+      "y": -1950,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "381376fe2c17",
+      "type": "text",
+      "text": "Per-user resolver, graceful fallback",
+      "color": "5",
+      "x": 416,
+      "y": -1877,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "8e9b39baff48",
+      "type": "text",
+      "text": "Strategy Engine",
+      "color": "6",
+      "x": 450,
+      "y": -630,
+      "width": 260,
+      "height": 100
+    },
+    {
+      "id": "f28b233ab440",
+      "type": "text",
+      "text": "Trend pullback: RSI 38-55, 2R target",
+      "color": "6",
+      "x": 752,
+      "y": -1738,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "6cf468110f6b",
+      "type": "text",
+      "text": "Mean reversion: RSI below 32, 1.5R",
+      "color": "6",
+      "x": 1064,
+      "y": -1530,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "2b3f125704d1",
+      "type": "text",
+      "text": "Entry confirmation (optional lever)",
+      "color": "6",
+      "x": 1330,
+      "y": -1264,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "06396c9040bc",
+      "type": "text",
+      "text": "One shared file: signalAt",
+      "color": "6",
+      "x": 1558,
+      "y": -942,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "00aa2ca6554d",
+      "type": "text",
+      "text": "Backtest and Reproduce",
+      "color": "4",
+      "x": 690,
+      "y": -50,
+      "width": 260,
+      "height": 100
+    },
+    {
+      "id": "4ae58acef640",
+      "type": "text",
+      "text": "Conservative fills, slippage both ways",
+      "color": "4",
+      "x": 1677,
+      "y": -616,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "1695bdb300a6",
+      "type": "text",
+      "text": "Per-symbol cooldown lever",
+      "color": "4",
+      "x": 1771,
+      "y": -238,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "3e5bd6835a95",
+      "type": "text",
+      "text": "Broad universe: 20 liquid names",
+      "color": "4",
+      "x": 1751,
+      "y": 128,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "2aa9fceae48a",
+      "type": "text",
+      "text": "Reproducible .py matches engine exactly",
+      "color": "4",
+      "x": 1677,
+      "y": 496,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "4508005d22d6",
+      "type": "text",
+      "text": "Copilot",
+      "color": "6",
+      "x": 450,
+      "y": 530,
+      "width": 260,
+      "height": 100
+    },
+    {
+      "id": "ab4d94110972",
+      "type": "text",
+      "text": "AI proposes structured trades",
+      "color": "6",
+      "x": 1558,
+      "y": 842,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "ab19cfdbbbf3",
+      "type": "text",
+      "text": "Deterministic validator decides",
+      "color": "6",
+      "x": 1204,
+      "y": 1284,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "2d81bf122202",
+      "type": "text",
+      "text": "Human approves each order",
+      "color": "6",
+      "x": 772,
+      "y": 1628,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "ce5ebe0a5fee",
+      "type": "text",
+      "text": "AXIOM Bot",
+      "color": "2",
+      "x": -130,
+      "y": 770,
+      "width": 260,
+      "height": 100
+    },
+    {
+      "id": "f0d3c0002db3",
+      "type": "text",
+      "text": "Paper-only, enforced in code",
+      "color": "2",
+      "x": 436,
+      "y": 1767,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "70c04c923c94",
+      "type": "text",
+      "text": "11 interlocks before any order",
+      "color": "2",
+      "x": -140,
+      "y": 1840,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "6bcd3db6d08e",
+      "type": "text",
+      "text": "Cron schedule via token",
+      "color": "2",
+      "x": -676,
+      "y": 1767,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "5cc37c279e73",
+      "type": "text",
+      "text": "Brokers",
+      "color": "5",
+      "x": -710,
+      "y": 530,
+      "width": 260,
+      "height": 100
+    },
+    {
+      "id": "af97e378d9c7",
+      "type": "text",
+      "text": "Built-in Sim: no keys, no KYC",
+      "color": "5",
+      "x": -1012,
+      "y": 1628,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "e7525b43b51c",
+      "type": "text",
+      "text": "Alpaca: paper by default",
+      "color": "5",
+      "x": -1464,
+      "y": 1294,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "b36382d05331",
+      "type": "text",
+      "text": "Live double-locked, bot refuses it",
+      "color": "5",
+      "x": -1818,
+      "y": 832,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "9d8dfdff7d6e",
+      "type": "text",
+      "text": "Terminal and UI",
+      "color": "3",
+      "x": -950,
+      "y": -50,
+      "width": 260,
+      "height": 100
+    },
+    {
+      "id": "44736982ff50",
+      "type": "text",
+      "text": "LED ticker and terminal dashboard",
+      "color": "3",
+      "x": -1957,
+      "y": 496,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "d0d329108ef7",
+      "type": "text",
+      "text": "Green and Amber (Bloomberg) themes",
+      "color": "3",
+      "x": -2040,
+      "y": -60,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "822c31f42667",
+      "type": "text",
+      "text": "Dense monospace data tables",
+      "color": "3",
+      "x": -1937,
+      "y": -606,
+      "width": 240,
+      "height": 100
+    },
+    {
+      "id": "9ea9327f85fc",
+      "type": "text",
+      "text": "Security and Safety",
+      "color": "1",
+      "x": -710,
+      "y": -630,
+      "width": 260,
+      "height": 100
+    },
+    {
+      "id": "2187dbd4a762",
+      "type": "text",
+      "text": "First-party CSP, self-hosted fonts",
+      "color": "1",
+      "x": -1818,
+      "y": -952,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "aef415e873b8",
+      "type": "text",
+      "text": "Encrypted keys, rate limits, 2FA",
+      "color": "1",
+      "x": -1484,
+      "y": -1404,
+      "width": 280,
+      "height": 120
+    },
+    {
+      "id": "f3a01d8b1d32",
+      "type": "text",
+      "text": "LLMs never touch orders; fail closed",
+      "color": "1",
+      "x": -1032,
+      "y": -1738,
+      "width": 280,
+      "height": 120
+    }
+  ],
+  "edges": [
+    {
+      "id": "2fa3963145fa",
+      "fromNode": "ad83f3ae459f",
+      "toNode": "aeaf5e0507d4",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "color": "5"
+    },
+    {
+      "id": "d281a7f8205c",
+      "fromNode": "aeaf5e0507d4",
+      "toNode": "5103578e7c61",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "color": "5"
+    },
+    {
+      "id": "c240cc58fc4d",
+      "fromNode": "aeaf5e0507d4",
+      "toNode": "958a8e98a3fc",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "color": "5"
+    },
+    {
+      "id": "23d3f9c1c92b",
+      "fromNode": "aeaf5e0507d4",
+      "toNode": "381376fe2c17",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "color": "5"
+    },
+    {
+      "id": "5f122680aa28",
+      "fromNode": "ad83f3ae459f",
+      "toNode": "8e9b39baff48",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "e95367767bfa",
+      "fromNode": "8e9b39baff48",
+      "toNode": "f28b233ab440",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "color": "6"
+    },
+    {
+      "id": "1b3563a8c85a",
+      "fromNode": "8e9b39baff48",
+      "toNode": "6cf468110f6b",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "color": "6"
+    },
+    {
+      "id": "d22150e2e15b",
+      "fromNode": "8e9b39baff48",
+      "toNode": "2b3f125704d1",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "6e1a142698a8",
+      "fromNode": "8e9b39baff48",
+      "toNode": "06396c9040bc",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "70fa01292618",
+      "fromNode": "ad83f3ae459f",
+      "toNode": "00aa2ca6554d",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4"
+    },
+    {
+      "id": "dfe28855778b",
+      "fromNode": "00aa2ca6554d",
+      "toNode": "4ae58acef640",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4"
+    },
+    {
+      "id": "3b735a637b89",
+      "fromNode": "00aa2ca6554d",
+      "toNode": "1695bdb300a6",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4"
+    },
+    {
+      "id": "342a2e69eb56",
+      "fromNode": "00aa2ca6554d",
+      "toNode": "3e5bd6835a95",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4"
+    },
+    {
+      "id": "313ae77a6b6b",
+      "fromNode": "00aa2ca6554d",
+      "toNode": "2aa9fceae48a",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4"
+    },
+    {
+      "id": "a0f8ad84aef2",
+      "fromNode": "ad83f3ae459f",
+      "toNode": "4508005d22d6",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "5ddbb0e3b4de",
+      "fromNode": "4508005d22d6",
+      "toNode": "ab4d94110972",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "e881c89e01ea",
+      "fromNode": "4508005d22d6",
+      "toNode": "ab19cfdbbbf3",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "c965e3f5d5be",
+      "fromNode": "4508005d22d6",
+      "toNode": "2d81bf122202",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "e8cbaeed8d26",
+      "fromNode": "ad83f3ae459f",
+      "toNode": "ce5ebe0a5fee",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "2"
+    },
+    {
+      "id": "926097f72d4c",
+      "fromNode": "ce5ebe0a5fee",
+      "toNode": "f0d3c0002db3",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "2"
+    },
+    {
+      "id": "4480a763d88d",
+      "fromNode": "ce5ebe0a5fee",
+      "toNode": "70c04c923c94",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "2"
+    },
+    {
+      "id": "a03294e7f2cb",
+      "fromNode": "ce5ebe0a5fee",
+      "toNode": "6bcd3db6d08e",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "2"
+    },
+    {
+      "id": "01a7d9a8bdff",
+      "fromNode": "ad83f3ae459f",
+      "toNode": "5cc37c279e73",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "9d4dede14c04",
+      "fromNode": "5cc37c279e73",
+      "toNode": "af97e378d9c7",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "588cede33609",
+      "fromNode": "5cc37c279e73",
+      "toNode": "e7525b43b51c",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "74861efadac3",
+      "fromNode": "5cc37c279e73",
+      "toNode": "b36382d05331",
+      "fromSide": "left",
+      "toSide": "right",
+      "color": "5"
+    },
+    {
+      "id": "e04028a5a753",
+      "fromNode": "ad83f3ae459f",
+      "toNode": "9d8dfdff7d6e",
+      "fromSide": "left",
+      "toSide": "right",
+      "color": "3"
+    },
+    {
+      "id": "44c54ed25e4d",
+      "fromNode": "9d8dfdff7d6e",
+      "toNode": "44736982ff50",
+      "fromSide": "left",
+      "toSide": "right",
+      "color": "3"
+    },
+    {
+      "id": "3155a656d35d",
+      "fromNode": "9d8dfdff7d6e",
+      "toNode": "d0d329108ef7",
+      "fromSide": "left",
+      "toSide": "right",
+      "color": "3"
+    },
+    {
+      "id": "30a94a59c269",
+      "fromNode": "9d8dfdff7d6e",
+      "toNode": "822c31f42667",
+      "fromSide": "left",
+      "toSide": "right",
+      "color": "3"
+    },
+    {
+      "id": "dddfd419b3d0",
+      "fromNode": "ad83f3ae459f",
+      "toNode": "9ea9327f85fc",
+      "fromSide": "left",
+      "toSide": "right",
+      "color": "1"
+    },
+    {
+      "id": "fde79c20bcc8",
+      "fromNode": "9ea9327f85fc",
+      "toNode": "2187dbd4a762",
+      "fromSide": "left",
+      "toSide": "right",
+      "color": "1"
+    },
+    {
+      "id": "a921ee66ece1",
+      "fromNode": "9ea9327f85fc",
+      "toNode": "aef415e873b8",
+      "fromSide": "left",
+      "toSide": "right",
+      "color": "1"
+    },
+    {
+      "id": "cfccd9eb88f4",
+      "fromNode": "9ea9327f85fc",
+      "toNode": "f3a01d8b1d32",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "color": "1"
+    }
+  ]
+}
