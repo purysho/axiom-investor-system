@@ -28,11 +28,13 @@ export async function POST(req: Request) {
   let body: { symbols?: unknown; years?: unknown; benchmark?: unknown; params?: Record<string, unknown> };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid body." }, { status: 400 }); }
 
-  const symbols = (Array.isArray(body.symbols) ? body.symbols : [])
+  // Backtesting is pure analysis (no orders), so it allows a broad universe for
+  // a statistically meaningful run — wider than the bot's live 8-symbol cap.
+  const symbols = [...new Set((Array.isArray(body.symbols) ? body.symbols : [])
     .filter((s): s is string => typeof s === "string" && /^[A-Za-z0-9.^-]{1,12}$/.test(s.trim()))
-    .map((s) => s.trim().toUpperCase())
-    .slice(0, 8);
-  if (symbols.length === 0) return NextResponse.json({ error: "Send symbols: [] — up to 8 tickers." }, { status: 400 });
+    .map((s) => s.trim().toUpperCase()))]
+    .slice(0, 25);
+  if (symbols.length === 0) return NextResponse.json({ error: "Send symbols: [] — up to 25 tickers." }, { status: 400 });
 
   const years = clamp(body.years, 1, 10, 5);
   const bars = Math.round(years * 252) + WARMUP_BARS;

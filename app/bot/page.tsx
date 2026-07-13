@@ -69,6 +69,17 @@ const OUTCOME_STYLE: Record<string, { color: string; label: string }> = {
   running: { color: "#93A39A", label: "running" },
 };
 
+/**
+ * A curated ~20-name liquid basket across sectors, for a statistically
+ * meaningful one-click backtest (many trades, multiple market regimes).
+ * These are diversified large-caps + the two broad index ETFs — not stock
+ * tips, just a representative liquid universe.
+ */
+const BROAD_UNIVERSE = [
+  "SPY", "QQQ", "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "JPM", "XOM",
+  "JNJ", "PG", "HD", "V", "MA", "UNH", "WMT", "DIS", "KO", "CAT",
+];
+
 const ORDER_STATUS_COLOR: Record<string, string> = {
   filled: "#34D399",
   partially_filled: "#B4F03C",
@@ -195,8 +206,8 @@ export default function BotPage() {
     } finally { setRunning(null); }
   };
 
-  const runBacktest = async () => {
-    const symbols = parseUniverse().length ? parseUniverse() : ideaSymbols;
+  const runBacktest = async (override?: string[]) => {
+    const symbols = override ?? (parseUniverse().length ? parseUniverse() : ideaSymbols);
     if (symbols.length === 0) { toast("Give the bot a universe first — or add tickers to Trade ideas.", "warning"); return; }
     setBtRunning(true);
     try {
@@ -518,6 +529,9 @@ export default function BotPage() {
             <select className="field w-36" value={btCooldown} onChange={(e) => setBtCooldown(Number(e.target.value))} title="Re-entry cooldown after a stop-out, approximating the live per-symbol loss lock">
               <option value={0}>no cooldown</option><option value={5}>5-bar cooldown</option><option value={10}>10-bar cooldown</option>
             </select>
+            <button type="button" className="btn" onClick={() => void runBacktest(BROAD_UNIVERSE)} disabled={btRunning} title={`Backtest a curated 20-name liquid basket: ${BROAD_UNIVERSE.join(", ")}`}>
+              {btRunning ? "Replaying…" : "Broad universe (20)"}
+            </button>
             <button type="button" className="btn-primary" onClick={() => void runBacktest()} disabled={btRunning}>
               <Bot size={14} />{btRunning ? "Replaying…" : "Run backtest"}
             </button>
