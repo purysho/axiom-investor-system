@@ -7,14 +7,17 @@ import type { LucideIcon } from "lucide-react";
 import {
   Home, PieChart, Lightbulb, BookOpenText, CalendarCheck2, Library,
   Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Bot, Cpu, LifeBuoy,
+  Activity,
 } from "lucide-react";
 import { SyncBadge } from "@/components/sync";
 import { AxiomMark } from "@/components/logo";
+import { TickerTape } from "@/components/ticker-tape";
 
 type NavItem = { href: string; label: string; key: string; Icon: LucideIcon };
 
 const PRIMARY_NAV: NavItem[] = [
   { href: "/", label: "Today", key: "0", Icon: Home },
+  { href: "/terminal", label: "Terminal", key: "t", Icon: Activity },
   { href: "/portfolio", label: "My portfolio", key: "4", Icon: PieChart },
   { href: "/copilot", label: "Copilot", key: "c", Icon: Bot },
   { href: "/watchlist", label: "Trade ideas", key: "5", Icon: Lightbulb },
@@ -35,7 +38,7 @@ const MORE_NAV: NavItem[] = [
 const NAV = [...PRIMARY_NAV, ...MORE_NAV, { href: "/daily", label: "Daily check", key: "1", Icon: Home }];
 
 const TITLES: Record<string, string> = {
-  "/": "Today", "/daily": "Daily check", "/gate": "Risk check",
+  "/": "Today", "/terminal": "Terminal", "/daily": "Daily check", "/gate": "Risk check",
   "/journal": "Journal", "/portfolio": "My portfolio", "/copilot": "Copilot",
   "/bot": "AXIOM Bot", "/watchlist": "Trade ideas",
   "/charts": "Charts", "/monthly": "Monthly review", "/guides": "Learn", "/group": "Group",
@@ -132,6 +135,8 @@ export function Nav() {
           <Link href="/settings" className="md:hidden" aria-label="Settings"><Settings size={20} /></Link>
         </div>
       </header>
+
+      <TickerTape />
 
       <nav className="mobile-nav md:hidden" aria-label="Mobile navigation">
         {mobile.map((n) => {

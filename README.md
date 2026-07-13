@@ -12,9 +12,14 @@ The app guides a user through five recurring jobs:
 
 The main navigation is intentionally plain:
 
-**Today · My portfolio · Copilot · Trade ideas · Journal · Review · Learn**
+**Today · Terminal · My portfolio · Copilot · Trade ideas · Journal · Review · Learn**
 
 Risk Check, AXIOM Bot, Charts, Group, Help & support, and Settings remain available under **More**.
+
+**Terminal** (`/terminal`) is the dense trading-screen surface: a live LED ticker tape, a quote header
+with timeframe tabs, an indicator chart, a stat-cell grid, and a click-to-load market monitor — real data
+via the chart/quote APIs (delayed EOD, or real Alpaca IEX bars when data keys are set). The rest of AXIOM
+stays deliberately calm and process-first; the Terminal is where the market screen lives.
 
 ## Run locally
 
