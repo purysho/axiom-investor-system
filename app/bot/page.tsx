@@ -92,6 +92,7 @@ export default function BotPage() {
   const [lastReport, setLastReport] = useState<BotRunReport | null>(null);
 
   const [btYears, setBtYears] = useState(5);
+  const [btCooldown, setBtCooldown] = useState(0);
   const [btRunning, setBtRunning] = useState(false);
   const [bt, setBt] = useState<{ symbols: string[]; missing: string[]; benchmark: string; dataSource?: string; result: BacktestResult } | null>(null);
 
@@ -211,6 +212,7 @@ export default function BotPage() {
             notionalCapPct: state.settings.notionalCapPct,
             heatCapPct: state.settings.heatCapPct,
             maxConcurrent: 3,
+            perSymbolCooldownBars: btCooldown,
           },
         }),
       });
@@ -504,6 +506,9 @@ export default function BotPage() {
             <select className="field w-28" value={btYears} onChange={(e) => setBtYears(Number(e.target.value))}>
               <option value={1}>1 year</option><option value={2}>2 years</option><option value={3}>3 years</option><option value={5}>5 years</option><option value={10}>10 years</option>
             </select>
+            <select className="field w-36" value={btCooldown} onChange={(e) => setBtCooldown(Number(e.target.value))} title="Re-entry cooldown after a stop-out, approximating the live per-symbol loss lock">
+              <option value={0}>no cooldown</option><option value={5}>5-bar cooldown</option><option value={10}>10-bar cooldown</option>
+            </select>
             <button type="button" className="btn-primary" onClick={() => void runBacktest()} disabled={btRunning}>
               <Bot size={14} />{btRunning ? "Replaying…" : "Run backtest"}
             </button>
@@ -551,7 +556,7 @@ export default function BotPage() {
             <p className="font-mono text-[11px] text-faint">
               {m.startDate} → {m.endDate} · {bt.symbols.join(", ")}{bt.missing.length ? ` · no data: ${bt.missing.join(", ")}` : ""}
               {bt.dataSource ? ` · data: ${bt.dataSource}` : ""} ·
-              skipped entries — benchmark filter {bt.result.skipped.benchmark}, heat cap {bt.result.skipped.heat}, concurrency {bt.result.skipped.concurrency}, sizing {bt.result.skipped.size}, gapped stops {bt.result.skipped.gapThroughStop}
+              skipped entries — benchmark filter {bt.result.skipped.benchmark}, heat cap {bt.result.skipped.heat}, concurrency {bt.result.skipped.concurrency}, sizing {bt.result.skipped.size}, gapped stops {bt.result.skipped.gapThroughStop}, cooldown {bt.result.skipped.cooldown}
             </p>
             {bt.result.warnings.map((w, i) => <p key={i} className="text-xs" style={{ color: "#F0B429" }}>{w}</p>)}
 

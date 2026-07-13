@@ -22,7 +22,7 @@ function result(overrides: Partial<BacktestResult> = {}): BacktestResult {
       winRatePct: 50, expectancyR: 0.5, profitFactor: 2.5, avgHoldBars: 8.5, exposurePct: 12,
       benchmarkReturnPct: 8, startDate: "2025-01-02", endDate: "2025-12-31",
     },
-    skipped: { benchmark: 3, heat: 1, concurrency: 0, size: 2, gapThroughStop: 0 },
+    skipped: { benchmark: 3, heat: 1, concurrency: 0, size: 2, gapThroughStop: 0, cooldown: 0 },
     warnings: [],
     ...overrides,
   };

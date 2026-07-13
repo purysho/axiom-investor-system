@@ -89,9 +89,22 @@ deliberately pessimistic:
 - indicator warm-up (260 bars) is enforced, so backtest numbers match what a
   live scan would compute for the same day.
 
-What it does **not** model: the VIX/NFCI/drawdown gate checks (only the
-benchmark-trend check is replayed), behavioural protections, and dividends.
-Read results as evidence about the process, not a promised return.
+What it does **not** model by default: the VIX/NFCI/drawdown gate checks (only
+the benchmark-trend check is replayed), most behavioural protections, and
+dividends. Read results as evidence about the process, not a promised return.
+
+**Optional per-symbol re-entry cooldown.** Live, a symbol that stops out is
+locked from re-entry by the behavioural protections; the backtest doesn't model
+that, so it can re-enter a name a bar or two after a stop — a trade the running
+system would refuse. The backtest control (and `perSymbolCooldownBars`) blocks
+re-entry on a symbol for N bars after it stops out, making the replay more
+faithful to live behaviour. Default is off (0) so historical numbers are
+unchanged; turn it on to test re-entry discipline out-of-sample.
+
+The exported report states the **actual** coverage — trading-day count and date
+range — not the requested window, and refuses to annualize a window under ~10
+months. If a symbol has less history than the requested years, the report says
+so rather than overstating the period.
 
 ### Export for a second opinion
 

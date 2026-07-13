@@ -111,11 +111,19 @@ export function prng(seed = 42): () => number {
   };
 }
 
-/** Synthetic uptrend with periodic pullbacks — reliably produces entry signals. */
+/** Synthetic uptrend with periodic pullbacks — reliably produces entry signals.
+ *  Dates advance over real weekdays only, so a series is never dated on a
+ *  weekend (daily bars don't exist then). */
 export function syntheticSeries(n: number, seed = 42, start = 100): DailyRow[] {
   const rand = prng(seed);
   const rows: DailyRow[] = [];
   let price = start;
+  let cursor = new Date(Date.UTC(2020, 0, 1)); // a Wednesday
+  const nextWeekday = (d: Date) => {
+    let x = new Date(d.getTime() + 86_400_000);
+    while (x.getUTCDay() === 0 || x.getUTCDay() === 6) x = new Date(x.getTime() + 86_400_000);
+    return x;
+  };
   for (let i = 0; i < n; i++) {
     const drift = 0.0006;
     const dip = i % 60 > 50 ? -0.004 : 0;
@@ -124,9 +132,9 @@ export function syntheticSeries(n: number, seed = 42, start = 100): DailyRow[] {
     const close = price * (1 + drift + dip + noise);
     const high = Math.max(open, close) * (1 + rand() * 0.006);
     const low = Math.min(open, close) * (1 - rand() * 0.006);
-    const d = new Date(Date.UTC(2020, 0, 1) + i * 86_400_000);
-    rows.push({ date: d.toISOString().slice(0, 10), open, high, low, close, volume: 1e6 });
+    rows.push({ date: cursor.toISOString().slice(0, 10), open, high, low, close, volume: 1e6 });
     price = close;
+    cursor = nextWeekday(cursor);
   }
   return rows;
 }

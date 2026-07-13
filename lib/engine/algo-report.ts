@@ -115,6 +115,22 @@ export function buildAlgorithmReportMarkdown(input: AlgoReportInput): string {
   const vsBench =
     m.benchmarkReturnPct == null ? "n/a" : `${pct(m.totalReturnPct - m.benchmarkReturnPct)} vs ${benchmark} buy-and-hold`;
 
+  // Actual coverage — never claim more than the data delivered.
+  const tradingDays = r.equityCurve.length;
+  const calendarDays = m.startDate && m.endDate
+    ? Math.max(0, Math.round((Date.parse(m.endDate) - Date.parse(m.startDate)) / 86_400_000))
+    : null;
+  const expectedTradingDays = Math.round(years * 252);
+  const coverageShort = tradingDays > 0 && tradingDays < expectedTradingDays * 0.75;
+  const canAnnualize = tradingDays >= 200; // ~10 trading months
+  const thinSample = m.trades < 30;
+  const windowLabel = m.startDate ? `${m.startDate} → ${m.endDate}` : "n/a";
+  const spanLabel = `${tradingDays} trading days${calendarDays != null ? ` / ${calendarDays} calendar days` : ""}`;
+
+  const coverageWarning = (coverageShort || thinSample || !canAnnualize)
+    ? `> ⚠️ **Read the numbers with caution.** This run covered **${spanLabel}** (${windowLabel})${coverageShort ? `, well short of the ~${expectedTradingDays} trading days a ${years}-year test implies — the symbols' available history was shorter than requested` : ""}, and produced **${m.trades} completed trade${m.trades === 1 ? "" : "s"}**. ${thinSample ? "Fewer than ~30 trades is statistical noise, not evidence. " : ""}${!canAnnualize ? "The window is under ~10 months, so any annualized/CAGR figure below is an extrapolation and should not be trusted. " : ""}Broaden the universe and lengthen the window before drawing conclusions.\n\n`
+    : "";
+
   const curve = sampleEquityCurve(r.equityCurve, 24);
   const curveBlock = curve.map((c) => `${c.date},${Math.round(c.equity)}`).join("\n");
 
@@ -122,15 +138,16 @@ export function buildAlgorithmReportMarkdown(input: AlgoReportInput): string {
     `| ${t.symbol} | ${t.strategy} | ${t.entryDate} | ${num(t.entryPrice)} | ${t.exitDate} | ${num(t.exitPrice)} | ${t.exitReason} | ${t.holdBars} | ${usd(t.pl)} | ${t.rMultiple >= 0 ? "+" : ""}${num(t.rMultiple)}R |`,
   ).join("\n");
 
-  return `# AXIOM strategy — algorithm & ${years}-year backtest report
+  return `# AXIOM strategy — algorithm & backtest report
 
 _Generated ${input.generatedAt} · for independent review._
 
 ## For the reviewer (read me first)
 
-You are being asked to **evaluate a rules-based swing-trading algorithm**. Below is
-its complete specification followed by its backtested results over **${years} year${years === 1 ? "" : "s"}** of
-real daily price history. Nothing here is a solicitation or a claim of future
+${coverageWarning}You are being asked to **evaluate a rules-based swing-trading algorithm**. Below is
+its complete specification followed by its backtested results. The test covered
+**${spanLabel}** (${windowLabel}) of daily bars from **${input.dataSource ?? "the configured data feed"}** —
+requested as a ${years}-year window. Nothing here is a solicitation or a claim of future
 returns — it is a transparency artifact. Please assess:
 
 1. Is the entry/exit logic sound, or does it have obvious flaws or blind spots?
@@ -150,7 +167,8 @@ ${algorithmSpecMarkdown()}
 | Universe | ${symbols.join(", ") || "n/a"}${missing.length ? ` (no data for: ${missing.join(", ")})` : ""} |
 | Data source | ${input.dataSource ?? "delayed end-of-day daily bars"} |
 | Benchmark | ${benchmark} |
-| Window | ${years} year${years === 1 ? "" : "s"} of daily bars${m.startDate ? ` (${m.startDate} → ${m.endDate})` : ""} |
+| Requested window | ${years} year${years === 1 ? "" : "s"} (~${expectedTradingDays} trading days) |
+| Actual coverage | **${spanLabel}** (${windowLabel})${coverageShort ? " — shorter than requested" : ""} |
 | Starting equity | ${usd(p.startingEquity)} |
 | Risk per trade | ${p.riskPerTradePct}% of equity |
 | Single-position cap | ${p.notionalCapPct}% of equity |
@@ -159,6 +177,7 @@ ${algorithmSpecMarkdown()}
 | Slippage charged | ${p.slippageBps} bps per side |
 | Strategies enabled | ${p.strategies.join(", ")} |
 | Benchmark-trend filter | ${p.benchmarkFilter ? "on (only enter while benchmark > its 200-day)" : "off"} |
+| Per-symbol re-entry cooldown | ${p.perSymbolCooldownBars > 0 ? `${p.perSymbolCooldownBars} bars after a stop-out` : "off"} |
 
 **Fill assumptions (deliberately pessimistic):** signals fill at the *next* bar's
 open; a bar touching both stop and target counts as a **stop**; gaps fill at the
@@ -166,11 +185,11 @@ open, not at the level; slippage is charged on every fill both ways.
 
 ## Results
 
-| Metric | Value |
+${coverageWarning}| Metric | Value |
 |---|---|
-| Total return | **${pct(m.totalReturnPct)}** (${vsBench}) |
+| Period return (whole window) | **${pct(m.totalReturnPct)}** (${vsBench}) |
 | Ending equity | ${usd(finalEquity)} from ${usd(p.startingEquity)} |
-| CAGR | ${pct(m.cagrPct)} |
+| Annualized (CAGR) | ${canAnnualize ? pct(m.cagrPct) : `${pct(m.cagrPct)} — ⚠️ window under ~10 months; extrapolation, do not rely on it`} |
 | Max drawdown | −${num(m.maxDrawdownPct)}% |
 | Trades | ${m.trades} (${m.wins}W / ${m.losses}L) |
 | Win rate | ${pct(m.winRatePct)} |
@@ -180,7 +199,7 @@ open, not at the level; slippage is charged on every fill both ways.
 | Exposure | ${pct(m.exposurePct)} of days with a position |
 
 **Entries the engine wanted but refused** (a healthy sign the risk layer bites):
-benchmark filter ${r.skipped.benchmark}, heat cap ${r.skipped.heat}, concurrency ${r.skipped.concurrency}, sizing ${r.skipped.size}, gapped-through-stop ${r.skipped.gapThroughStop}.
+benchmark filter ${r.skipped.benchmark}, heat cap ${r.skipped.heat}, concurrency ${r.skipped.concurrency}, sizing ${r.skipped.size}, gapped-through-stop ${r.skipped.gapThroughStop}, per-symbol cooldown ${r.skipped.cooldown}.
 ${r.warnings.length ? `\n**Warnings:** ${r.warnings.join("; ")}\n` : ""}
 ### Equity curve (sampled, \`date,equity\`)
 
@@ -222,7 +241,14 @@ export function buildAlgorithmReportJson(input: AlgoReportInput): string {
       version: 1,
       generatedAt: input.generatedAt,
       disclaimer: "Transparency artifact. Not investment advice. Past results do not predict future returns. Backtest is an upper bound (omits macro gate checks, behavioural locks, dividends).",
-      window: { years: input.years, startDate: r.metrics.startDate, endDate: r.metrics.endDate },
+      window: {
+        requestedYears: input.years,
+        startDate: r.metrics.startDate,
+        endDate: r.metrics.endDate,
+        tradingDays: r.equityCurve.length,
+        coverageShort: r.equityCurve.length > 0 && r.equityCurve.length < Math.round(input.years * 252) * 0.75,
+        annualizable: r.equityCurve.length >= 200,
+      },
       dataSource: input.dataSource ?? "delayed end-of-day daily bars",
       universe: input.symbols,
       missingData: input.missing,

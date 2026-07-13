@@ -46,6 +46,7 @@ export async function POST(req: Request) {
     maxConcurrent: clamp(raw.maxConcurrent, 1, 8, d.maxConcurrent),
     timeStopBars: clamp(raw.timeStopBars, 0, 200, d.timeStopBars),
     slippageBps: clamp(raw.slippageBps, 0, 100, d.slippageBps),
+    perSymbolCooldownBars: clamp(raw.perSymbolCooldownBars, 0, 60, d.perSymbolCooldownBars),
     strategies: (Array.isArray(raw.strategies)
       ? raw.strategies.filter((s): s is StrategyId => s === "trend-pullback" || s === "mean-reversion")
       : d.strategies),

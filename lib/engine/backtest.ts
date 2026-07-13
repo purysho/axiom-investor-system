@@ -32,6 +32,13 @@ export interface BacktestParams {
   strategies: StrategyId[];
   /** Only enter while the benchmark closes above its 200-day SMA (gate check #1). */
   benchmarkFilter: boolean;
+  /**
+   * Bars to wait before re-entering a symbol after it stops out — an optional
+   * approximation of the live per-symbol loss lock, so the backtest doesn't
+   * take re-entries the running system's behavioural protections would block.
+   * 0 = off (default), which leaves historical results unchanged.
+   */
+  perSymbolCooldownBars: number;
 }
 
 export const DEFAULT_BACKTEST_PARAMS: BacktestParams = {
@@ -44,6 +51,7 @@ export const DEFAULT_BACKTEST_PARAMS: BacktestParams = {
   slippageBps: 5,
   strategies: ["trend-pullback", "mean-reversion"],
   benchmarkFilter: true,
+  perSymbolCooldownBars: 0,
 };
 
 export type ExitReason = "stop" | "target" | "time" | "end";
@@ -88,7 +96,7 @@ export interface BacktestResult {
   equityCurve: { date: string; equity: number }[];
   metrics: BacktestMetrics;
   /** Entries the engine wanted but refused, and why — the part a marketing page would hide. */
-  skipped: { benchmark: number; heat: number; concurrency: number; size: number; gapThroughStop: number };
+  skipped: { benchmark: number; heat: number; concurrency: number; size: number; gapThroughStop: number; cooldown: number };
   warnings: string[];
 }
 
@@ -120,7 +128,9 @@ export function runBacktest(
 ): BacktestResult {
   const p: BacktestParams = { ...DEFAULT_BACKTEST_PARAMS, ...params };
   const warnings: string[] = [];
-  const skipped = { benchmark: 0, heat: 0, concurrency: 0, size: 0, gapThroughStop: 0 };
+  const skipped = { benchmark: 0, heat: 0, concurrency: 0, size: 0, gapThroughStop: 0, cooldown: 0 };
+  // Bar index of the most recent stop-out per symbol, for the re-entry cooldown.
+  const lastStopIndex = new Map<string, number>();
 
   const symbols = Object.keys(series).filter((s) => (series[s]?.length ?? 0) > 0);
   // Minimum usable length: a signal at FIRST_TRADABLE_BAR needs one more bar to fill on.
@@ -221,8 +231,8 @@ export function runBacktest(
       const bar = series[pos.symbol][idx];
       pos.lastClose = bar.close;
       if (bar.date > pos.entryDate) pos.holdBars++;
-      if (bar.open <= pos.stop) closePosition(pos, date, bar.open, "stop");
-      else if (bar.low <= pos.stop) closePosition(pos, date, pos.stop, "stop");
+      if (bar.open <= pos.stop) { closePosition(pos, date, bar.open, "stop"); lastStopIndex.set(pos.symbol, idx); }
+      else if (bar.low <= pos.stop) { closePosition(pos, date, pos.stop, "stop"); lastStopIndex.set(pos.symbol, idx); }
       else if (bar.open >= pos.target) closePosition(pos, date, bar.open, "target");
       else if (bar.high >= pos.target) closePosition(pos, date, pos.target, "target");
       else if (p.timeStopBars > 0 && pos.holdBars >= p.timeStopBars) closePosition(pos, date, bar.close, "time");
@@ -234,6 +244,11 @@ export function runBacktest(
       if (idx === undefined || idx < FIRST_TRADABLE_BAR || idx >= series[symbol].length - 1) continue;
       if (open.has(symbol) || pending.has(symbol)) continue;
       if (open.size + pending.size >= p.maxConcurrent) continue;
+      // Per-symbol re-entry cooldown after a stop-out (optional; 0 = off).
+      if (p.perSymbolCooldownBars > 0) {
+        const stoppedAt = lastStopIndex.get(symbol);
+        if (stoppedAt !== undefined && idx - stoppedAt < p.perSymbolCooldownBars) { skipped.cooldown++; continue; }
+      }
       const sig = signalAt(symbol, series[symbol], indicators.get(symbol)!, idx, p.strategies);
       if (!sig) continue;
       if (benchAbove && benchAbove.get(date) !== true) { skipped.benchmark++; continue; }
