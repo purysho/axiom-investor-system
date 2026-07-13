@@ -93,7 +93,7 @@ export default function BotPage() {
 
   const [btYears, setBtYears] = useState(5);
   const [btRunning, setBtRunning] = useState(false);
-  const [bt, setBt] = useState<{ symbols: string[]; missing: string[]; benchmark: string; result: BacktestResult } | null>(null);
+  const [bt, setBt] = useState<{ symbols: string[]; missing: string[]; benchmark: string; dataSource?: string; result: BacktestResult } | null>(null);
 
   const [live, setLive] = useState<LiveAccount | null>(null);
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
@@ -226,7 +226,8 @@ export default function BotPage() {
     if (!bt) return;
     const input = {
       symbols: bt.symbols, missing: bt.missing, benchmark: bt.benchmark,
-      years: btYears, result: bt.result, generatedAt: new Date().toISOString(),
+      years: btYears, result: bt.result, dataSource: bt.dataSource,
+      generatedAt: new Date().toISOString(),
     };
     const stamp = new Date().toISOString().slice(0, 10);
     if (format === "md") {
@@ -548,7 +549,8 @@ export default function BotPage() {
             </div>
 
             <p className="font-mono text-[11px] text-faint">
-              {m.startDate} → {m.endDate} · {bt.symbols.join(", ")}{bt.missing.length ? ` · no data: ${bt.missing.join(", ")}` : ""} ·
+              {m.startDate} → {m.endDate} · {bt.symbols.join(", ")}{bt.missing.length ? ` · no data: ${bt.missing.join(", ")}` : ""}
+              {bt.dataSource ? ` · data: ${bt.dataSource}` : ""} ·
               skipped entries — benchmark filter {bt.result.skipped.benchmark}, heat cap {bt.result.skipped.heat}, concurrency {bt.result.skipped.concurrency}, sizing {bt.result.skipped.size}, gapped stops {bt.result.skipped.gapThroughStop}
             </p>
             {bt.result.warnings.map((w, i) => <p key={i} className="text-xs" style={{ color: "#F0B429" }}>{w}</p>)}

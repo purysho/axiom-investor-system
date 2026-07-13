@@ -19,6 +19,8 @@ export interface AlgoReportInput {
   result: BacktestResult;
   /** ISO timestamp; injected so the output is deterministic in tests. */
   generatedAt: string;
+  /** Human label of the feed the bars came from, e.g. the Alpaca or Stooq provider. */
+  dataSource?: string;
 }
 
 const pct = (n: number | null | undefined, d = 1) =>
@@ -146,6 +148,7 @@ ${algorithmSpecMarkdown()}
 | Setting | Value |
 |---|---|
 | Universe | ${symbols.join(", ") || "n/a"}${missing.length ? ` (no data for: ${missing.join(", ")})` : ""} |
+| Data source | ${input.dataSource ?? "delayed end-of-day daily bars"} |
 | Benchmark | ${benchmark} |
 | Window | ${years} year${years === 1 ? "" : "s"} of daily bars${m.startDate ? ` (${m.startDate} → ${m.endDate})` : ""} |
 | Starting equity | ${usd(p.startingEquity)} |
@@ -220,6 +223,7 @@ export function buildAlgorithmReportJson(input: AlgoReportInput): string {
       generatedAt: input.generatedAt,
       disclaimer: "Transparency artifact. Not investment advice. Past results do not predict future returns. Backtest is an upper bound (omits macro gate checks, behavioural locks, dividends).",
       window: { years: input.years, startDate: r.metrics.startDate, endDate: r.metrics.endDate },
+      dataSource: input.dataSource ?? "delayed end-of-day daily bars",
       universe: input.symbols,
       missingData: input.missing,
       benchmark: input.benchmark,

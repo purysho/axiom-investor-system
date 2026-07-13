@@ -4,6 +4,7 @@ import { WARMUP_BARS, type DailyRow } from "@/lib/engine/quotes";
 import { DEFAULT_BACKTEST_PARAMS, runBacktest, type BacktestParams } from "@/lib/engine/backtest";
 import type { StrategyId } from "@/lib/engine/strategy";
 import { fetchDailyHistory } from "@/lib/server/history";
+import { listProviders } from "@/lib/market-data";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `No history found for ${symbols.join(", ")} — check the tickers.` }, { status: 502 });
 
   const result = runBacktest(series, params, benchmarkRows);
+  const dataSource = listProviders()[0]?.label ?? "delayed end-of-day daily bars";
 
   return NextResponse.json({
     ok: true,
@@ -79,11 +81,12 @@ export async function POST(req: Request) {
     missing,
     benchmark: benchmarkSymbol,
     years,
+    dataSource,
     result: {
       ...result,
       trades: result.trades.slice(-400), // cap the payload; metrics cover everything
     },
-    citations: ["Stooq daily history (delayed EOD)", "Deterministic strategy engine — the same code the bot trades"],
+    citations: [dataSource, "Deterministic strategy engine — the same code the bot trades"],
     note: "Backtests use conservative fills (stop first, gaps at the open, slippage both ways) but remain an upper bound, not a promise. Past results do not predict future returns.",
   });
 }

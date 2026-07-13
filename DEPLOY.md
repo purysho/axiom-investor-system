@@ -219,6 +219,9 @@ What is deliberately **not** in place, and you should know before inviting stran
   resets it at `/reset`. Losing both the passphrase *and* the code is unrecoverable by design — the person
   rejoins with a fresh invite and restores their own JSON backup.
 - **Market data** (FRED, Stooq) is fetched server-side, keyless and delayed; `ALPHA_VANTAGE_API_KEY` is an
-  optional quote fallback. Outbound HTTPS from the host is all that's needed.
+  optional quote fallback. Outbound HTTPS from the host is all that's needed. For **real** daily bars, set
+  `ALPACA_API_KEY_ID` + `ALPACA_API_SECRET_KEY` (any Alpaca key, paper or live — read-only market data): the
+  Alpaca IEX feed then serves equities/ETFs/bond-ETFs for charts, the Copilot, the bot, and backtests, with
+  Stooq as automatic fallback for anything it can't cover.
 - **What to monitor:** `/api/health` (returns `{ok:true, storage:...}`) and disk space on the volume. That's
   the whole ops surface.
