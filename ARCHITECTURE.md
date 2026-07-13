@@ -19,7 +19,7 @@ Market Data ─→ Feature/Strategy ─→ AI Copilot ─→ Proposal Schema
 
 | Layer | Files | Notes |
 |---|---|---|
-| Market data | `lib/market-data/` (`types.ts`, `stooq.ts`, `alpaca.ts`, `index.ts`), `lib/server/history.ts` | Provider registry keyed by asset class, tried in priority order with graceful fallback (`resolveHistory`). Alpaca's real IEX daily bars register ahead of Stooq when `ALPACA_API_KEY_ID`/`_SECRET_KEY` are set (any Alpaca key, read-only); otherwise Stooq (keyless, delayed EOD) serves everything, unchanged. |
+| Market data | `lib/market-data/` (`types.ts`, `stooq.ts`, `alpaca.ts`, `index.ts`), `lib/server/history.ts` | Provider registry keyed by asset class, tried in priority order with graceful fallback (`resolveHistory`). `fetchDailyHistoryForUser` prefers a signed-in user's OWN connected Alpaca keys (any Alpaca key, read-only) for real IEX bars across **charts, quotes, the ticker, benchmarks, and backtests** — then the deployment `ALPACA_API_KEY_ID` key, then keyless Stooq (delayed EOD). Equities/ETFs go to Alpaca; gold/BTC/FX fall through to Stooq automatically. |
 | Feature engineering + strategy | `lib/engine/quotes.ts`, `lib/engine/strategy.ts` | O(n) indicator series with enforced warm-up (`WARMUP_BARS`). The entry rules live in `strategy.ts` ONCE — the Copilot proposes from it, the backtester replays it, the bot trades it. |
 | AI Copilot | `app/api/copilot/route.ts` | Claude when `ANTHROPIC_API_KEY` is set, deterministic rules otherwise. Either way the output is a **raw candidate**, not an order. |
 | Proposal schema | `lib/copilot/types.ts` (`Recommendation`) | Symbol, asset class, timeframe, entry/stop/targets, evidence, invalidation, confidence, data + expiry timestamps. |

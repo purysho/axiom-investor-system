@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
-import { computeWatchMetrics, mapToStooq, parseStooqDaily, round } from "@/lib/engine/quotes";
+import { computeWatchMetrics, mapToStooq, round } from "@/lib/engine/quotes";
 import { clientIp, limited } from "@/lib/server/ratelimit";
+import { getSessionUser } from "@/lib/server/auth";
+import { fetchDailyHistoryForUser, usesRealData } from "@/lib/server/history";
+
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/quotes?symbols=AAPL,SPY,XAUUSD,BTCUSD&mode=close|metrics
@@ -30,22 +34,6 @@ interface QuoteOut {
   error?: string;
 }
 
-function dateStamp(d: Date): string {
-  return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}${String(d.getUTCDate()).padStart(2, "0")}`;
-}
-
-async function fetchDaily(stooqSym: string, revalidate: number): Promise<ReturnType<typeof parseStooqDaily>> {
-  const d2 = new Date();
-  const d1 = new Date(d2.getTime() - 400 * 86400000);
-  const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(stooqSym)}&i=d&d1=${dateStamp(d1)}&d2=${dateStamp(d2)}`;
-  const res = await fetch(url, { next: { revalidate }, signal: AbortSignal.timeout(8000) });
-  if (!res.ok) throw new Error(`stooq ${res.status}`);
-  const text = await res.text();
-  const rows = parseStooqDaily(text);
-  if (rows.length === 0) throw new Error("no data");
-  return rows;
-}
-
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const mode = url.searchParams.get("mode") === "metrics" ? "metrics" : "close";
@@ -64,12 +52,16 @@ export async function GET(req: Request) {
 
   // Metrics can lean on a longer cache; closes refresh a little more often.
   const revalidate = mode === "metrics" ? 6 * 3600 : 1800;
+  const user = await getSessionUser();
+  const real = await usesRealData(user?.id ?? null);
 
   const out: QuoteOut[] = await Promise.all(
     raw.map(async (ticker): Promise<QuoteOut> => {
       const stooq = mapToStooq(ticker);
       try {
-        const rows = await fetchDaily(stooq, revalidate);
+        // Real Alpaca bars from the user's own keys when connected; else Stooq.
+        const rows = await fetchDailyHistoryForUser(user?.id ?? null, ticker, 400, revalidate);
+        if (!rows || rows.length === 0) throw new Error("no data");
         const last = rows[rows.length - 1];
         const base: QuoteOut = { ticker, stooq, close: round(last.close, 4), date: last.date };
         if (mode === "metrics") {
@@ -92,8 +84,8 @@ export async function GET(req: Request) {
   return NextResponse.json({
     mode,
     quotes: out,
-    source: "Stooq (free, delayed EOD)",
-    note: "Delayed end-of-day data for a daily-cadence process; verify before acting. Unknown symbols stay blank.",
+    source: real ? "Alpaca IEX (real, your keys)" : "Stooq (free, delayed EOD)",
+    note: real ? "Real IEX daily bars via your connected keys." : "Delayed end-of-day data for a daily-cadence process; verify before acting. Unknown symbols stay blank.",
     fetchedAt: new Date().toISOString(),
   });
 }
