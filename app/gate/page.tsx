@@ -88,7 +88,7 @@ export default function GatePage() {
       <section className="mb-10 rounded-[26px] p-6 sm:p-9" style={{ background: stateMeta.bg }}>
         <div className="max-w-3xl">
           <stateMeta.Icon size={27} style={{ color: stateMeta.ink }} />
-          <h2 className="mt-5 font-display text-[2.4rem] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[3.5rem]">{stateMeta.answer}</h2>
+          <h2 className="mt-5 font-display text-[1.6rem] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[2.05rem]">{stateMeta.answer}</h2>
           <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">{stateMeta.copy}</p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button type="button" className="btn-primary" onClick={fetchLatest} disabled={fetching}><ArrowDownToLine size={16} />{fetching ? "Updating…" : "Update today's market checks"}</button>

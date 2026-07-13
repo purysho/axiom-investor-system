@@ -113,7 +113,7 @@ export default function PortfolioPage() {
       {state.holdings.length === 0 ? (
         <section className="rounded-[26px] bg-[#141B17] p-6 sm:p-9">
           <WalletCards size={25} className="text-[#456555]" />
-          <h2 className="mt-5 max-w-2xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.25rem]">Add the investments you actually plan to hold.</h2>
+          <h2 className="mt-5 max-w-2xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">Add the investments you actually plan to hold.</h2>
           <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Start with your long-term portfolio. You do not need every data point on day one. Ticker, shares and a rough role are enough to begin.</p>
           <button type="button" className="btn-primary mt-7" onClick={() => document.getElementById("add-holding")?.scrollIntoView({ behavior: "smooth" })}>Add my first holding <ArrowRight size={16} /></button>
         </section>
@@ -122,7 +122,7 @@ export default function PortfolioPage() {
           <section className="mb-10 grid gap-8 border-b border-[#27312B] pb-10 lg:grid-cols-[1.35fr_.65fr] lg:items-end">
             <div>
               <div className="page-kicker">Your portfolio in plain English</div>
-              <h2 className="mt-2 max-w-3xl font-display text-[2.4rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.5rem]">
+              <h2 className="mt-2 max-w-3xl font-display text-[1.6rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2.05rem]">
                 You own {state.holdings.length} holding{state.holdings.length === 1 ? "" : "s"} worth about {fmtUsd(ps.totalMarketValue)}.
               </h2>
               <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">

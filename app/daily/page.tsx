@@ -139,7 +139,7 @@ export default function DailyPage() {
 
       <section className="mx-auto max-w-3xl py-6 sm:py-10">
         <div className="text-sm font-semibold text-[#9a6b4b]">{spec.time} · {spec.title}</div>
-        <h2 className="mt-3 font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.25rem]">{copy.question}</h2>
+        <h2 className="mt-3 font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">{copy.question}</h2>
         <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">{copy.help}</p>
 
         {spec.id === "risk" && (

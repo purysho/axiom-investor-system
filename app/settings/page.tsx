@@ -47,7 +47,7 @@ export default function SettingsPage() {
     <div>
       <section className="mb-10 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
         <ShieldCheck size={25} className="text-[#456555]" />
-        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Set the few rules AXIOM needs to guide you.</h2>
+        <h2 className="mt-5 max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">Set the few rules AXIOM needs to guide you.</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">You can start with the defaults. The important thing is to use one consistent set of limits instead of changing risk because a trade feels exciting.</p>
       </section>
 
@@ -77,7 +77,7 @@ export default function SettingsPage() {
             <label className="field-label max-w-sm">Risk per trade (%)<input className="field mt-1.5" inputMode="decimal" value={s.riskPerTradePct} onChange={(e) => setSetting({ riskPerTradePct: num(e.target.value, s.riskPerTradePct) })} /></label>
             <div className="mt-5 rounded-[20px] bg-[#151B17] p-5">
               <div className="text-sm font-semibold text-[#9FB0A6]">With your current portfolio value</div>
-              <div className="mt-2 font-display text-[2.5rem] font-semibold tracking-[-0.04em]">1R = {fmtUsd(oneR)}</div>
+              <div className="mt-2 font-display text-[1.6rem] font-semibold tracking-[-0.04em]">1R = {fmtUsd(oneR)}</div>
               <p className="mt-2 text-sm leading-relaxed text-mut">A trade with an initial stop should be sized so the planned stop loss is around this amount before the single-position cap is applied.</p>
               <Link href="/gate" className="quiet-link mt-4">Try the position-size calculator <ArrowRight size={14} /></Link>
             </div>

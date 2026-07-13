@@ -97,7 +97,7 @@ export default function TodayPage() {
           <section className="mb-8 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
             <div className="max-w-2xl">
               <span className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#B4F03C] text-[#241C0E]"><Leaf size={21} /></span>
-              <h2 className="font-display text-[2.15rem] font-semibold leading-[1.05] tracking-[-0.04em] text-ink sm:text-[3rem]">Start with a routine, not a watchlist.</h2>
+              <h2 className="font-display text-[1.5rem] font-semibold leading-[1.05] tracking-[-0.04em] text-ink sm:text-[1.9rem]">Start with a routine, not a watchlist.</h2>
               <p className="mt-4 text-[16px] leading-relaxed text-[#607067]">Tell AXIOM about your portfolio and starting risk limits. From there, it guides you through a 15-minute daily check, a weekly portfolio review and a monthly learning loop.</p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link className="btn-primary" href="/settings">Set up AXIOM <ArrowRight size={16} /></Link>
@@ -125,7 +125,7 @@ export default function TodayPage() {
           <section className="mb-10 grid gap-7 border-b border-[#27312B] pb-10 lg:grid-cols-[1.45fr_.55fr] lg:items-end">
             <div>
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#9FB0A6]"><ShieldCheck size={17} /> Today's answer</div>
-              <h2 className="max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.06] tracking-[-0.04em] sm:text-[3.6rem]">{plainAction(action)}</h2>
+              <h2 className="max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.06] tracking-[-0.04em] sm:text-[2.05rem]">{plainAction(action)}</h2>
               <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">{because ? `Why: ${because}.` : "Complete today's check to see what your rules permit."}</p>
               <Link href={todaysCheck ? firstOpen.href : "/daily"} className="btn-primary mt-7">
                 {todaysCheck ? firstOpen.cta : "Start today's 15-minute check"} <ArrowRight size={16} />
@@ -160,7 +160,7 @@ export default function TodayPage() {
           <section className="mb-12">
             <div className="mb-6">
               <div className="page-kicker">Start here</div>
-              <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em] sm:text-[2.6rem]">Your next few steps</h2>
+              <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em] sm:text-[1.7rem]">Your next few steps</h2>
             </div>
             <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
               {steps.map(({ done, title, text, href, cta, Icon }, index) => (

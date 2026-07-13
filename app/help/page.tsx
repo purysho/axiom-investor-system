@@ -157,7 +157,7 @@ export default function HelpPage() {
     <div>
       <section className="mb-10 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
         <LifeBuoy size={25} className="text-[#456555]" />
-        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Help &amp; support</h2>
+        <h2 className="mt-5 max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">Help &amp; support</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Practical answers for using the software — connecting a broker, the bot, your account, and fixing data. Looking for the <em>investing</em> method instead? That lives in <Link href="/guides" className="quiet-link">Learn</Link>.</p>
 
         <div className="mt-6 flex max-w-lg items-center gap-2 rounded-[16px] bg-[#0E130F] px-4 py-3 ring-1 ring-[#27312B] focus-within:ring-[#B4F03C]">

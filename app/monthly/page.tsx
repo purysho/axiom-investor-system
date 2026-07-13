@@ -59,7 +59,7 @@ export default function MonthlyPage() {
     <div>
       <section className="mb-10 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
         <Sparkles size={25} className="text-[#456555]" />
-        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Did your process improve this month?</h2>
+        <h2 className="mt-5 max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">Did your process improve this month?</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Do this once at month-end. First compare results, then explain them, then look for repeated process problems. Change one rule only when the evidence deserves it.</p>
       </section>
 

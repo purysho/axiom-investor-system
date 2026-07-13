@@ -60,7 +60,7 @@ export default function GuidesPage() {
     <div>
       <section className="mb-12 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
         <Lightbulb size={25} className="text-[#456555]" />
-        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Learn the routine in the order you will use it.</h2>
+        <h2 className="mt-5 max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">Learn the routine in the order you will use it.</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">You do not need to become a market technician before using AXIOM. Read one lesson, use the related page, and let the repetition teach the method.</p>
       </section>
 

@@ -189,9 +189,9 @@ body {
   .mobile-link-active { color: rgb(var(--c-volt)); }
 
   /* ── Page scaffolding ──────────────────────────────────────────── */
-  .page-intro { @apply mb-8 border-b border-line pb-7; }
-  .page-intro h1 { @apply mt-1 font-display text-[2rem] font-semibold tracking-[-0.03em] sm:text-[2.5rem]; }
-  .page-intro p  { @apply mt-2 max-w-2xl text-[15px] leading-relaxed text-mut; }
+  .page-intro { @apply mb-6 border-b border-line pb-5; }
+  .page-intro h1 { @apply mt-1 font-display text-[1.5rem] font-semibold tracking-[-0.02em] sm:text-[1.85rem]; }
+  .page-intro p  { @apply mt-1.5 max-w-2xl text-[14px] leading-relaxed text-mut; }
   .page-kicker, .kicker {
     @apply text-[11px] font-bold uppercase tracking-[0.16em];
     color: rgb(var(--c-volt));

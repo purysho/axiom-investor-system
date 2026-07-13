@@ -138,7 +138,7 @@ export default function WatchlistPage() {
     <div>
       <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${locked ? "bg-[#241111]" : "bg-[#141B17]"}`}>
         {locked ? <LockKeyhole size={25} className="text-[#F4645C]" /> : <Lightbulb size={25} className="text-[#456555]" />}
-        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">
+        <h2 className="mt-5 max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">
           {locked ? "New trade ideas can wait today." : "Keep ideas here until the facts earn your attention."}
         </h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">

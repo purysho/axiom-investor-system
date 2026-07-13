@@ -145,7 +145,7 @@ export default function JournalPage() {
     <div>
       <section className={`mb-10 rounded-[26px] p-6 sm:p-9 ${reflectionDue.length ? "bg-[#241C0E]" : "bg-[#141B17]"}`}>
         {reflectionDue.length ? <CircleAlert size={25} className="text-[#F0B429]" /> : <BookOpenText size={25} className="text-[#456555]" />}
-        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">
+        <h2 className="mt-5 max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">
           {reflectionDue.length ? `${reflectionDue.length} closed trade${reflectionDue.length === 1 ? " still needs" : "s still need"} a reflection.` : closed.length ? "Your trade notes are up to date." : "The journal starts with a plan, not a result."}
         </h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">
