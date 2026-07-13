@@ -106,6 +106,8 @@ export default function BotPage() {
   const [btCooldown, setBtCooldown] = useState(0);
   const [btRunning, setBtRunning] = useState(false);
   const [bt, setBt] = useState<{ symbols: string[]; missing: string[]; benchmark: string; dataSource?: string; result: BacktestResult } | null>(null);
+  const [lastBtReq, setLastBtReq] = useState<unknown>(null);
+  const [reproing, setReproing] = useState(false);
 
   const [live, setLive] = useState<LiveAccount | null>(null);
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
@@ -210,6 +212,21 @@ export default function BotPage() {
     const symbols = override ?? (parseUniverse().length ? parseUniverse() : ideaSymbols);
     if (symbols.length === 0) { toast("Give the bot a universe first — or add tickers to Trade ideas.", "warning"); return; }
     setBtRunning(true);
+    const reqBody = {
+      symbols,
+      years: btYears,
+      benchmark: state.settings.benchmarkSymbol.replace(/\.us$/i, "").toUpperCase() || "SPY",
+      params: {
+        startingEquity: state.settings.portfolioValue,
+        riskPerTradePct: state.settings.riskPerTradePct,
+        notionalCapPct: state.settings.notionalCapPct,
+        heatCapPct: state.settings.heatCapPct,
+        maxConcurrent: 3,
+        perSymbolCooldownBars: btCooldown,
+        requireEntryConfirmation: status?.settings.requireEntryConfirmation ?? false,
+      },
+    };
+    setLastBtReq(reqBody);
     try {
       const res = await fetch("/api/backtest", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -251,6 +268,23 @@ export default function BotPage() {
       downloadText(`axiom-algorithm-report-${stamp}.json`, buildAlgorithmReportJson(input));
       toast("JSON report downloaded — the machine-readable twin of the Markdown report.");
     }
+  };
+
+  const downloadRepro = async () => {
+    if (!lastBtReq) return;
+    setReproing(true);
+    try {
+      const res = await fetch("/api/backtest/repro", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lastBtReq),
+      });
+      if (!res.ok) { const j = await res.json().catch(() => null); toast(j?.error ?? "Couldn't build the reproducible file.", "error"); return; }
+      const py = await res.text();
+      downloadText(`axiom_backtest_repro-${new Date().toISOString().slice(0, 10)}.py`, py);
+      toast("Reproducible .py downloaded — run it (python3 file.py) or hand it to any AI to reproduce the numbers.");
+    } catch {
+      toast("Couldn't reach the server.", "error");
+    } finally { setReproing(false); }
   };
 
   const enabled = status?.settings.enabled ?? false;
@@ -563,15 +597,19 @@ export default function BotPage() {
             {/* Export for a second opinion from any AI */}
             <div className="flex flex-col gap-2 rounded-lg border border-dashed border-line bg-panel px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-xs leading-relaxed text-mut">
-                <span className="font-semibold text-ink">Want a second opinion?</span> Download a self-contained report — the exact
-                algorithm plus these {btYears}-year results — and hand it to ChatGPT, Gemini, or any AI to critique.
+                <span className="font-semibold text-ink">Hand it to a series of AIs.</span> The <strong>.md/.json</strong> report is
+                for critique. The <strong>.py</strong> is self-contained (rules + this exact data embedded) — any AI with a code
+                sandbox runs it to <span className="text-ink">reproduce</span> the numbers, not just opine.
               </div>
-              <div className="flex shrink-0 gap-2">
+              <div className="flex shrink-0 flex-wrap gap-2">
                 <button type="button" className="btn" onClick={() => exportReport("md")}>
                   <FileDown size={14} /> Report (.md)
                 </button>
                 <button type="button" className="btn" onClick={() => exportReport("json")}>
                   <FileDown size={14} /> .json
+                </button>
+                <button type="button" className="btn-primary" onClick={() => void downloadRepro()} disabled={reproing || !lastBtReq} title="Self-contained runnable Python: python3 file.py reproduces these exact results.">
+                  <FileDown size={14} /> {reproing ? "Building…" : "Reproducible .py"}
                 </button>
               </div>
             </div>

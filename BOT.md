@@ -120,16 +120,26 @@ to the bot's settings and is passed straight into the backtest, so both replay a
 live use one rule. It only ever filters signals; it never creates them. Treat it as
 a hypothesis to test on real data, not a guaranteed improvement.
 
-### Export for a second opinion
+### Export for a second opinion — evaluate OR reproduce
 
-After a backtest, **Report (.md)** / **.json** download a single self-contained
-document (`lib/engine/algo-report.ts`): the exact algorithm — every entry rule,
-the sizing formula, the exits, the risk layers — followed by the run's config
-and results (metrics, sampled equity curve, trade table), plus a framing that
-asks an external reviewer to be skeptical and hunt for overfitting. Hand it to
-any other AI (ChatGPT, Gemini, Claude) or a human to get an independent read on
-what AXIOM actually does and how it performed. It carries every caveat; it makes
-no forward-looking claim.
+After a backtest, three exports (all built from the same run):
+
+- **Report (.md)** / **.json** (`lib/engine/algo-report.ts`) — the exact
+  algorithm, config, and results with a "be skeptical, hunt for overfitting"
+  framing. For an AI (or human) to **evaluate**.
+- **Reproducible .py** (`lib/engine/algo-repro.ts`, `/api/backtest/repro`) — a
+  single self-contained pure-Python file: a faithful port of the strategy and
+  backtester with **this run's exact OHLC data embedded**. `python3 file.py`
+  reproduces the numbers with zero dependencies and no network. Hand it to a
+  series of AIs with a code sandbox to **reproduce** (not just opine on) the
+  results — which is what an external audit actually needs (the strategy code
+  and the data). The port is validated against the canonical TS engine
+  trade-for-trade by `tests/repro.test.ts` (runs wherever python3 exists), so
+  "reproduce what you backtest" holds the same way "backtest what you trade"
+  does. The **Broad universe (20)** button gives it a statistically meaningful
+  sample to reproduce.
+
+Everything carries every caveat and makes no forward-looking claim.
 
 ## The path to live
 
