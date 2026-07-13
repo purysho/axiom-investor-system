@@ -46,6 +46,10 @@ export class AlpacaDataProvider implements MarketDataProvider {
   readonly id = "alpaca-data";
   readonly label = "Alpaca IEX daily bars (real, split/dividend-adjusted)";
 
+  /** Explicit creds (e.g. a signed-in user's connected keys) override the
+   *  deployment-level env keys. Null/omitted falls back to env. */
+  constructor(private readonly overrideCreds?: AlpacaDataCreds | null) {}
+
   supports(assetClass: MarketAssetClass): boolean {
     // US equities, ETFs, and US-listed bond ETFs (TLT, AGG…) are all just
     // stock symbols to Alpaca. FX, spot metals, and crypto go elsewhere.
@@ -53,7 +57,7 @@ export class AlpacaDataProvider implements MarketDataProvider {
   }
 
   async getDailyHistory(symbol: string, bars: number, revalidateSeconds = 1800): Promise<DailyRow[] | null> {
-    const creds = alpacaDataCreds();
+    const creds = this.overrideCreds ?? alpacaDataCreds();
     if (!creds) return null;
 
     const end = new Date();

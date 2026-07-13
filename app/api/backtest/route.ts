@@ -4,7 +4,11 @@ import { WARMUP_BARS, type DailyRow } from "@/lib/engine/quotes";
 import { DEFAULT_BACKTEST_PARAMS, runBacktest, type BacktestParams } from "@/lib/engine/backtest";
 import type { StrategyId } from "@/lib/engine/strategy";
 import { fetchDailyHistory } from "@/lib/server/history";
-import { listProviders } from "@/lib/market-data";
+import { listProviders, resolveHistory, type MarketDataProvider } from "@/lib/market-data";
+import { AlpacaDataProvider } from "@/lib/market-data/alpaca";
+import { StooqProvider } from "@/lib/market-data/stooq";
+import { getSessionUser } from "@/lib/server/auth";
+import { getAlpacaDataCreds } from "@/lib/server/broker-store";
 
 export const dynamic = "force-dynamic";
 
@@ -59,9 +63,20 @@ export async function POST(req: Request) {
       ? body.benchmark.trim().toUpperCase()
       : "SPY";
 
+  // Prefer the signed-in user's own connected Alpaca keys for REAL bars, so
+  // real backtests work without a deployment-level data key. Falls back to the
+  // shared registry (env Alpaca key, else Stooq) when they haven't connected.
+  const user = await getSessionUser();
+  const userCreds = user ? await getAlpacaDataCreds(user.id) : null;
+  const providers: MarketDataProvider[] | null = userCreds
+    ? [new AlpacaDataProvider(userCreds), new StooqProvider()]
+    : null;
+  const getHistory = (s: string) =>
+    providers ? resolveHistory(providers, s, bars, 6 * 3600) : fetchDailyHistory(s, bars, 6 * 3600);
+
   const [histories, benchmarkRows] = await Promise.all([
-    Promise.all(symbols.map(async (s) => ({ symbol: s, rows: await fetchDailyHistory(s, bars, 6 * 3600) }))),
-    fetchDailyHistory(benchmarkSymbol, bars, 6 * 3600),
+    Promise.all(symbols.map(async (s) => ({ symbol: s, rows: await getHistory(s) }))),
+    getHistory(benchmarkSymbol),
   ]);
 
   const series: Record<string, DailyRow[]> = {};
@@ -74,7 +89,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `No history found for ${symbols.join(", ")} — check the tickers.` }, { status: 502 });
 
   const result = runBacktest(series, params, benchmarkRows);
-  const dataSource = listProviders()[0]?.label ?? "delayed end-of-day daily bars";
+  const dataSource = providers
+    ? "Alpaca IEX daily bars (real, via your connected keys)"
+    : listProviders()[0]?.label ?? "delayed end-of-day daily bars";
 
   return NextResponse.json({
     ok: true,

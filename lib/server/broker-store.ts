@@ -90,6 +90,26 @@ export async function getBroker(userId: string): Promise<Broker | null> {
   return new AlpacaBroker(keyId, secret, mode);
 }
 
+/**
+ * The user's decrypted Alpaca key pair, for READ-ONLY market data (any Alpaca
+ * key — paper or live — can read the data API). Returns null unless they have
+ * an Alpaca connection. Used so signed-in users get real bars in backtests
+ * without a separate data key or a redeploy.
+ */
+export async function getAlpacaDataCreds(userId: string): Promise<{ id: string; secret: string } | null> {
+  const c = await db();
+  const r = (await c.execute({
+    sql: "SELECT broker, broker_key_id, broker_secret FROM users WHERE id = ?",
+    args: [userId],
+  })).rows[0];
+  if (!r || String(r.broker) !== "alpaca" || !r.broker_key_id || !r.broker_secret) return null;
+  try {
+    return { id: decryptSecret(String(r.broker_key_id)), secret: decryptSecret(String(r.broker_secret)) };
+  } catch {
+    return null;
+  }
+}
+
 export async function ordersToday(userId: string): Promise<number> {
   const c = await db();
   const since = new Date(); since.setUTCHours(0, 0, 0, 0);
