@@ -53,7 +53,7 @@ export function TickerTape() {
   return (
     <Link
       href="/terminal"
-      className="ticker-strip group block border-b border-line bg-[#0A0D0B]"
+      className="ticker-strip group block border-b border-line bg-bg"
       aria-label="Live market ticker — open the terminal"
     >
       <div className="ticker-track py-1.5">

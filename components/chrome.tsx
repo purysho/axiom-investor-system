@@ -12,6 +12,7 @@ import {
 import { SyncBadge } from "@/components/sync";
 import { AxiomMark } from "@/components/logo";
 import { TickerTape } from "@/components/ticker-tape";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type NavItem = { href: string; label: string; key: string; Icon: LucideIcon };
 
@@ -130,9 +131,13 @@ export function Nav() {
                 ))}
               </div>
             </details>
+            <span className="ml-1"><ThemeToggle /></span>
           </nav>
 
-          <Link href="/settings" className="md:hidden" aria-label="Settings"><Settings size={20} /></Link>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <Link href="/settings" aria-label="Settings"><Settings size={20} /></Link>
+          </div>
         </div>
       </header>
 

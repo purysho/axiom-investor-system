@@ -3,9 +3,34 @@
 @tailwind utilities;
 
 :root {
+  /* Default theme — green terminal. RGB triples for rgb(var(--x) / a). */
+  --c-bg: 8 10 9;
+  --c-panel: 16 21 18;
+  --c-panel2: 23 29 25;
+  --c-line: 42 52 45;
+  --c-ink: 239 246 241;
+  --c-mut: 155 172 162;
+  --c-faint: 99 115 106;
+  --c-volt: 180 240 60;
+  --glow: rgba(180, 240, 60, 0.045);
+
   --gate:    #93A39A;   /* set per state on pages that show it */
   --gate-bg: #121714;
   --volt:    #B4F03C;
+}
+
+/* Bloomberg amber — warm near-black, amber ink and accent. P&L stays green/red. */
+:root[data-theme="amber"] {
+  --c-bg: 10 8 5;
+  --c-panel: 23 17 10;
+  --c-panel2: 31 23 14;
+  --c-line: 58 46 27;
+  --c-ink: 246 226 194;
+  --c-mut: 201 168 118;
+  --c-faint: 138 115 78;
+  --c-volt: 255 176 32;
+  --glow: rgba(255, 176, 32, 0.05);
+  --volt: #FFB020;
 }
 
 html { color-scheme: dark; scroll-behavior: smooth; }
@@ -15,9 +40,9 @@ body {
   font-size: 14px;
   line-height: 1.5;
   /* Flat terminal surface with a faint top-corner glow and a hairline grid wash. */
-  background-color: #080A09;
+  background-color: rgb(var(--c-bg));
   background-image:
-    radial-gradient(900px 380px at 88% -12%, rgba(180,240,60,0.045), transparent 62%),
+    radial-gradient(900px 380px at 88% -12%, var(--glow), transparent 62%),
     linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
   background-size: 100% 100%, 44px 44px, 44px 44px;
@@ -135,7 +160,7 @@ body {
 
   .site-header {
     @apply sticky top-0 z-40 border-b border-line;
-    background: rgba(11, 15, 13, 0.86);
+    background: rgb(var(--c-bg) / 0.86);
     backdrop-filter: blur(10px);
   }
   .site-header-inner { @apply mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 md:px-8; }
@@ -148,7 +173,7 @@ body {
     @apply inline-flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 text-[13px] font-medium
            text-mut transition-colors hover:bg-panel2 hover:text-ink;
   }
-  .top-link-active { @apply text-ink; background: rgba(180, 240, 60, 0.10); color: #B4F03C; box-shadow: inset 0 -2px 0 #B4F03C; border-radius: 4px; }
+  .top-link-active { background: rgb(var(--c-volt) / 0.10); color: rgb(var(--c-volt)); box-shadow: inset 0 -2px 0 rgb(var(--c-volt)); border-radius: 4px; }
 
   .more-menu {
     @apply absolute right-0 top-[calc(100%+8px)] z-50 min-w-52 rounded-lg border border-line
@@ -157,11 +182,11 @@ body {
 
   .mobile-nav {
     @apply fixed inset-x-0 bottom-0 z-40 flex border-t border-line;
-    background: rgba(11, 15, 13, 0.94);
+    background: rgb(var(--c-bg) / 0.94);
     backdrop-filter: blur(10px);
   }
   .mobile-link { @apply flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium text-faint transition-colors; }
-  .mobile-link-active { color: #B4F03C; }
+  .mobile-link-active { color: rgb(var(--c-volt)); }
 
   /* ── Page scaffolding ──────────────────────────────────────────── */
   .page-intro { @apply mb-8 border-b border-line pb-7; }
@@ -169,7 +194,7 @@ body {
   .page-intro p  { @apply mt-2 max-w-2xl text-[15px] leading-relaxed text-mut; }
   .page-kicker, .kicker {
     @apply text-[11px] font-bold uppercase tracking-[0.16em];
-    color: #B4F03C;
+    color: rgb(var(--c-volt));
   }
 
   .quiet-link {
@@ -178,7 +203,7 @@ body {
     text-decoration-color: #3A453E;
     text-underline-offset: 4px;
   }
-  .quiet-link:hover { text-decoration-color: #B4F03C; }
+  .quiet-link:hover { text-decoration-color: rgb(var(--c-volt)); }
 
   .site-footer { @apply mt-14 border-t border-line pb-24 pt-6 text-xs leading-relaxed text-faint md:pb-10; }
 }

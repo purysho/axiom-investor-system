@@ -21,6 +21,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       {/* Fonts are self-hosted (app/fonts.css + public/fonts) — no third-party
           requests, no Google Fonts dependency, and the CSP can stay 'self'. */}
       <body>
+        {/* Apply the saved terminal theme before paint to avoid a flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('axiom-theme')==='amber')document.documentElement.setAttribute('data-theme','amber');}catch(e){}`,
+          }}
+        />
         <Nav />
         <SyncBoot />
         <div className="site-shell">

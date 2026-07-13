@@ -5,15 +5,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Broker terminal: cooler near-black surfaces, hairline grid, volt accent.
-        bg:      "#080A09",
-        panel:   "#101512",
-        panel2:  "#171D19",
-        line:    "#2A342D",
-        ink:     "#EFF6F1",
-        mut:     "#9BACA2",
-        faint:   "#63736A",
-        volt:    "#B4F03C",
+        // Themeable via CSS vars (see globals.css :root and [data-theme]).
+        // Default = green terminal; [data-theme="amber"] = Bloomberg amber.
+        // Space-separated RGB triples so Tailwind's <alpha-value> keeps working.
+        bg:      "rgb(var(--c-bg) / <alpha-value>)",
+        panel:   "rgb(var(--c-panel) / <alpha-value>)",
+        panel2:  "rgb(var(--c-panel2) / <alpha-value>)",
+        line:    "rgb(var(--c-line) / <alpha-value>)",
+        ink:     "rgb(var(--c-ink) / <alpha-value>)",
+        mut:     "rgb(var(--c-mut) / <alpha-value>)",
+        faint:   "rgb(var(--c-faint) / <alpha-value>)",
+        volt:    "rgb(var(--c-volt) / <alpha-value>)",
         allowed: "#34D399",
         reduced: "#F0B429",
         closed:  "#F4645C",
