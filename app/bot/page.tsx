@@ -17,7 +17,7 @@ import type { AccountSummary } from "@/lib/broker/account-summary";
 import type { BrokerPosition, MarketClock } from "@/lib/broker/types";
 
 /* API payload shapes (server types stay server-side; these mirror them). */
-interface BotSettings { enabled: boolean; universe: string[]; maxOrdersPerRun: number }
+interface BotSettings { enabled: boolean; universe: string[]; maxOrdersPerRun: number; requireEntryConfirmation: boolean }
 interface BotCheck { name: string; ok: boolean; note: string }
 interface BotOrderReport { symbol: string; qty: number; entry: number; stop: number; takeProfit: number | null; clientOrderId: string; status: string; note: string }
 interface BotRunReport {
@@ -213,6 +213,7 @@ export default function BotPage() {
             heatCapPct: state.settings.heatCapPct,
             maxConcurrent: 3,
             perSymbolCooldownBars: btCooldown,
+            requireEntryConfirmation: status?.settings.requireEntryConfirmation ?? false,
           },
         }),
       });
@@ -328,6 +329,14 @@ export default function BotPage() {
                   >
                     <option value={1}>1</option><option value={2}>2</option><option value={3}>3</option>
                   </select>
+                </label>
+                <label className="flex items-center gap-2" title="Enter only on a bullish confirmation bar. The backtest and the live bot apply the identical rule.">
+                  <input
+                    type="checkbox"
+                    checked={status.settings.requireEntryConfirmation}
+                    onChange={(e) => void saveSettings({ requireEntryConfirmation: e.target.checked })}
+                  />
+                  Require entry confirmation
                 </label>
                 <span>
                   Schedule: {status.cronConfigured

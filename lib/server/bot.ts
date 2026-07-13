@@ -38,9 +38,12 @@ export interface BotSettings {
   enabled: boolean;
   universe: string[];
   maxOrdersPerRun: number;
+  /** Require same-bar entry confirmation — kept in sync with the backtest so
+   *  the live bot trades exactly what a confirmation-on backtest replayed. */
+  requireEntryConfirmation: boolean;
 }
 
-export const DEFAULT_BOT_SETTINGS: BotSettings = { enabled: false, universe: [], maxOrdersPerRun: 1 };
+export const DEFAULT_BOT_SETTINGS: BotSettings = { enabled: false, universe: [], maxOrdersPerRun: 1, requireEntryConfirmation: false };
 
 export interface BotCheck { name: string; ok: boolean; note: string }
 export interface BotOrderReport {
@@ -59,7 +62,7 @@ const SYMBOL_RE = /^[A-Za-z0-9.^-]{1,12}$/;
 
 export async function getBotSettings(userId: string): Promise<BotSettings> {
   const c = await db();
-  const r = (await c.execute({ sql: "SELECT enabled, universe, max_orders_per_run FROM bot_settings WHERE user_id = ?", args: [userId] })).rows[0];
+  const r = (await c.execute({ sql: "SELECT enabled, universe, max_orders_per_run, require_entry_confirmation FROM bot_settings WHERE user_id = ?", args: [userId] })).rows[0];
   if (!r) return { ...DEFAULT_BOT_SETTINGS };
   let universe: string[] = [];
   try { universe = (JSON.parse(String(r.universe)) as unknown[]).filter((s): s is string => typeof s === "string" && SYMBOL_RE.test(s)); } catch { /* reset below */ }
@@ -67,6 +70,7 @@ export async function getBotSettings(userId: string): Promise<BotSettings> {
     enabled: Number(r.enabled) === 1,
     universe,
     maxOrdersPerRun: Math.max(1, Math.min(3, Number(r.max_orders_per_run) || 1)),
+    requireEntryConfirmation: Number(r.require_entry_confirmation) === 1,
   };
 }
 
@@ -74,11 +78,11 @@ export async function saveBotSettings(userId: string, s: BotSettings): Promise<v
   const c = await db();
   const now = new Date().toISOString();
   await c.execute({
-    sql: `INSERT INTO bot_settings (user_id, enabled, universe, max_orders_per_run, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?)
+    sql: `INSERT INTO bot_settings (user_id, enabled, universe, max_orders_per_run, require_entry_confirmation, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(user_id) DO UPDATE SET enabled = excluded.enabled, universe = excluded.universe,
-            max_orders_per_run = excluded.max_orders_per_run, updated_at = excluded.updated_at`,
-    args: [userId, s.enabled ? 1 : 0, JSON.stringify(s.universe.slice(0, 8)), s.maxOrdersPerRun, now, now],
+            max_orders_per_run = excluded.max_orders_per_run, require_entry_confirmation = excluded.require_entry_confirmation, updated_at = excluded.updated_at`,
+    args: [userId, s.enabled ? 1 : 0, JSON.stringify(s.universe.slice(0, 8)), s.maxOrdersPerRun, s.requireEntryConfirmation ? 1 : 0, now, now],
   });
 }
 
@@ -251,7 +255,7 @@ export async function runBotForUser(userId: string, source: "manual" | "cron", d
     const candidates: Recommendation[] = [];
     for (const h of histories) {
       if (!h.rows || h.rows.length < 30) { report.signals.push({ symbol: h.symbol, strategy: "—", entry: 0, stop: 0, note: "no data" }); continue; }
-      const sig = latestSignal(h.symbol, h.rows);
+      const sig = latestSignal(h.symbol, h.rows, undefined, { confirm: settings.requireEntryConfirmation });
       if (!sig) continue;
       report.signals.push({ symbol: sig.symbol, strategy: sig.strategy, entry: sig.entry, stop: sig.stop, note: "signal" });
       candidates.push({

@@ -71,4 +71,26 @@ describe("signalAt", () => {
   it("latestSignal needs at least 30 bars", () => {
     expect(latestSignal("X", rows.slice(0, 20))).toBeNull();
   });
+
+  it("entry confirmation only filters — never invents — signals, and blocks bearish signal bars", () => {
+    let baseline = 0;
+    let confirmed = 0;
+    let everBlockedBearish = false;
+    for (let i = FIRST_TRADABLE_BAR; i < rows.length; i++) {
+      const base = signalAt("T", rows, ind, i);
+      const conf = signalAt("T", rows, ind, i, undefined, { confirm: true });
+      if (base) baseline++;
+      if (conf) {
+        confirmed++;
+        // A confirmed signal must be on a bullish bar (close > open).
+        expect(rows[i].close).toBeGreaterThan(rows[i].open);
+      }
+      // Confirmation can only ever be a subset of the baseline signals.
+      if (conf) expect(base).not.toBeNull();
+      if (base && !conf) everBlockedBearish = true;
+    }
+    expect(baseline).toBeGreaterThan(0);
+    expect(confirmed).toBeLessThanOrEqual(baseline);
+    expect(everBlockedBearish).toBe(true); // at least one bearish signal bar was filtered out
+  });
 });

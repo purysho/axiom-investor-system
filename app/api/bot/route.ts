@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  let b: { enabled?: unknown; universe?: unknown; maxOrdersPerRun?: unknown };
+  let b: { enabled?: unknown; universe?: unknown; maxOrdersPerRun?: unknown; requireEntryConfirmation?: unknown };
   try { b = await req.json(); } catch { return NextResponse.json({ error: "Invalid request." }, { status: 400 }); }
 
   const current = await getBotSettings(user.id);
@@ -49,6 +49,9 @@ export async function POST(req: Request) {
   if (b.maxOrdersPerRun !== undefined) {
     const n = Number(b.maxOrdersPerRun);
     next.maxOrdersPerRun = Number.isFinite(n) ? Math.max(1, Math.min(3, Math.round(n))) : current.maxOrdersPerRun;
+  }
+  if (b.requireEntryConfirmation !== undefined) {
+    next.requireEntryConfirmation = Boolean(b.requireEntryConfirmation);
   }
   if (b.enabled !== undefined) {
     const wantOn = Boolean(b.enabled);

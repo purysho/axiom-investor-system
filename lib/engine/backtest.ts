@@ -39,6 +39,12 @@ export interface BacktestParams {
    * 0 = off (default), which leaves historical results unchanged.
    */
   perSymbolCooldownBars: number;
+  /**
+   * Require same-bar entry confirmation (bullish close in the upper half of the
+   * range). Applied via the shared signalAt, so enabling it here and on the bot
+   * keeps "backtest what you trade" true. Off by default.
+   */
+  requireEntryConfirmation: boolean;
 }
 
 export const DEFAULT_BACKTEST_PARAMS: BacktestParams = {
@@ -52,6 +58,7 @@ export const DEFAULT_BACKTEST_PARAMS: BacktestParams = {
   strategies: ["trend-pullback", "mean-reversion"],
   benchmarkFilter: true,
   perSymbolCooldownBars: 0,
+  requireEntryConfirmation: false,
 };
 
 export type ExitReason = "stop" | "target" | "time" | "end";
@@ -249,7 +256,7 @@ export function runBacktest(
         const stoppedAt = lastStopIndex.get(symbol);
         if (stoppedAt !== undefined && idx - stoppedAt < p.perSymbolCooldownBars) { skipped.cooldown++; continue; }
       }
-      const sig = signalAt(symbol, series[symbol], indicators.get(symbol)!, idx, p.strategies);
+      const sig = signalAt(symbol, series[symbol], indicators.get(symbol)!, idx, p.strategies, { confirm: p.requireEntryConfirmation });
       if (!sig) continue;
       if (benchAbove && benchAbove.get(date) !== true) { skipped.benchmark++; continue; }
       pending.set(symbol, { signal: sig, signalDate: date, fillIndex: idx + 1 });

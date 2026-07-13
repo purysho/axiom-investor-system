@@ -117,10 +117,13 @@ async function migrate(c: Client) {
       enabled INTEGER NOT NULL DEFAULT 0,
       universe TEXT NOT NULL DEFAULT '[]',
       max_orders_per_run INTEGER NOT NULL DEFAULT 1,
+      require_entry_confirmation INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )`,
   );
+  // Idempotent column add for databases created before entry confirmation.
+  try { await c.execute("ALTER TABLE bot_settings ADD COLUMN require_entry_confirmation INTEGER NOT NULL DEFAULT 0"); } catch { /* exists */ }
 
   // Every bot run is logged whether or not it traded — the "why it did nothing"
   // record matters as much as the orders.

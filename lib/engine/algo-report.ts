@@ -178,6 +178,7 @@ ${algorithmSpecMarkdown()}
 | Strategies enabled | ${p.strategies.join(", ")} |
 | Benchmark-trend filter | ${p.benchmarkFilter ? "on (only enter while benchmark > its 200-day)" : "off"} |
 | Per-symbol re-entry cooldown | ${p.perSymbolCooldownBars > 0 ? `${p.perSymbolCooldownBars} bars after a stop-out` : "off"} |
+| Entry confirmation | ${p.requireEntryConfirmation ? "on (bullish close in upper half of range)" : "off"} |
 
 **Fill assumptions (deliberately pessimistic):** signals fill at the *next* bar's
 open; a bar touching both stop and target counts as a **stop**; gaps fill at the

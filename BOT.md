@@ -106,6 +106,20 @@ range — not the requested window, and refuses to annualize a window under ~10
 months. If a symbol has less history than the requested years, the report says
 so rather than overstating the period.
 
+**Real data via your own keys.** A signed-in user who has connected an Alpaca
+account (paper keys are fine — the data API reads with any Alpaca key) gets real
+split/dividend-adjusted IEX bars in backtests automatically, no deployment key or
+redeploy needed. Without a connection it falls back to the deployment key, then
+Stooq.
+
+**Entry confirmation** (optional, off by default) lives in the shared strategy
+engine (`signalAt`), so enabling it applies the *same* same-bar filter — a bullish
+close in the upper half of the range — to both the backtest and the live bot. That
+preserves "backtest what you trade": the confirmation toggle on the bot page saves
+to the bot's settings and is passed straight into the backtest, so both replay and
+live use one rule. It only ever filters signals; it never creates them. Treat it as
+a hypothesis to test on real data, not a guaranteed improvement.
+
 ### Export for a second opinion
 
 After a backtest, **Report (.md)** / **.json** download a single self-contained

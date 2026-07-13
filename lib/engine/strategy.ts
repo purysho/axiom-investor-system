@@ -122,12 +122,24 @@ export function computeIndicators(rows: DailyRow[]): IndicatorSeries {
  * Rule 2 — Mean reversion: still above the 200-day SMA but RSI washed out
  * below 32. Wider 2.5×ATR stop, humbler 1.5R target.
  */
+export interface SignalOptions {
+  /**
+   * Require the signal bar to confirm a turn back up — a bullish close (close
+   * above open) in the upper half of the bar's range — so entries skip setups
+   * where price is still falling into the signal. Same-bar and deterministic,
+   * so the backtest and the live bot apply the identical rule (both call this
+   * function). Off by default; the caller opts in.
+   */
+  confirm?: boolean;
+}
+
 export function signalAt(
   symbol: string,
   rows: DailyRow[],
   ind: IndicatorSeries,
   i: number,
   enabled: StrategyId[] = ["trend-pullback", "mean-reversion"],
+  opts: SignalOptions = {},
 ): StrategySignal | null {
   if (i < 0 || i >= rows.length) return null;
   const close = rows[i].close;
@@ -135,6 +147,12 @@ export function signalAt(
   const sma200 = ind.sma200[i];
   const rsi14 = ind.rsi14[i];
   const atr = ind.atr14[i] ?? close * 0.02;
+
+  // Same-bar entry confirmation (optional): bullish close in the upper half.
+  const bar = rows[i];
+  const range = bar.high - bar.low;
+  const confirmed = bar.close > bar.open && (range <= 0 || (bar.close - bar.low) >= 0.5 * range);
+  if (opts.confirm && !confirmed) return null;
 
   if (
     enabled.includes("trend-pullback") &&
@@ -192,9 +210,10 @@ export function latestSignal(
   symbol: string,
   rows: DailyRow[],
   enabled?: StrategyId[],
+  opts?: SignalOptions,
 ): StrategySignal | null {
   if (rows.length < 30) return null;
-  return signalAt(symbol, rows, computeIndicators(rows), rows.length - 1, enabled);
+  return signalAt(symbol, rows, computeIndicators(rows), rows.length - 1, enabled, opts);
 }
 
 /**
