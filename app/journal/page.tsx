@@ -250,6 +250,42 @@ export default function JournalPage() {
         {closed.length === 0 ? (
           <div className="border-y border-[#27312B] py-8"><Sparkles size={22} className="text-[#a16b4c]" /><h3 className="mt-4 font-display text-[1.8rem] font-semibold tracking-[-0.03em]">Your evidence will build one trade at a time.</h3><p className="mt-2 max-w-2xl text-sm leading-relaxed text-mut">The first goal is not a high win rate. It is a clean record of plans, outcomes and rule adherence.</p></div>
         ) : (
+          <>
+          {/* Dense blotter — the scannable record */}
+          <div className="mb-6 overflow-x-auto border border-line bg-panel">
+            <table className="w-full font-mono text-[11px] tnum">
+              <thead>
+                <tr className="border-b border-line text-faint">
+                  <th className="px-3 py-1.5 text-left font-normal">Ticker</th>
+                  <th className="px-2 py-1.5 text-left font-normal">Result</th>
+                  <th className="px-2 py-1.5 text-left font-normal">Entry</th>
+                  <th className="px-2 py-1.5 text-left font-normal">Exit</th>
+                  <th className="px-2 py-1.5 text-left font-normal">Reason</th>
+                  <th className="px-2 py-1.5 text-right font-normal">R</th>
+                  <th className="px-3 py-1.5 text-right font-normal">Net P&L</th>
+                </tr>
+              </thead>
+              <tbody>
+                {closed.map((t) => {
+                  const r = rMultiple(t);
+                  const n = netPnl(t);
+                  const d = tradeDiagnosis(t);
+                  return (
+                    <tr key={t.id} className="border-b border-line/60 last:border-0 hover:bg-panel2">
+                      <td className="px-3 py-1.5 text-ink">{t.ticker}</td>
+                      <td className="px-2 py-1.5"><span style={{ color: d.ink }}>{d.short}</span></td>
+                      <td className="px-2 py-1.5 text-faint">{t.entryDate || "—"}</td>
+                      <td className="px-2 py-1.5 text-faint">{t.exitDate || "—"}</td>
+                      <td className="px-2 py-1.5 text-mut">{t.exitReason || "—"}</td>
+                      <td className="px-2 py-1.5 text-right" style={{ color: r != null && r >= 0 ? "#34D399" : "#F4645C" }}>{fmtR(r)}</td>
+                      <td className="px-3 py-1.5 text-right" style={{ color: n != null && n >= 0 ? "#34D399" : "#F4645C" }}>{fmtUsd(n)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
           <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
             {closed.map((t) => {
               const diagnosis = tradeDiagnosis(t);
@@ -278,6 +314,7 @@ export default function JournalPage() {
               );
             })}
           </div>
+          </>
         )}
       </section>
 

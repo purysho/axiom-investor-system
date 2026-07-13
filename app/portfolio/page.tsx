@@ -195,6 +195,58 @@ export default function PortfolioPage() {
             <div><div className="page-kicker">What you own</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Holdings</h2></div>
             <div className="text-sm text-mut">Click a holding to review or edit it.</div>
           </div>
+
+          {/* Dense positions table — the scannable terminal view */}
+          <div className="mb-6 overflow-x-auto border border-line bg-panel">
+            <table className="w-full font-mono text-[11px] tnum">
+              <thead>
+                <tr className="border-b border-line text-faint">
+                  <th className="px-3 py-1.5 text-left font-normal">Ticker</th>
+                  <th className="px-2 py-1.5 text-left font-normal">Sleeve</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Shares</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Price</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Mkt Value</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Weight</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Target</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Drift</th>
+                  <th className="px-3 py-1.5 text-right font-normal">Unreal P&L</th>
+                </tr>
+              </thead>
+              <tbody>
+                {state.holdings.map((h) => {
+                  const row = ps.rows.find((r) => r.id === h.id);
+                  const drift = row?.driftPct ?? null;
+                  const pl = h.price != null && h.costBasis != null && h.shares != null ? (h.price - h.costBasis) * h.shares : null;
+                  const plPct = h.price != null && h.costBasis != null && h.costBasis !== 0 ? ((h.price - h.costBasis) / h.costBasis) * 100 : null;
+                  return (
+                    <tr key={h.id} className="border-b border-line/60 last:border-0 hover:bg-panel2">
+                      <td className="px-3 py-1.5 text-ink">{h.ticker}</td>
+                      <td className="px-2 py-1.5 text-faint">{h.sleeve}</td>
+                      <td className="px-2 py-1.5 text-right text-mut">{h.shares ?? "—"}</td>
+                      <td className="px-2 py-1.5 text-right text-mut">{h.price != null ? fmtUsd(h.price) : "—"}</td>
+                      <td className="px-2 py-1.5 text-right text-ink">{fmtUsd(row?.marketValue ?? null)}</td>
+                      <td className="px-2 py-1.5 text-right text-mut">{fmtPct(row?.weightPct ?? null)}</td>
+                      <td className="px-2 py-1.5 text-right text-faint">{h.targetWeightPct != null ? fmtPct(h.targetWeightPct) : "—"}</td>
+                      <td className="px-2 py-1.5 text-right" style={{ color: drift == null ? "#9BACA2" : Math.abs(drift) > 5 ? "#F0B429" : "#63736A" }}>
+                        {drift == null ? "—" : `${drift >= 0 ? "+" : "−"}${Math.abs(drift).toFixed(1)}%`}
+                      </td>
+                      <td className="px-3 py-1.5 text-right" style={{ color: pl == null ? "#9BACA2" : pl >= 0 ? "#34D399" : "#F4645C" }}>
+                        {pl == null ? "—" : `${pl >= 0 ? "+" : "−"}${fmtUsd(Math.abs(pl)).replace("$", "$")}${plPct != null ? ` (${plPct >= 0 ? "+" : "−"}${Math.abs(plPct).toFixed(1)}%)` : ""}`}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="border-t border-line text-ink">
+                  <td className="px-3 py-1.5 font-semibold" colSpan={4}>TOTAL</td>
+                  <td className="px-2 py-1.5 text-right font-semibold">{fmtUsd(ps.totalMarketValue)}</td>
+                  <td className="px-2 py-1.5 text-right text-faint" colSpan={4}>{state.holdings.length} holdings</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
           <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
             {state.holdings.map((h) => {
               const row = ps.rows.find((r) => r.id === h.id);
