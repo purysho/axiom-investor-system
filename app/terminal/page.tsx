@@ -42,6 +42,9 @@ interface MonitorQuote {
   ticker: string; close: number | null;
   metrics?: { pct_change: number | null; volume_x_avg: number | null; pct_from_52w_high: number | null; rsi: number | null };
 }
+interface Position { symbol: string; qty: number; avgEntryPrice: number; marketValue: number | null; unrealizedPl: number | null }
+interface LivePayload { connected: boolean; mode?: string; positions?: Position[]; summary?: { equity: number; cash: number; unrealizedPl: number | null } }
+interface OrderRow { symbol: string; side: string; qty: number; status: string; filledAvgPrice: number | null; submittedAt: string }
 
 const money = (n: number | null | undefined) =>
   n == null ? "—" : n >= 1000 ? n.toLocaleString(undefined, { maximumFractionDigits: 0 })
@@ -68,6 +71,8 @@ export default function TerminalPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [monitor, setMonitor] = useState<Record<string, MonitorQuote>>({});
+  const [live, setLive] = useState<LivePayload | null>(null);
+  const [orders, setOrders] = useState<OrderRow[] | null>(null);
 
   const load = useCallback(async (sym: string, r: Range) => {
     setLoading(true); setError("");
@@ -97,6 +102,15 @@ export default function TerminalPage() {
     } catch { /* keep last */ }
   }, []);
   usePolling(refreshMonitor, 90_000);
+
+  const refreshAccount = useCallback(async () => {
+    try {
+      const [pRes, oRes] = await Promise.all([fetch("/api/broker/positions"), fetch("/api/broker/orders")]);
+      if (pRes.ok) setLive((await pRes.json()) as LivePayload);
+      if (oRes.ok) { const j = (await oRes.json()) as { orders: OrderRow[] }; setOrders(j.orders); }
+    } catch { /* keep last */ }
+  }, []);
+  usePolling(refreshAccount, 60_000);
 
   const search = () => { const s = input.trim().toUpperCase(); if (s) load(s, range); };
   const up = summary ? summary.chg >= 0 : true;
@@ -241,6 +255,93 @@ export default function TerminalPage() {
           <div className="border-t border-line px-3 py-2 font-mono text-[9px] leading-relaxed text-faint">
             Click a row to load it. RSI red ≥70 (overbought), green ≤30 (oversold). Delayed EOD; verify before acting.
           </div>
+        </div>
+      </div>
+
+      {/* Workstation row: live positions + order blotter */}
+      <div className="grid gap-3 lg:grid-cols-2">
+        {/* Positions */}
+        <div className="border border-line bg-panel">
+          <div className="flex items-center justify-between border-b border-line px-3 py-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Positions</span>
+            {live?.connected && live.summary && (
+              <span className="font-mono text-[10px] tnum text-faint">
+                EQ {money(live.summary.equity)} · U/PL{" "}
+                <span style={{ color: (live.summary.unrealizedPl ?? 0) >= 0 ? GREEN : RED }}>
+                  {live.summary.unrealizedPl == null ? "—" : `${live.summary.unrealizedPl >= 0 ? "+" : ""}${money(live.summary.unrealizedPl)}`}
+                </span>
+              </span>
+            )}
+          </div>
+          {!live?.connected ? (
+            <div className="px-3 py-4 font-mono text-[11px] text-faint">
+              No broker connected. Connect the built-in simulator or Alpaca in <a href="/settings" className="underline">Settings</a> to see live positions here.
+            </div>
+          ) : (live.positions ?? []).filter((p) => p.qty !== 0).length === 0 ? (
+            <div className="px-3 py-4 font-mono text-[11px] text-faint">Flat — no open positions.</div>
+          ) : (
+            <table className="w-full font-mono text-[11px] tnum">
+              <thead>
+                <tr className="text-faint">
+                  <th className="px-3 py-1 text-left font-normal">Sym</th>
+                  <th className="px-2 py-1 text-right font-normal">Qty</th>
+                  <th className="px-2 py-1 text-right font-normal">Avg</th>
+                  <th className="px-2 py-1 text-right font-normal">Value</th>
+                  <th className="px-3 py-1 text-right font-normal">U/PL</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(live.positions ?? []).filter((p) => p.qty !== 0).map((p) => (
+                  <tr key={p.symbol} className="border-t border-line">
+                    <td className="px-3 py-1.5 text-ink">{p.symbol}</td>
+                    <td className="px-2 py-1.5 text-right">{p.qty}</td>
+                    <td className="px-2 py-1.5 text-right">{money(p.avgEntryPrice)}</td>
+                    <td className="px-2 py-1.5 text-right">{money(p.marketValue)}</td>
+                    <td className="px-3 py-1.5 text-right" style={{ color: (p.unrealizedPl ?? 0) >= 0 ? GREEN : RED }}>
+                      {p.unrealizedPl == null ? "—" : `${p.unrealizedPl >= 0 ? "+" : ""}${money(p.unrealizedPl)}`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Order blotter */}
+        <div className="border border-line bg-panel">
+          <div className="border-b border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+            Order Blotter
+          </div>
+          {!orders || orders.length === 0 ? (
+            <div className="px-3 py-4 font-mono text-[11px] text-faint">
+              No orders yet. The Copilot and the AXIOM Bot record every order here.
+            </div>
+          ) : (
+            <table className="w-full font-mono text-[11px] tnum">
+              <thead>
+                <tr className="text-faint">
+                  <th className="px-3 py-1 text-left font-normal">Time</th>
+                  <th className="px-2 py-1 text-left font-normal">Sym</th>
+                  <th className="px-2 py-1 text-left font-normal">Side</th>
+                  <th className="px-2 py-1 text-right font-normal">Qty</th>
+                  <th className="px-2 py-1 text-right font-normal">Fill</th>
+                  <th className="px-3 py-1 text-left font-normal">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.slice(0, 12).map((o, i) => (
+                  <tr key={i} className="border-t border-line">
+                    <td className="px-3 py-1.5 text-faint">{new Date(o.submittedAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}</td>
+                    <td className="px-2 py-1.5 text-ink">{o.symbol}</td>
+                    <td className="px-2 py-1.5" style={{ color: o.side === "buy" ? GREEN : RED }}>{o.side}</td>
+                    <td className="px-2 py-1.5 text-right">{o.qty}</td>
+                    <td className="px-2 py-1.5 text-right">{o.filledAvgPrice == null ? "—" : money(o.filledAvgPrice)}</td>
+                    <td className="px-3 py-1.5" style={{ color: o.status === "filled" ? GREEN : o.status === "rejected" ? RED : "#9BACA2" }}>{o.status.replace("_", " ")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
