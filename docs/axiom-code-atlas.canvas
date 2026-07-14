@@ -1,0 +1,864 @@
+{
+  "nodes": [
+    {
+      "id": "27a99427583c",
+      "type": "text",
+      "text": "1  Market Data",
+      "color": "5",
+      "x": 0,
+      "y": 0,
+      "width": 440,
+      "height": 70
+    },
+    {
+      "id": "61b1b0611f56",
+      "type": "text",
+      "text": "**types.ts** — provider interface, classifySymbol\nlib/market-data/types.ts",
+      "color": "5",
+      "x": 0,
+      "y": 116,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "a8837ed141de",
+      "type": "text",
+      "text": "**alpaca.ts** — real IEX bars (AlpacaDataProvider)\nlib/market-data/alpaca.ts",
+      "color": "5",
+      "x": 0,
+      "y": 248,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "e7dd28f10b5a",
+      "type": "text",
+      "text": "**stooq.ts** — delayed EOD fallback\nlib/market-data/stooq.ts",
+      "color": "5",
+      "x": 0,
+      "y": 380,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "bcac19f79267",
+      "type": "text",
+      "text": "**index.ts** — registry + resolveHistory\nlib/market-data/index.ts",
+      "color": "5",
+      "x": 0,
+      "y": 512,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "677afc6b6979",
+      "type": "text",
+      "text": "**history.ts** — fetchDailyHistoryForUser (your keys)\nlib/server/history.ts",
+      "color": "5",
+      "x": 0,
+      "y": 644,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "15cfaa91b3a3",
+      "type": "text",
+      "text": "2  Strategy & Math",
+      "color": "6",
+      "x": 500,
+      "y": 0,
+      "width": 440,
+      "height": 70
+    },
+    {
+      "id": "7d10a159859c",
+      "type": "text",
+      "text": "**strategy.ts** — signalAt — the ONE rule source\nlib/engine/strategy.ts",
+      "color": "6",
+      "x": 500,
+      "y": 116,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "20651d456708",
+      "type": "text",
+      "text": "**quotes.ts** — indicators, WARMUP_BARS\nlib/engine/quotes.ts",
+      "color": "6",
+      "x": 500,
+      "y": 248,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "5812275d34c5",
+      "type": "text",
+      "text": "**sizing.ts** — computeSizing — risk-first\nlib/engine/sizing.ts",
+      "color": "6",
+      "x": 500,
+      "y": 380,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "ae5b5bf66165",
+      "type": "text",
+      "text": "**gate.ts** — six-check risk gate\nlib/engine/gate.ts",
+      "color": "6",
+      "x": 500,
+      "y": 512,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "4a7a2f4f663d",
+      "type": "text",
+      "text": "**protections.ts** — behavioural locks\nlib/engine/protections.ts",
+      "color": "6",
+      "x": 500,
+      "y": 644,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "06c9964f940c",
+      "type": "text",
+      "text": "3  Backtest & Export",
+      "color": "4",
+      "x": 1000,
+      "y": 0,
+      "width": 440,
+      "height": 70
+    },
+    {
+      "id": "d64edb478726",
+      "type": "text",
+      "text": "**backtest.ts** — runBacktest — deterministic\nlib/engine/backtest.ts",
+      "color": "4",
+      "x": 1000,
+      "y": 116,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "7c34c575c070",
+      "type": "text",
+      "text": "**algo-report.ts** — .md/.json — evaluate\nlib/engine/algo-report.ts",
+      "color": "4",
+      "x": 1000,
+      "y": 248,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "8ce5cb5a460c",
+      "type": "text",
+      "text": "**algo-repro.ts** — Python port — reproduce\nlib/engine/algo-repro.ts",
+      "color": "4",
+      "x": 1000,
+      "y": 380,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "9808393818dc",
+      "type": "text",
+      "text": "**backtest-request.ts** — shared prepare (parse-fetch-run)\nlib/server/backtest-request.ts",
+      "color": "4",
+      "x": 1000,
+      "y": 512,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "63bc9114a5f6",
+      "type": "text",
+      "text": "**backtest/route.ts** — JSON + /repro .py routes\napp/api/backtest/route.ts",
+      "color": "4",
+      "x": 1000,
+      "y": 644,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "29fc1a0e355e",
+      "type": "text",
+      "text": "4  Copilot & Bot",
+      "color": "2",
+      "x": 1500,
+      "y": 0,
+      "width": 440,
+      "height": 70
+    },
+    {
+      "id": "4d5789bc9b79",
+      "type": "text",
+      "text": "**copilot/route.ts** — AI proposes a raw candidate\napp/api/copilot/route.ts",
+      "color": "2",
+      "x": 1500,
+      "y": 116,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "18a112c37ab9",
+      "type": "text",
+      "text": "**validate.ts** — deterministic validator decides\nlib/copilot/validate.ts",
+      "color": "2",
+      "x": 1500,
+      "y": 248,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "196b17a740fe",
+      "type": "text",
+      "text": "**types.ts** — Recommendation schema\nlib/copilot/types.ts",
+      "color": "2",
+      "x": 1500,
+      "y": 380,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "c179b196cc91",
+      "type": "text",
+      "text": "**bot.ts** — runner, 11 interlocks, settings\nlib/server/bot.ts",
+      "color": "2",
+      "x": 1500,
+      "y": 512,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "a704080d237a",
+      "type": "text",
+      "text": "**bot/*/route.ts** — settings, run, tick (cron)\napp/api/bot/route.ts",
+      "color": "2",
+      "x": 1500,
+      "y": 644,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "0406ce755792",
+      "type": "text",
+      "text": "5  Execution & Brokers",
+      "color": "5",
+      "x": 2000,
+      "y": 0,
+      "width": 440,
+      "height": 70
+    },
+    {
+      "id": "684a1abac3f0",
+      "type": "text",
+      "text": "**broker/types.ts** — Broker interface (never decides)\nlib/broker/types.ts",
+      "color": "5",
+      "x": 2000,
+      "y": 116,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "872289368271",
+      "type": "text",
+      "text": "**alpaca.ts** — AlpacaBroker (paper/live)\nlib/broker/alpaca.ts",
+      "color": "5",
+      "x": 2000,
+      "y": 248,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "6fc15107c9fc",
+      "type": "text",
+      "text": "**sim.ts** — SimBroker — no keys, no KYC\nlib/broker/sim.ts",
+      "color": "5",
+      "x": 2000,
+      "y": 380,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "ee3013c8c803",
+      "type": "text",
+      "text": "**preflight.ts** — live-state preflight + backstop\nlib/broker/preflight.ts",
+      "color": "5",
+      "x": 2000,
+      "y": 512,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "b0cde00b7cb2",
+      "type": "text",
+      "text": "**execute-order.ts** — write-ahead + idempotent submit\nlib/server/execute-order.ts",
+      "color": "5",
+      "x": 2000,
+      "y": 644,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "4cbdd8568bc3",
+      "type": "text",
+      "text": "**broker-store.ts** — keys, getBroker, connectSim\nlib/server/broker-store.ts",
+      "color": "5",
+      "x": 2000,
+      "y": 776,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "328dba760629",
+      "type": "text",
+      "text": "6  Reconcile / State / DB",
+      "color": "6",
+      "x": 2500,
+      "y": 0,
+      "width": 440,
+      "height": 70
+    },
+    {
+      "id": "2834a454a557",
+      "type": "text",
+      "text": "**close-detect.ts** — detect closed bracket legs\nlib/broker/close-detect.ts",
+      "color": "6",
+      "x": 2500,
+      "y": 116,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "d73dd5caf986",
+      "type": "text",
+      "text": "**positions-sync.ts** — reconcile → journal\nlib/server/positions-sync.ts",
+      "color": "6",
+      "x": 2500,
+      "y": 248,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "714784b82f1c",
+      "type": "text",
+      "text": "**db.ts** — libSQL schema + migrations\nlib/server/db.ts",
+      "color": "6",
+      "x": 2500,
+      "y": 380,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "70810bf19b49",
+      "type": "text",
+      "text": "**store.ts + sync.ts** — client state + concurrency sync\nlib/store.ts",
+      "color": "6",
+      "x": 2500,
+      "y": 512,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "e55c91d49bc6",
+      "type": "text",
+      "text": "**audit.ts** — append-only audit log\nlib/server/audit.ts",
+      "color": "6",
+      "x": 2500,
+      "y": 644,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "e469021a8dd5",
+      "type": "text",
+      "text": "7  Security & Config",
+      "color": "1",
+      "x": 3000,
+      "y": 0,
+      "width": 440,
+      "height": 70
+    },
+    {
+      "id": "20bb024efe56",
+      "type": "text",
+      "text": "**middleware.ts** — auth, CSRF, public allowlist\nmiddleware.ts",
+      "color": "1",
+      "x": 3000,
+      "y": 116,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "f5b6ac9ff69f",
+      "type": "text",
+      "text": "**next.config.mjs** — first-party CSP + headers\nnext.config.mjs",
+      "color": "1",
+      "x": 3000,
+      "y": 248,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "edac68632378",
+      "type": "text",
+      "text": "**ratelimit.ts** — per-IP / per-user limits\nlib/server/ratelimit.ts",
+      "color": "1",
+      "x": 3000,
+      "y": 380,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "260491f9e162",
+      "type": "text",
+      "text": "**crypto.ts** — AES-256-GCM key encryption\nlib/server/crypto.ts",
+      "color": "1",
+      "x": 3000,
+      "y": 512,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "89e0adea78e7",
+      "type": "text",
+      "text": "**auth.ts + totp.ts** — sessions + 2FA\nlib/server/auth.ts",
+      "color": "1",
+      "x": 3000,
+      "y": 644,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "94fe4f893a79",
+      "type": "text",
+      "text": "8  UI & Terminal",
+      "color": "3",
+      "x": 3500,
+      "y": 0,
+      "width": 440,
+      "height": 70
+    },
+    {
+      "id": "995bacd20436",
+      "type": "text",
+      "text": "**chrome.tsx** — nav, Panel, fmtUsd/fmtPct\ncomponents/chrome.tsx",
+      "color": "3",
+      "x": 3500,
+      "y": 116,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "2758e06721e4",
+      "type": "text",
+      "text": "**terminal/page.tsx** — quote, chart, monitor, blotter\napp/terminal/page.tsx",
+      "color": "3",
+      "x": 3500,
+      "y": 248,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "dce972039dfa",
+      "type": "text",
+      "text": "**ticker-tape.tsx** — LED market strip\ncomponents/ticker-tape.tsx",
+      "color": "3",
+      "x": 3500,
+      "y": 380,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "60ded919ef4b",
+      "type": "text",
+      "text": "**theme-toggle.tsx** — green / Bloomberg amber\ncomponents/theme-toggle.tsx",
+      "color": "3",
+      "x": 3500,
+      "y": 512,
+      "width": 440,
+      "height": 104
+    },
+    {
+      "id": "9094623aec96",
+      "type": "text",
+      "text": "**globals.css + tailwind** — theme tokens, terminal panels\napp/globals.css",
+      "color": "3",
+      "x": 3500,
+      "y": 644,
+      "width": 440,
+      "height": 104
+    }
+  ],
+  "edges": [
+    {
+      "id": "6da14db566c9",
+      "fromNode": "27a99427583c",
+      "toNode": "61b1b0611f56",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "a22d398a2c27",
+      "fromNode": "27a99427583c",
+      "toNode": "a8837ed141de",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "bfbb1fba4ee0",
+      "fromNode": "27a99427583c",
+      "toNode": "e7dd28f10b5a",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "ea37bb36c305",
+      "fromNode": "27a99427583c",
+      "toNode": "bcac19f79267",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "9706c21d04dc",
+      "fromNode": "27a99427583c",
+      "toNode": "677afc6b6979",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "576a574e8974",
+      "fromNode": "15cfaa91b3a3",
+      "toNode": "7d10a159859c",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "960fe29ddbc6",
+      "fromNode": "15cfaa91b3a3",
+      "toNode": "20651d456708",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "f3e78a42c912",
+      "fromNode": "15cfaa91b3a3",
+      "toNode": "5812275d34c5",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "10d5b01f4540",
+      "fromNode": "15cfaa91b3a3",
+      "toNode": "ae5b5bf66165",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "e44829f809d3",
+      "fromNode": "15cfaa91b3a3",
+      "toNode": "4a7a2f4f663d",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "f31df548735b",
+      "fromNode": "06c9964f940c",
+      "toNode": "d64edb478726",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "4"
+    },
+    {
+      "id": "d525dbc31e97",
+      "fromNode": "06c9964f940c",
+      "toNode": "7c34c575c070",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "4"
+    },
+    {
+      "id": "99cf31f2079e",
+      "fromNode": "06c9964f940c",
+      "toNode": "8ce5cb5a460c",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "4"
+    },
+    {
+      "id": "087cf74fcb17",
+      "fromNode": "06c9964f940c",
+      "toNode": "9808393818dc",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "4"
+    },
+    {
+      "id": "bfcb4d8b33b1",
+      "fromNode": "06c9964f940c",
+      "toNode": "63bc9114a5f6",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "4"
+    },
+    {
+      "id": "b65278e506bc",
+      "fromNode": "29fc1a0e355e",
+      "toNode": "4d5789bc9b79",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "2"
+    },
+    {
+      "id": "7a73760e19d8",
+      "fromNode": "29fc1a0e355e",
+      "toNode": "18a112c37ab9",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "2"
+    },
+    {
+      "id": "37799b51b61f",
+      "fromNode": "29fc1a0e355e",
+      "toNode": "196b17a740fe",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "2"
+    },
+    {
+      "id": "f6eff5280670",
+      "fromNode": "29fc1a0e355e",
+      "toNode": "c179b196cc91",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "2"
+    },
+    {
+      "id": "1cb92231b570",
+      "fromNode": "29fc1a0e355e",
+      "toNode": "a704080d237a",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "2"
+    },
+    {
+      "id": "4e87e7281e69",
+      "fromNode": "0406ce755792",
+      "toNode": "684a1abac3f0",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "e652f460a168",
+      "fromNode": "0406ce755792",
+      "toNode": "872289368271",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "3d0cd964be51",
+      "fromNode": "0406ce755792",
+      "toNode": "6fc15107c9fc",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "d1b778221560",
+      "fromNode": "0406ce755792",
+      "toNode": "ee3013c8c803",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "6e7f65962d5a",
+      "fromNode": "0406ce755792",
+      "toNode": "b0cde00b7cb2",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "760b9008df5e",
+      "fromNode": "0406ce755792",
+      "toNode": "4cbdd8568bc3",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "5"
+    },
+    {
+      "id": "e91f4f66bd8e",
+      "fromNode": "328dba760629",
+      "toNode": "2834a454a557",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "0bc800baa76e",
+      "fromNode": "328dba760629",
+      "toNode": "d73dd5caf986",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "ea7cef6c1af3",
+      "fromNode": "328dba760629",
+      "toNode": "714784b82f1c",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "a645c708269f",
+      "fromNode": "328dba760629",
+      "toNode": "70810bf19b49",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "9f17306b2b86",
+      "fromNode": "328dba760629",
+      "toNode": "e55c91d49bc6",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "c3792f4ed866",
+      "fromNode": "e469021a8dd5",
+      "toNode": "20bb024efe56",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "1"
+    },
+    {
+      "id": "0f2ace8df4d5",
+      "fromNode": "e469021a8dd5",
+      "toNode": "f5b6ac9ff69f",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "1"
+    },
+    {
+      "id": "d2659f6e04d5",
+      "fromNode": "e469021a8dd5",
+      "toNode": "edac68632378",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "1"
+    },
+    {
+      "id": "53af00cb6a72",
+      "fromNode": "e469021a8dd5",
+      "toNode": "260491f9e162",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "1"
+    },
+    {
+      "id": "2ad71f25bd7b",
+      "fromNode": "e469021a8dd5",
+      "toNode": "89e0adea78e7",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "1"
+    },
+    {
+      "id": "0a3e8556a6be",
+      "fromNode": "94fe4f893a79",
+      "toNode": "995bacd20436",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "f907e559406b",
+      "fromNode": "94fe4f893a79",
+      "toNode": "2758e06721e4",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "188f76128ca5",
+      "fromNode": "94fe4f893a79",
+      "toNode": "dce972039dfa",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "67894eb10130",
+      "fromNode": "94fe4f893a79",
+      "toNode": "60ded919ef4b",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "a818fe172d01",
+      "fromNode": "94fe4f893a79",
+      "toNode": "9094623aec96",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "357ad2021b07",
+      "fromNode": "27a99427583c",
+      "toNode": "15cfaa91b3a3",
+      "fromSide": "right",
+      "toSide": "left",
+      "label": "flow"
+    },
+    {
+      "id": "8262bbabbb33",
+      "fromNode": "15cfaa91b3a3",
+      "toNode": "06c9964f940c",
+      "fromSide": "right",
+      "toSide": "left",
+      "label": "flow"
+    },
+    {
+      "id": "20fc0b916855",
+      "fromNode": "15cfaa91b3a3",
+      "toNode": "29fc1a0e355e",
+      "fromSide": "right",
+      "toSide": "left",
+      "label": "flow"
+    },
+    {
+      "id": "96cd7b474070",
+      "fromNode": "29fc1a0e355e",
+      "toNode": "0406ce755792",
+      "fromSide": "right",
+      "toSide": "left",
+      "label": "flow"
+    },
+    {
+      "id": "3d24547fec02",
+      "fromNode": "0406ce755792",
+      "toNode": "328dba760629",
+      "fromSide": "right",
+      "toSide": "left",
+      "label": "flow"
+    }
+  ]
+}

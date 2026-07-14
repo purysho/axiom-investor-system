@@ -5,6 +5,12 @@ only talks to its neighbors, and the safety-critical direction is one-way:
 **AI proposes → deterministic code disposes.** Natural-language output can
 never reach a broker.
 
+> **Fast reference:** [`docs/CODE_MAP.md`](./docs/CODE_MAP.md) is a grep-first
+> index — one line per file (`path` — role, key exports) — plus a "where to look
+> for…" section. Visual twins: [`docs/axiom-code-atlas.canvas`](./docs/axiom-code-atlas.canvas)
+> (layer map) and [`docs/axiom-architecture.canvas`](./docs/axiom-architecture.canvas)
+> (mind map), both Obsidian-importable.
+
 ```
 Market Data ─→ Feature/Strategy ─→ AI Copilot ─→ Proposal Schema
                                                       │
