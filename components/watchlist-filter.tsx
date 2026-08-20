@@ -16,10 +16,8 @@ interface WatchlistFilterProps {
   readonly placeholder?: string;
 }
 
-export function WatchlistFilter({ onFilter, placeholder }: WatchlistFilterProps) {
-  // React 18 allowed useRef with no argument. React 19 requires one — its
-  // types no longer provide the implicit-undefined overload.
-  const inputRef = useRef<HTMLInputElement>();
+export function WatchlistFilter({ onFilter, placeholder = "Filter watchlist" }: WatchlistFilterProps) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState("");
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
@@ -36,7 +34,7 @@ export function WatchlistFilter({ onFilter, placeholder }: WatchlistFilterProps)
   return (
     <div className="flex items-center gap-2">
       <input
-        ref={inputRef as never}
+        ref={inputRef}
         value={query}
         onChange={handleChange}
         placeholder={placeholder}
@@ -48,9 +46,3 @@ export function WatchlistFilter({ onFilter, placeholder }: WatchlistFilterProps)
     </div>
   );
 }
-
-// Removed in React 19: defaultProps is no longer read for function components.
-// The replacement is an ES default parameter on the prop itself.
-WatchlistFilter.defaultProps = {
-  placeholder: "Filter watchlist",
-};
