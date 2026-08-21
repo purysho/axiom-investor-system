@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/server/auth";
 import { BrokerError } from "@/lib/broker/types";
 import { getBroker } from "@/lib/server/broker-store";
 import { db } from "@/lib/server/db";
+import { reconcileClosedPositions } from "@/lib/server/positions-sync";
 
 export const dynamic = "force-dynamic";
 
@@ -64,5 +65,13 @@ export async function POST() {
   let positions = null;
   try { positions = await broker.getPositions(); } catch { /* non-fatal */ }
 
-  return NextResponse.json({ ok: true, resolved, stillOpen, orphansFound, fills, positions });
+  // Close journal trades whose bracket finished at the broker (stop or target
+  // leg filled). Keeps the gate's open-risk numbers honest and feeds the
+  // paper track record. Non-fatal: a failure here never blocks the sync.
+  let closedTrades: Awaited<ReturnType<typeof reconcileClosedPositions>>["closed"] = [];
+  if (positions) {
+    try { closedTrades = (await reconcileClosedPositions(user.id, broker, positions)).closed; } catch { /* next sync */ }
+  }
+
+  return NextResponse.json({ ok: true, resolved, stillOpen, orphansFound, fills, positions, closedTrades });
 }

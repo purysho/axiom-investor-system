@@ -4,7 +4,7 @@ import { audit } from "@/lib/server/audit";
 import { BrokerError } from "@/lib/broker/types";
 import { clientOrderId, liveTradingEnabled, preflight } from "@/lib/broker/preflight";
 import { getBroker, getConnection, ordersToday } from "@/lib/server/broker-store";
-import { db } from "@/lib/server/db";
+import { executeVerifiedOrder } from "@/lib/server/execute-order";
 import { clientIp, limited } from "@/lib/server/ratelimit";
 import { loadUserState } from "@/lib/server/user-state";
 import { evaluateGate } from "@/lib/engine/gate";
@@ -111,59 +111,32 @@ export async function POST(req: Request) {
     });
   }
 
-  // ── Write-ahead: record intent BEFORE submitting. If we crash mid-flight, the
-  //    row exists and reconciliation can find the order by client_order_id. ──
-  const c = await db();
-  const now = new Date().toISOString();
-  try {
-    await c.execute({
-      sql: `INSERT INTO broker_orders
-            (client_order_id, user_id, recommendation_id, broker, mode, symbol, side, qty, entry, stop, take_profit, status, submitted_at, updated_at)
-            VALUES (?, ?, ?, 'alpaca', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
-      args: [coid, user.id, b.recommendationId ?? null, conn.mode, b.symbol, side, Number(b.qty), Number(b.entry), Number(b.stop), b.takeProfit ?? null, now, now],
-    });
-  } catch {
-    // Primary-key clash = this recommendation was already submitted. Idempotent: report the existing order.
-    const existing = (await c.execute({ sql: "SELECT * FROM broker_orders WHERE client_order_id = ?", args: [coid] })).rows[0];
+  // ── Write-ahead + idempotent submit via the shared executor. ─────────────
+  const result = await executeVerifiedOrder({
+    userId: user.id, broker, mode: conn.mode, clientOrderId: coid,
+    recommendationId: b.recommendationId ?? null,
+    symbol: b.symbol, side, qty: Number(b.qty), entry: Number(b.entry), stop: Number(b.stop),
+    takeProfit: b.takeProfit ?? null,
+  });
+
+  if (result.kind === "duplicate") {
     return NextResponse.json({
       ok: true, duplicate: true, clientOrderId: coid,
-      status: String(existing?.status ?? "unknown"),
+      status: result.status,
       message: "That recommendation was already submitted — no second order was placed.",
     });
   }
-
-  // ── Submit ───────────────────────────────────────────────────────────────
-  try {
-    const order = await broker.submitBracketOrder({
-      symbol: b.symbol, qty: Number(b.qty), side,
-      stopPrice: Number(b.stop),
-      takeProfitPrice: b.takeProfit ?? null,
-      clientOrderId: coid,
-      timeInForce: "day",
-    });
-    await c.execute({
-      sql: "UPDATE broker_orders SET broker_order_id = ?, status = ?, filled_qty = ?, filled_avg_price = ?, updated_at = ? WHERE client_order_id = ?",
-      args: [order.brokerOrderId, order.status, order.filledQty, order.filledAvgPrice, new Date().toISOString(), coid],
-    });
+  if (result.kind === "submitted") {
     await audit("order.submitted", {
       userId: user.id, username: user.username, req,
-      detail: `${conn.mode}: ${side} ${b.qty} ${b.symbol} @${b.entry} stop ${b.stop} → ${order.status}`,
+      detail: `${conn.mode}: ${side} ${b.qty} ${b.symbol} @${b.entry} stop ${b.stop} → ${result.order.status}`,
     });
-    return NextResponse.json({ ok: true, order, mode: conn.mode, clientOrderId: coid });
-  } catch (e) {
-    const msg = e instanceof BrokerError ? e.message : "The broker rejected the order.";
-    const retryable = e instanceof BrokerError && e.retryable;
-    await c.execute({
-      sql: "UPDATE broker_orders SET status = ?, error = ?, updated_at = ? WHERE client_order_id = ?",
-      args: [retryable ? "pending" : "rejected", msg.slice(0, 200), new Date().toISOString(), coid],
-    });
-    // "pending" is deliberate on network failures: the order MIGHT exist at the broker.
-    // Reconciliation resolves it; we never silently retry and risk a double position.
-    await audit("order.rejected", { userId: user.id, username: user.username, req, detail: `${b.symbol}: ${msg}`.slice(0, 150) });
-    return NextResponse.json(
-      { ok: false, error: msg, uncertain: retryable, clientOrderId: coid,
-        hint: retryable ? "The order may or may not have reached the broker. Run Sync before retrying." : undefined },
-      { status: 502 },
-    );
+    return NextResponse.json({ ok: true, order: result.order, mode: conn.mode, clientOrderId: coid });
   }
+  await audit("order.rejected", { userId: user.id, username: user.username, req, detail: `${b.symbol}: ${result.message}`.slice(0, 150) });
+  return NextResponse.json(
+    { ok: false, error: result.message, uncertain: result.retryable, clientOrderId: coid,
+      hint: result.retryable ? "The order may or may not have reached the broker. Run Sync before retrying." : undefined },
+    { status: 502 },
+  );
 }

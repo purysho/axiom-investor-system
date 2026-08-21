@@ -12,9 +12,14 @@ The app guides a user through five recurring jobs:
 
 The main navigation is intentionally plain:
 
-**Today · My portfolio · Trade ideas · Journal · Review · Learn**
+**Today · Terminal · My portfolio · Copilot · Trade ideas · Journal · Review · Learn**
 
-Risk Check, Charts, Group, and Settings remain available under **More**.
+Risk Check, AXIOM Bot, Charts, Group, Help & support, and Settings remain available under **More**.
+
+**Terminal** (`/terminal`) is the dense trading-screen surface: a live LED ticker tape, a quote header
+with timeframe tabs, an indicator chart, a stat-cell grid, and a click-to-load market monitor — real data
+via the chart/quote APIs (delayed EOD, or real Alpaca IEX bars when data keys are set). The rest of AXIOM
+stays deliberately calm and process-first; the Terminal is where the market screen lives.
 
 ## Run locally
 
@@ -29,9 +34,14 @@ For a production build:
 
 ```bash
 npm run typecheck
+npm test
 npm run build
 npm start
 ```
+
+Developer docs: [`ARCHITECTURE.md`](./ARCHITECTURE.md) maps every layer (market data → strategy →
+copilot → proposal schema → validator → execution → audit) and lists the safety invariants;
+[`BOT.md`](./BOT.md) covers the paper-only autopilot, its interlocks, and scheduling.
 
 Optional: copy `.env.local.example` to `.env.local` and add the supported environment values. Without paid market-data keys, AXIOM can use delayed/keyless sources already wired into the app and also allows manual entry.
 
@@ -108,6 +118,30 @@ Incomplete closed-trade reflections can be reopened directly and completed with 
 
 The app deliberately discourages rewriting rules because of one painful loss or one lucky streak.
 
+### Copilot, backtesting, and the AXIOM bot
+
+`/copilot` scans your trade-idea tickers and proposes paper trades with evidence; a deterministic
+validator (gate, protections, sizing, heat cap) decides what is approvable, and you approve each one.
+
+`/bot` is the autopilot. It runs the same pipeline on a schedule and submits **paper** bracket
+orders only — a live broker connection stands it down, in code. The page also backtests the exact
+strategy code the bot trades over up to ten years of daily history, with conservative fills.
+Architecture, interlocks, and scheduling live in `BOT.md`.
+
+Two paper brokers are supported, switchable in Settings:
+
+- **Built-in simulator** — one click, no account, no API keys, no identity/tax paperwork.
+  $10,000 paper balance; fills at the last daily close with the same 5 bps slippage the
+  backtester charges; stops and targets enforced against each new bar.
+- **Alpaca paper account** — free, real market data, more realistic fills. Only an email is
+  needed; identity verification applies only to live accounts, which AXIOM never requires.
+
+### Help & support
+
+`/help` is the product-help surface (distinct from Learn, which teaches the method): a
+searchable FAQ covering broker connection, the bot, account recovery, and troubleshooting.
+It stays reachable without a session so a locked-out user can read the recovery answers.
+
 ### Learn
 
 `/guides` is a short learning path rather than a reference manual. Seven expandable lessons answer the questions a beginner reaches in the order they use AXIOM.
@@ -129,6 +163,10 @@ AXIOM is local-first with optional account sync.
 The browser store is defined in `lib/store.ts`. When signed in, `lib/sync.ts` mirrors state to the server with conflict handling. Offline mode runs the investing process in the browser without an account.
 
 The application includes invite-only account flows, API routes, delayed market-data integrations, backup/restore, CSV journal tools, group features, and PWA support.
+
+Security posture (details in `ARCHITECTURE.md`): fully first-party CSP with self-hosted fonts,
+rate limits on every credential-verifying endpoint, encrypted broker keys that never return to
+the browser, optional TOTP two-factor, and an append-only audit log.
 
 See `DEPLOY.md` for deployment options.
 

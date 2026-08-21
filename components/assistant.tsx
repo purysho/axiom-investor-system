@@ -90,7 +90,7 @@ export default function AssistantWidget() {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Open the Axiom guide"
-          className="fixed bottom-20 right-4 z-40 flex items-center gap-2 rounded-full bg-[#B4F03C] px-4 py-3 text-sm font-semibold text-[#0B0F0D] shadow-lg transition-transform hover:scale-[1.03] active:scale-[0.97] md:bottom-6 md:right-6"
+          className="fixed bottom-20 right-4 z-40 flex items-center gap-2 rounded-full bg-volt px-4 py-3 text-sm font-semibold text-[#0B0F0D] shadow-lg transition-transform hover:scale-[1.03] active:scale-[0.97] md:bottom-6 md:right-6"
         >
           <MessageCircle size={18} />
           <span className="hidden sm:inline">Ask Axiom</span>
@@ -102,10 +102,10 @@ export default function AssistantWidget() {
         <div
           role="dialog"
           aria-label="Axiom guide"
-          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[82vh] flex-col overflow-hidden rounded-t-[22px] border border-[#232B26] bg-[#121714] shadow-2xl md:inset-x-auto md:bottom-6 md:right-6 md:max-h-[70vh] md:w-[400px] md:rounded-[22px]"
+          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[82vh] flex-col overflow-hidden rounded-t-[22px] border border-line bg-panel shadow-2xl md:inset-x-auto md:bottom-6 md:right-6 md:max-h-[70vh] md:w-[400px] md:rounded-[22px]"
         >
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 border-b border-[#232B26] px-5 py-4">
+          <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
             <div>
               <div className="font-display text-lg font-semibold tracking-[-0.02em]">Axiom guide</div>
               <div className="mt-0.5 text-[11px] leading-snug text-faint">
@@ -131,7 +131,7 @@ export default function AssistantWidget() {
                       key={s}
                       type="button"
                       onClick={() => void send(s)}
-                      className="rounded-[14px] border border-[#232B26] bg-white/[0.06] px-3.5 py-2.5 text-left text-sm text-ink transition-colors hover:border-[#5C6B62]"
+                      className="rounded-[14px] border border-line bg-white/[0.06] px-3.5 py-2.5 text-left text-sm text-ink transition-colors hover:border-[#5C6B62]"
                     >
                       {s}
                     </button>
@@ -144,10 +144,10 @@ export default function AssistantWidget() {
                 <div
                   className={`max-w-[85%] whitespace-pre-wrap rounded-[16px] px-3.5 py-2.5 text-sm leading-relaxed ${
                     m.role === "user"
-                      ? "bg-[#B4F03C] text-[#0B0F0D]"
+                      ? "bg-volt text-[#0B0F0D]"
                       : m.error
                         ? "bg-[#241111] text-[#F4645C]"
-                        : "bg-[#1A211D] text-ink"
+                        : "bg-panel2 text-ink"
                   }`}
                 >
                   {m.content}
@@ -156,16 +156,16 @@ export default function AssistantWidget() {
             ))}
             {busy && (
               <div className="flex justify-start">
-                <div className="rounded-[16px] bg-[#1A211D] px-3.5 py-2.5 text-sm text-faint">Thinking…</div>
+                <div className="rounded-[16px] bg-panel2 px-3.5 py-2.5 text-sm text-faint">Thinking…</div>
               </div>
             )}
             {setupNote && (
-              <p className="rounded-[14px] bg-[#241C0E] px-3.5 py-2.5 text-xs leading-relaxed text-[#F0B429]">{setupNote}</p>
+              <p className="rounded-[14px] bg-panel2 px-3.5 py-2.5 text-xs leading-relaxed text-[#F0B429]">{setupNote}</p>
             )}
           </div>
 
           {/* Composer */}
-          <div className="border-t border-[#232B26] px-4 py-3">
+          <div className="border-t border-line px-4 py-3">
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
@@ -182,7 +182,7 @@ export default function AssistantWidget() {
                 onClick={() => void send(input)}
                 disabled={busy || !input.trim()}
                 aria-label="Send"
-                className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-[#B4F03C] text-[#0B0F0D] transition-transform hover:scale-[1.04] active:scale-[0.95] disabled:opacity-35"
+                className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-volt text-[#0B0F0D] transition-transform hover:scale-[1.04] active:scale-[0.95] disabled:opacity-35"
               >
                 <ArrowUp size={17} />
               </button>

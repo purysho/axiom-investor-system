@@ -236,6 +236,43 @@ export function Sparkline({ data, color = C.steel }: { data: number[]; color?: s
   );
 }
 
+// ── Backtest equity curve (dollar equity over time, single series) ──────────
+export function BacktestEquityChart({ curve, startingEquity }: {
+  curve: Array<{ date: string; equity: number }>;
+  startingEquity: number;
+}) {
+  if (curve.length < 2) return <Empty label="Run a backtest to see the equity curve." />;
+
+  // Downsample long curves for render weight; first and last points always kept.
+  const step = Math.max(1, Math.floor(curve.length / 400));
+  const points = curve.filter((_, i) => i % step === 0 || i === curve.length - 1)
+    .map((p) => ({ date: p.date.slice(2), equity: p.equity }));
+
+  const final = curve[curve.length - 1].equity;
+  const color = final >= startingEquity ? C.allowed : C.closed;
+  const min = Math.min(startingEquity, ...points.map((p) => p.equity));
+  const max = Math.max(startingEquity, ...points.map((p) => p.equity));
+  const pad = Math.max(1, (max - min) * 0.06);
+
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <AreaChart data={points} margin={{ top: 8, right: 8, bottom: 0, left: 4 }}>
+        <defs>
+          <linearGradient id="bt-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor={color} stopOpacity={0.25} />
+            <stop offset="95%" stopColor={color} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <XAxis dataKey="date" tick={{ fontSize: 9, fill: C.faint, fontFamily: "IBM Plex Mono, monospace" }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={48} />
+        <YAxis domain={[min - pad, max + pad]} tick={{ fontSize: 9, fill: C.faint, fontFamily: "IBM Plex Mono, monospace" }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${Math.round(Number(v) / 1000)}k`} width={44} />
+        <ReferenceLine y={startingEquity} stroke={C.line} strokeDasharray="3 3" />
+        <Tooltip contentStyle={tooltipStyle} formatter={((v: number) => [`$${Math.round(v).toLocaleString()}`, "Equity"]) as never} labelStyle={{ color: C.mut }} />
+        <Area type="monotone" dataKey="equity" stroke={color} strokeWidth={1.5} fill="url(#bt-grad)" dot={false} />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
 // ── Empty state ─────────────────────────────────────────────────────────────
 function Empty({ label }: { label: string }) {
   return (

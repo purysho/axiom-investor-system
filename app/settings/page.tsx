@@ -45,9 +45,9 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <section className="mb-10 rounded-[26px] bg-[#141B17] p-6 sm:p-9">
-        <ShieldCheck size={25} className="text-[#456555]" />
-        <h2 className="mt-5 max-w-3xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">Set the few rules AXIOM needs to guide you.</h2>
+      <section className="mb-10 rounded-[26px] bg-panel p-6 sm:p-9">
+        <ShieldCheck size={25} className="text-faint" />
+        <h2 className="mt-5 max-w-3xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">Set the few rules AXIOM needs to guide you.</h2>
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">You can start with the defaults. The important thing is to use one consistent set of limits instead of changing risk because a trade feels exciting.</p>
       </section>
 
@@ -66,7 +66,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="mb-12 border-t border-[#27312B] pt-10">
+      <section className="mb-12 border-t border-line pt-10">
         <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
           <div>
             <div className="page-kicker">Step 2</div>
@@ -75,9 +75,9 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="field-label max-w-sm">Risk per trade (%)<input className="field mt-1.5" inputMode="decimal" value={s.riskPerTradePct} onChange={(e) => setSetting({ riskPerTradePct: num(e.target.value, s.riskPerTradePct) })} /></label>
-            <div className="mt-5 rounded-[20px] bg-[#151B17] p-5">
-              <div className="text-sm font-semibold text-[#9FB0A6]">With your current portfolio value</div>
-              <div className="mt-2 font-display text-[2.5rem] font-semibold tracking-[-0.04em]">1R = {fmtUsd(oneR)}</div>
+            <div className="mt-5 rounded-[20px] bg-panel p-5">
+              <div className="text-sm font-semibold text-mut">With your current portfolio value</div>
+              <div className="mt-2 font-display text-[1.6rem] font-semibold tracking-[-0.04em]">1R = {fmtUsd(oneR)}</div>
               <p className="mt-2 text-sm leading-relaxed text-mut">A trade with an initial stop should be sized so the planned stop loss is around this amount before the single-position cap is applied.</p>
               <Link href="/gate" className="quiet-link mt-4">Try the position-size calculator <ArrowRight size={14} /></Link>
             </div>
@@ -85,7 +85,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="mb-12 border-t border-[#27312B] pt-10">
+      <section className="mb-12 border-t border-line pt-10">
         <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
           <div>
             <div className="page-kicker">Step 3</div>
@@ -100,9 +100,9 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="mb-12 rounded-[24px] bg-[#241C0E]/76 p-6 sm:p-8">
+      <section className="mb-12 rounded-[24px] bg-panel2/76 p-6 sm:p-8">
         <div className="flex items-start gap-4">
-          <Check size={21} className="mt-1 shrink-0 text-[#49695a]" />
+          <Check size={21} className="mt-1 shrink-0 text-faint" />
           <div>
             <div className="font-semibold">Your current starting rules</div>
             <p className="mt-2 max-w-3xl text-[16px] leading-relaxed text-mut">AXIOM is protecting a portfolio of about <strong className="text-ink">{fmtUsd(s.portfolioValue)}</strong>. One planned trade risk is <strong className="text-ink">{s.riskPerTradePct}% ({fmtUsd(oneR)})</strong>. A single position is capped at <strong className="text-ink">{s.notionalCapPct}%</strong>, and total swing heat is capped at <strong className="text-ink">{s.heatCapPct}%</strong>. Your long-term comparison is <strong className="text-ink">{s.benchmarkName}</strong>.</p>
@@ -111,21 +111,21 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="border-t border-[#27312B] pt-10">
+      <section className="border-t border-line pt-10">
         <div className="page-kicker">Account and data</div>
         <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">The practical stuff</h2>
         <p className="mt-2 max-w-2xl text-sm text-mut">Account, backup and test-data controls live here so they do not interrupt the investing routine.</p>
 
-        <div className="mt-7 divide-y divide-[#27312B] border-y border-[#27312B]">
+        <div className="mt-7 divide-y divide-line border-y border-line">
           <AccountPanel />
 
           <details className="group">
             <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><HardDrive size={18} /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-panel text-faint"><HardDrive size={18} /></span>
               <div><div className="text-[17px] font-semibold">Backup and restore</div><p className="mt-1 text-sm text-mut">Keep a portable copy of your holdings, journal, reviews and settings.</p></div>
               <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
             </summary>
-            <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:ml-14 sm:p-7">
+            <div className="mb-6 rounded-[20px] bg-panel2/76 p-5 sm:ml-14 sm:p-7">
               <p className="text-sm leading-relaxed text-mut">Your backup contains {counts.holdings} holding{counts.holdings === 1 ? "" : "s"}, {counts.trades} trade{counts.trades === 1 ? "" : "s"}, {counts.watch} idea rule{counts.watch === 1 ? "" : "s"}, {counts.days} daily check{counts.days === 1 ? "" : "s"}, and {counts.months} monthly review{counts.months === 1 ? "" : "s"}.</p>
               <div className="mt-5 flex flex-wrap gap-3"><button type="button" className="btn" onClick={doExport}><Download size={15} />Download backup</button><button type="button" className="btn" onClick={() => fileRef.current?.click()}><Upload size={15} />Restore backup</button><input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void onImport(f); e.target.value = ""; }} /></div>
             </div>
@@ -133,11 +133,11 @@ export default function SettingsPage() {
 
           <details className="group">
             <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#a16b4c]"><Sparkles size={18} /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-panel text-[#a16b4c]"><Sparkles size={18} /></span>
               <div><div className="text-[17px] font-semibold">Example data</div><p className="mt-1 text-sm text-mut">See the full site filled with a realistic sample before entering your own information.</p></div>
               <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
             </summary>
-            <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:ml-14 sm:p-7"><p className="text-sm leading-relaxed text-mut">Loading example data replaces the current local state with sample holdings, swing trades, trade ideas, daily checks and monthly reviews.</p><button type="button" className="btn mt-5" onClick={loadDemo}>Load example data</button></div>
+            <div className="mb-6 rounded-[20px] bg-panel2/76 p-5 sm:ml-14 sm:p-7"><p className="text-sm leading-relaxed text-mut">Loading example data replaces the current local state with sample holdings, swing trades, trade ideas, daily checks and monthly reviews.</p><button type="button" className="btn mt-5" onClick={loadDemo}>Load example data</button></div>
           </details>
 
           <details className="group">
@@ -212,18 +212,18 @@ function AccountPanel() {
   return (
     <details className="group">
       <summary className="grid cursor-pointer list-none gap-4 py-6 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]">{offline ? <UserRound size={18} /> : <KeyRound size={18} />}</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-panel text-faint">{offline ? <UserRound size={18} /> : <KeyRound size={18} />}</span>
         <div><div className="text-[17px] font-semibold">Account and sync</div><p className="mt-1 text-sm text-mut">{offline ? "This browser is currently keeping the AXIOM data locally." : account ? `Signed in as ${account.username}.` : "Checking account status…"}</p></div>
         <ChevronDown size={18} className="text-faint transition-transform group-open:rotate-180" />
       </summary>
-      <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:ml-14 sm:p-7">
+      <div className="mb-6 rounded-[20px] bg-panel2/76 p-5 sm:ml-14 sm:p-7">
         {offline ? <p className="text-sm leading-relaxed text-mut">You are using offline mode. Data stays in this browser and does not sync across devices. <a href="/login" className="quiet-link">Sign in or join with an invite</a> to enable account sync.</p> : account ? <div className="grid gap-5"><div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end"><label className="field-label">Display name<input className="field mt-1.5" value={dn} onChange={(e) => setDn(e.target.value)} /></label><button type="button" className="btn" onClick={() => void saveName()}>Save name</button></div><div className="grid gap-4 sm:grid-cols-2"><label className="field-label">Current passphrase<input className="field mt-1.5" type="password" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} /></label><label className="field-label">New passphrase<input className="field mt-1.5" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} /></label></div><div className="flex flex-wrap gap-3"><button type="button" className="btn" onClick={() => void changePass()}>Change passphrase</button><button type="button" className="btn" onClick={() => void signOut()}>Sign out</button></div>{msg && <p className="text-sm text-mut" role="status">{msg}</p>}
 
 <div className="border-t border-line pt-5">
   <div className="text-sm font-semibold text-ink">Recovery code</div>
   <p className="mt-1 text-sm leading-relaxed text-mut">The only way to reset a forgotten passphrase. Generating a new one invalidates the old.</p>
   <button type="button" className="btn mt-3" onClick={() => void regenCode()}>Generate a new recovery code</button>
-  {newCode && <div className="mt-3 rounded-[14px] border border-[#27312B] bg-[#1A211D] px-4 py-3 font-mono text-base tracking-wider text-[#B4F03C]">{newCode}</div>}
+  {newCode && <div className="mt-3 rounded-[14px] border border-line bg-panel2 px-4 py-3 font-mono text-base tracking-wider text-volt">{newCode}</div>}
 </div>
 
 <div className="border-t border-line pt-5">

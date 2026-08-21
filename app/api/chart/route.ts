@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import {
-  bollingerBands, calendarDaysFor, ema, macd, mapToStooq, parseStooqDaily,
+  bollingerBands, ema, macd, mapToStooq,
   rsiArray, round, sma, WARMUP_BARS,
 } from "@/lib/engine/quotes";
+import { clientIp, limited } from "@/lib/server/ratelimit";
+import { getSessionUser } from "@/lib/server/auth";
+import { fetchDailyHistoryForUser, usesRealData } from "@/lib/server/history";
 
-export const revalidate = 1800; // 30-min server cache
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/chart?symbol=AAPL&range=6m
@@ -17,31 +20,24 @@ export async function GET(req: Request) {
   const range  = url.searchParams.get("range") ?? "6m";
 
   if (!ticker) return NextResponse.json({ error: "symbol is required" }, { status: 400 });
+  // Generous for humans flipping ranges; stops scripted relays to the upstream feed.
+  if (limited(`chart:${clientIp(req)}`, 60, 5 * 60_000))
+    return NextResponse.json({ error: "Too many chart requests — slow down a little." }, { status: 429 });
 
   const stooq = mapToStooq(ticker);
   const visibleDays = { "1w": 10, "1m": 35, "3m": 95, "6m": 190, "1y": 380, "2y": 760 }[range] ?? 190;
 
-  // Load extra history purely to warm the recursive indicators, then hide it.
-  // Without this, RSI/EMA/MACD on a 1-month chart disagree with the same
-  // indicators the Copilot uses — see WARMUP_BARS in lib/engine/quotes.ts.
-  const fetchDays = visibleDays + calendarDaysFor(WARMUP_BARS);
+  // Fetch enough trading bars to cover the visible window PLUS the indicator
+  // warm-up (RSI/EMA/MACD are recursive) — see WARMUP_BARS in quotes.ts.
+  const wantBars = Math.round(visibleDays * 5 / 7) + WARMUP_BARS;
 
-  const d2 = new Date();
-  const d1 = new Date(d2.getTime() - fetchDays * 86400000);
-  const fmt = (d: Date) =>
-    `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}${String(d.getUTCDate()).padStart(2, "0")}`;
+  const user = await getSessionUser();
 
   try {
-    const stooqUrl = `https://stooq.com/q/d/l/?s=${encodeURIComponent(stooq)}&i=d&d1=${fmt(d1)}&d2=${fmt(d2)}`;
-    const res = await fetch(stooqUrl, {
-      next: { revalidate: 1800 },
-      signal: AbortSignal.timeout(10000),
-      headers: { "User-Agent": "axiom-investor-system/1.0" },
-    });
-    if (!res.ok) throw new Error(`stooq ${res.status}`);
-    const text = await res.text();
-    const rows = parseStooqDaily(text);
-    if (rows.length === 0) throw new Error("no data");
+    // Real Alpaca bars from the user's own keys when connected; else Stooq.
+    const rows = await fetchDailyHistoryForUser(user?.id ?? null, ticker, wantBars, 1800);
+    if (!rows || rows.length === 0) throw new Error("no data");
+    const real = await usesRealData(user?.id ?? null);
 
     const closes = rows.map((r) => r.close);
     const highs  = rows.map((r) => r.high);
@@ -105,8 +101,8 @@ export async function GET(req: Request) {
         date:    last.date,
       },
       warmupBars: rows.length - candles.length,
-      source: "Stooq (delayed EOD)",
-      note: "Delayed end-of-day data. Verify before acting.",
+      source: real ? "Alpaca IEX (real, your keys)" : "Stooq (delayed EOD)",
+      note: real ? "Real IEX daily bars via your connected keys." : "Delayed end-of-day data. Verify before acting.",
     });
   } catch (e) {
     return NextResponse.json(

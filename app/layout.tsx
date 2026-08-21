@@ -4,6 +4,7 @@ import { Footer, Nav, PageContextHeader, PageReveal } from "@/components/chrome"
 import { ToastContainer } from "@/components/toast";
 import AssistantWidget from "@/components/assistant";
 import { SyncBoot } from "@/components/sync";
+import "./fonts.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,12 +18,15 @@ export const viewport: Viewport = { themeColor: "#0B0F0D" };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-      </head>
+      {/* Fonts are self-hosted (app/fonts.css + public/fonts) — no third-party
+          requests, no Google Fonts dependency, and the CSP can stay 'self'. */}
       <body>
+        {/* Apply the saved terminal theme before paint to avoid a flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('axiom-theme')==='amber')document.documentElement.setAttribute('data-theme','amber');}catch(e){}`,
+          }}
+        />
         <Nav />
         <SyncBoot />
         <div className="site-shell">

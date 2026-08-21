@@ -118,11 +118,11 @@ export function SecurityPanel({ mfaOn }: { mfaOn: boolean }) {
         )}
 
         {step === "codes" && backups.length > 0 && (
-          <div className="mt-4 rounded-[16px] border border-[#4A3A16] bg-[#241C0E] p-5">
+          <div className="mt-4 rounded-[16px] border border-[#4A3A16] bg-panel2 p-5">
             <div className="text-sm font-semibold" style={{ color: "#F0B429" }}>Save your backup codes</div>
             <p className="mt-1 text-sm leading-relaxed text-mut">Each works once, if you lose your phone. Shown only now.</p>
             <div className="mt-3 grid grid-cols-2 gap-2 font-mono text-sm text-ink sm:grid-cols-4">
-              {backups.map((b) => <span key={b} className="rounded bg-[#1A211D] px-2 py-1.5 text-center">{b}</span>)}
+              {backups.map((b) => <span key={b} className="rounded bg-panel2 px-2 py-1.5 text-center">{b}</span>)}
             </div>
             <div className="mt-3 flex gap-2">
               <button type="button" className="btn" onClick={() => { void navigator.clipboard?.writeText(backups.join("\n")).catch(() => {}); toast("Copied."); }}>Copy all</button>

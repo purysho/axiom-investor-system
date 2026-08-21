@@ -111,18 +111,18 @@ export default function PortfolioPage() {
   return (
     <div>
       {state.holdings.length === 0 ? (
-        <section className="rounded-[26px] bg-[#141B17] p-6 sm:p-9">
-          <WalletCards size={25} className="text-[#456555]" />
-          <h2 className="mt-5 max-w-2xl font-display text-[2.35rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.25rem]">Add the investments you actually plan to hold.</h2>
+        <section className="rounded-[26px] bg-panel p-6 sm:p-9">
+          <WalletCards size={25} className="text-faint" />
+          <h2 className="mt-5 max-w-2xl font-display text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2rem]">Add the investments you actually plan to hold.</h2>
           <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-mut">Start with your long-term portfolio. You do not need every data point on day one. Ticker, shares and a rough role are enough to begin.</p>
           <button type="button" className="btn-primary mt-7" onClick={() => document.getElementById("add-holding")?.scrollIntoView({ behavior: "smooth" })}>Add my first holding <ArrowRight size={16} /></button>
         </section>
       ) : (
         <>
-          <section className="mb-10 grid gap-8 border-b border-[#27312B] pb-10 lg:grid-cols-[1.35fr_.65fr] lg:items-end">
+          <section className="mb-10 grid gap-8 border-b border-line pb-10 lg:grid-cols-[1.35fr_.65fr] lg:items-end">
             <div>
               <div className="page-kicker">Your portfolio in plain English</div>
-              <h2 className="mt-2 max-w-3xl font-display text-[2.4rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[3.5rem]">
+              <h2 className="mt-2 max-w-3xl font-display text-[1.6rem] font-semibold leading-[1.04] tracking-[-0.04em] sm:text-[2.05rem]">
                 You own {state.holdings.length} holding{state.holdings.length === 1 ? "" : "s"} worth about {fmtUsd(ps.totalMarketValue)}.
               </h2>
               <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">
@@ -130,6 +130,13 @@ export default function PortfolioPage() {
                 {ps.forwardIncome > 0 ? `Your current inputs imply about ${fmtUsd(ps.forwardIncome)} of forward annual income. ` : ""}
                 {attention.length ? `${attention.length} holding${attention.length === 1 ? "" : "s"} deserve a closer look this week.` : "Nothing currently crosses the simple attention rules."}
               </p>
+              {ps.pricedCount > 0 && (
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-faint">
+                  {ps.totalUnrealizedUsd !== null ? `Unrealized: ${ps.totalUnrealizedUsd >= 0 ? "+" : ""}${fmtUsd(ps.totalUnrealizedUsd)}. ` : ""}
+                  {ps.effectiveHoldings !== null ? `Diversification: behaves like ${ps.effectiveHoldings.toFixed(1)} equal positions. ` : ""}
+                  {ps.sleeves.length > 1 ? `Mix: ${ps.sleeves.map((s) => `${s.sleeve} ${fmtPct(s.weightPct, 0)}`).join(" · ")}.` : ""}
+                </p>
+              )}
             </div>
             <div className="flex flex-wrap gap-3 lg:justify-end">
               <button type="button" className="btn" onClick={() => void refreshPrices()} disabled={refreshing}><RefreshCw size={15} />{refreshing ? "Updating…" : "Update prices"}</button>
@@ -144,7 +151,7 @@ export default function PortfolioPage() {
         <section className="mb-12">
           <div className="page-kicker">Look here first</div>
           <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">What may need a decision</h2>
-          <div className="mt-5 divide-y divide-[#27312B] border-y border-[#27312B]">
+          <div className="mt-5 divide-y divide-line border-y border-line">
             {attention.map(({ h, row, reasons }) => (
               <div key={h.id} className="grid gap-3 py-5 sm:grid-cols-[44px_1fr_auto] sm:items-center">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#241111] text-[#F4645C]"><CircleAlert size={18} /></span>
@@ -157,19 +164,19 @@ export default function PortfolioPage() {
       )}
 
       {state.holdings.length > 0 && (
-        <section className="mb-12 rounded-[24px] bg-[#241C0E]/76 p-6 sm:p-8">
+        <section className="mb-12 rounded-[24px] bg-panel2/76 p-6 sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="max-w-2xl">
               <div className="page-kicker">Once a week</div>
               <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Do the portfolio review</h2>
               <p className="mt-3 text-sm leading-relaxed text-mut">This is not a hunt for something to buy or sell. You are checking whether the reasons for owning your investments still make sense.</p>
             </div>
-            {reviewed ? <span className="badge bg-[#10241C] text-[#34D399]"><CircleCheckBig size={15} />Reviewed this week</span> : <span className="badge bg-[#241C0E] text-[#F0B429]">Review due</span>}
+            {reviewed ? <span className="badge bg-[#10241C] text-[#34D399]"><CircleCheckBig size={15} />Reviewed this week</span> : <span className="badge bg-panel2 text-[#F0B429]">Review due</span>}
           </div>
-          <div className="mt-7 divide-y divide-[#27312B] border-y border-[#27312B]">
+          <div className="mt-7 divide-y divide-line border-y border-line">
             {REVIEW_STEPS.map((item, i) => (
               <label key={item.title} className="flex cursor-pointer items-start gap-4 py-5">
-                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${checked[i] ? "bg-[#B4F03C] text-[#0B0F0D]" : "border border-[#3A453E] bg-[#241C0E] text-transparent"}`}><Check size={14} /></span>
+                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${checked[i] ? "bg-volt text-[#0B0F0D]" : "border border-line bg-panel2 text-transparent"}`}><Check size={14} /></span>
                 <input type="checkbox" className="sr-only" checked={checked[i]} onChange={() => setChecked((prev) => prev.map((v, j) => j === i ? !v : v))} />
                 <span><span className="block font-semibold">{item.title}</span><span className="mt-1 block text-sm leading-relaxed text-mut">{item.text}</span></span>
               </label>
@@ -188,7 +195,59 @@ export default function PortfolioPage() {
             <div><div className="page-kicker">What you own</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Holdings</h2></div>
             <div className="text-sm text-mut">Click a holding to review or edit it.</div>
           </div>
-          <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
+
+          {/* Dense positions table — the scannable terminal view */}
+          <div className="mb-6 overflow-x-auto border border-line bg-panel">
+            <table className="w-full font-mono text-[11px] tnum">
+              <thead>
+                <tr className="border-b border-line text-faint">
+                  <th className="px-3 py-1.5 text-left font-normal">Ticker</th>
+                  <th className="px-2 py-1.5 text-left font-normal">Sleeve</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Shares</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Price</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Mkt Value</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Weight</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Target</th>
+                  <th className="px-2 py-1.5 text-right font-normal">Drift</th>
+                  <th className="px-3 py-1.5 text-right font-normal">Unreal P&L</th>
+                </tr>
+              </thead>
+              <tbody>
+                {state.holdings.map((h) => {
+                  const row = ps.rows.find((r) => r.id === h.id);
+                  const drift = row?.driftPct ?? null;
+                  const pl = h.price != null && h.costBasis != null && h.shares != null ? (h.price - h.costBasis) * h.shares : null;
+                  const plPct = h.price != null && h.costBasis != null && h.costBasis !== 0 ? ((h.price - h.costBasis) / h.costBasis) * 100 : null;
+                  return (
+                    <tr key={h.id} className="border-b border-line/60 last:border-0 hover:bg-panel2">
+                      <td className="px-3 py-1.5 text-ink">{h.ticker}</td>
+                      <td className="px-2 py-1.5 text-faint">{h.sleeve}</td>
+                      <td className="px-2 py-1.5 text-right text-mut">{h.shares ?? "—"}</td>
+                      <td className="px-2 py-1.5 text-right text-mut">{h.price != null ? fmtUsd(h.price) : "—"}</td>
+                      <td className="px-2 py-1.5 text-right text-ink">{fmtUsd(row?.marketValue ?? null)}</td>
+                      <td className="px-2 py-1.5 text-right text-mut">{fmtPct(row?.weightPct ?? null)}</td>
+                      <td className="px-2 py-1.5 text-right text-faint">{h.targetWeightPct != null ? fmtPct(h.targetWeightPct) : "—"}</td>
+                      <td className="px-2 py-1.5 text-right" style={{ color: drift == null ? "#9BACA2" : Math.abs(drift) > 5 ? "#F0B429" : "#63736A" }}>
+                        {drift == null ? "—" : `${drift >= 0 ? "+" : "−"}${Math.abs(drift).toFixed(1)}%`}
+                      </td>
+                      <td className="px-3 py-1.5 text-right" style={{ color: pl == null ? "#9BACA2" : pl >= 0 ? "#34D399" : "#F4645C" }}>
+                        {pl == null ? "—" : `${pl >= 0 ? "+" : "−"}${fmtUsd(Math.abs(pl)).replace("$", "$")}${plPct != null ? ` (${plPct >= 0 ? "+" : "−"}${Math.abs(plPct).toFixed(1)}%)` : ""}`}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="border-t border-line text-ink">
+                  <td className="px-3 py-1.5 font-semibold" colSpan={4}>TOTAL</td>
+                  <td className="px-2 py-1.5 text-right font-semibold">{fmtUsd(ps.totalMarketValue)}</td>
+                  <td className="px-2 py-1.5 text-right text-faint" colSpan={4}>{state.holdings.length} holdings</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div className="divide-y divide-line border-y border-line">
             {state.holdings.map((h) => {
               const row = ps.rows.find((r) => r.id === h.id);
               const drift = row?.driftPct ?? null;
@@ -196,13 +255,13 @@ export default function PortfolioPage() {
                 <details key={h.id} className="group">
                   <summary className="grid cursor-pointer list-none gap-3 py-5 sm:grid-cols-[1fr_auto_auto] sm:items-center">
                     <div>
-                      <div className="flex items-center gap-3"><span className="text-[18px] font-bold">{h.ticker}</span><span className="badge bg-[#1A211D] text-[#69736d]">{h.sleeve}</span></div>
+                      <div className="flex items-center gap-3"><span className="text-[18px] font-bold">{h.ticker}</span><span className="badge bg-panel2 text-faint">{h.sleeve}</span></div>
                       <p className="mt-1 text-sm text-mut">{roleCopy(h.sleeve)} · Thesis {h.thesisStatus ? h.thesisStatus.toLowerCase() : "not reviewed"}</p>
                     </div>
                     <div className="text-sm sm:text-right"><div className="font-semibold">{fmtUsd(row?.marketValue ?? null)}</div><div className="text-xs text-faint">{fmtPct(row?.weightPct ?? null)} of portfolio</div></div>
-                    <div className="flex items-center gap-2 text-sm font-semibold text-[#49695a]">Review <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></div>
+                    <div className="flex items-center gap-2 text-sm font-semibold text-faint">Review <ChevronDown size={15} className="transition-transform group-open:rotate-180" /></div>
                   </summary>
-                  <div className="mb-6 rounded-[20px] bg-[#241C0E]/76 p-5 sm:p-7">
+                  <div className="mb-6 rounded-[20px] bg-panel2/76 p-5 sm:p-7">
                     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                       <label className="field-label">Role in portfolio<select className="field mt-1.5" value={h.sleeve} onChange={(e) => patchHolding(h.id, { sleeve: e.target.value as Sleeve })}>{(["Core", "Income", "Satellite", "Cash"] as Sleeve[]).map((s) => <option key={s}>{s}</option>)}</select></label>
                       <label className="field-label">Thesis status<select className="field mt-1.5" value={h.thesisStatus} onChange={(e) => patchHolding(h.id, { thesisStatus: e.target.value as ThesisStatus })}><option value="">Not reviewed</option>{THESIS_STATUSES.map((s) => <option key={s}>{s}</option>)}</select></label>
@@ -217,7 +276,7 @@ export default function PortfolioPage() {
                       <label className="field-label">Why do you own it?<textarea className="field mt-1.5 min-h-24" value={h.notes} onChange={(e) => patchHolding(h.id, { notes: e.target.value })} placeholder="One or two plain-English sentences." /></label>
                       <label className="field-label">Income / balance-sheet note<textarea className="field mt-1.5 min-h-24" value={h.coverageNote} onChange={(e) => patchHolding(h.id, { coverageNote: e.target.value })} placeholder="Only when income quality matters." /></label>
                     </div>
-                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#27312B] pt-5">
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
                       <div className="text-sm text-mut">Weight {fmtPct(row?.weightPct ?? null)} · Target {fmtPct(h.targetWeightPct)} · Drift {drift === null ? "—" : `${drift >= 0 ? "+" : "−"}${Math.abs(drift).toFixed(1)}%`}</div>
                       <button type="button" className="btn-danger" onClick={() => removeHolding(h.id)}>Remove {h.ticker}</button>
                     </div>
@@ -230,15 +289,15 @@ export default function PortfolioPage() {
         </section>
       )}
 
-      <section id="add-holding" className="border-t border-[#27312B] pt-10">
+      <section id="add-holding" className="border-t border-line pt-10">
         <details open={state.holdings.length === 0}>
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-4">
               <div><div className="page-kicker">Add to the long-term list</div><h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Add a holding</h2><p className="mt-2 text-sm text-mut">Start with the basics. The extra income and ETF fields can be left blank until they matter.</p></div>
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><Plus size={18} /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-panel text-faint"><Plus size={18} /></span>
             </div>
           </summary>
-          <div className="mt-7 rounded-[22px] bg-[#241C0E]/76 p-6 sm:p-8">
+          <div className="mt-7 rounded-[22px] bg-panel2/76 p-6 sm:p-8">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <label className="field-label">Ticker<input className="field mt-1.5" value={add.ticker} onChange={(e) => setAdd({ ...add, ticker: e.target.value })} placeholder="e.g. VUSA" /></label>
               <label className="field-label">What is it?<select className="field mt-1.5" value={add.type} onChange={(e) => setAdd({ ...add, type: e.target.value as Holding["type"] })}>{(["Stock", "ETF", "Fund", "Bond", "Cash", "Other"] as const).map((t) => <option key={t}>{t}</option>)}</select></label>
@@ -250,7 +309,7 @@ export default function PortfolioPage() {
               <label className="field-label">Annual distribution / share ($)<input className="field mt-1.5" inputMode="decimal" value={add.annualDistPerShare} onChange={(e) => setAdd({ ...add, annualDistPerShare: e.target.value })} /></label>
             </div>
             <details className="mt-5">
-              <summary className="cursor-pointer text-sm font-semibold text-[#49695a]">Optional ETF and income fields</summary>
+              <summary className="cursor-pointer text-sm font-semibold text-faint">Optional ETF and income fields</summary>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <label className="field-label">Expense ratio (%)<input className="field mt-1.5" inputMode="decimal" value={add.expenseRatioPct} onChange={(e) => setAdd({ ...add, expenseRatioPct: e.target.value })} /></label>
                 <label className="field-label">Yield (%)<input className="field mt-1.5" inputMode="decimal" value={add.yieldPct} onChange={(e) => setAdd({ ...add, yieldPct: e.target.value })} /></label>

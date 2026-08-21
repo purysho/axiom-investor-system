@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertTriangle, Link2, Link2Off, RefreshCw } from "lucide-react";
+import { AlertTriangle, Bot, Link2, Link2Off, RefreshCw } from "lucide-react";
 import { toast } from "@/components/toast";
 
 interface Status {
   connected: boolean;
   liveAllowed: boolean;
+  broker?: "alpaca" | "sim";
   mode?: "paper" | "live";
   keyHint?: string;
   ordersToday?: number;
@@ -18,6 +19,7 @@ interface Status {
 
 export function BrokerPanel() {
   const [status, setStatus] = useState<Status | null>(null);
+  const [tab, setTab] = useState<"sim" | "alpaca">("sim");
   const [keyId, setKeyId] = useState("");
   const [secret, setSecret] = useState("");
   const [mode, setMode] = useState<"paper" | "live">("paper");
@@ -31,7 +33,21 @@ export function BrokerPanel() {
   }, []);
   useEffect(() => { void load(); }, [load]);
 
-  const connect = async () => {
+  const connectSim = async () => {
+    setBusy(true);
+    try {
+      const res = await fetch("/api/broker/connect", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "sim" }),
+      });
+      const j = await res.json();
+      if (!res.ok) { toast(j.error ?? "Couldn't connect the simulator.", "error"); return; }
+      toast("Built-in simulator connected — $10,000 paper account ready.");
+      await load();
+    } finally { setBusy(false); }
+  };
+
+  const connectAlpaca = async () => {
     setBusy(true);
     try {
       const res = await fetch("/api/broker/connect", {
@@ -47,7 +63,7 @@ export function BrokerPanel() {
   };
 
   const disconnect = async () => {
-    if (!window.confirm("Forget your broker keys? Open positions are unaffected — Axiom just stops being able to see or trade them.")) return;
+    if (!window.confirm("Disconnect the broker? Open positions are unaffected — AXIOM just stops being able to see or trade them.")) return;
     await fetch("/api/broker/connect", { method: "DELETE" });
     toast("Broker disconnected.", "warning");
     await load();
@@ -75,51 +91,101 @@ export function BrokerPanel() {
           <span className="badge" style={{ background: "#1A211D", color: "#9FB0A6" }}>Not connected</span>
         </div>
         <p className="mt-1 text-sm leading-relaxed text-mut">
-          Connect <span className="text-ink">your own</span> Alpaca account to place real orders from Copilot.
-          Start with paper keys — they trade fake money against real market data.
-          Create them at alpaca.markets → Paper Trading → API Keys.
+          Connect a broker to let AXIOM and the AXIOM Bot submit and track orders. You can use the built-in
+          simulator with no account or API keys — everything runs locally.
         </p>
 
-        <div className="mt-4 grid gap-3 sm:max-w-md">
-          <label className="field-label">API key ID
-            <input className="field mt-1.5 font-mono text-xs" value={keyId} onChange={(e) => setKeyId(e.target.value)} placeholder="PK…" />
-          </label>
-          <label className="field-label">API secret
-            <input className="field mt-1.5 font-mono text-xs" type="password" value={secret} onChange={(e) => setSecret(e.target.value)} />
-          </label>
-          <div className="flex items-center gap-2">
-            <button type="button" className="btn text-xs" onClick={() => setMode("paper")} style={mode === "paper" ? { borderColor: "#B4F03C", color: "#B4F03C" } : {}}>Paper</button>
+        {/* Tab selector */}
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            className="btn text-xs"
+            onClick={() => setTab("sim")}
+            style={tab === "sim" ? { borderColor: "#B4F03C", color: "#B4F03C" } : {}}
+          >
+            <Bot size={13} /> Built-in simulator
+          </button>
+          <button
+            type="button"
+            className="btn text-xs"
+            onClick={() => setTab("alpaca")}
+            style={tab === "alpaca" ? { borderColor: "#B4F03C", color: "#B4F03C" } : {}}
+          >
+            <Link2 size={13} /> Alpaca
+          </button>
+        </div>
+
+        {tab === "sim" ? (
+          <div className="mt-4 max-w-md rounded-[18px] bg-panel p-5">
+            <p className="text-sm leading-relaxed text-mut">
+              The built-in simulator fills bracket orders against the same free daily-close data that powers
+              the backtester. No signup, no API keys, no tax information.
+            </p>
+            <ul className="mt-3 grid gap-1 text-xs text-faint">
+              <li>• Starts with $10,000 paper equity</li>
+              <li>• Fills at last close price from the free data feed</li>
+              <li>• Stop and take-profit levels are enforced daily</li>
+              <li>• Every interlock still applies — gate, protections, kill switch</li>
+            </ul>
             <button
               type="button"
-              className="btn text-xs"
-              disabled={!status.liveAllowed}
-              onClick={() => setMode("live")}
-              style={mode === "live" ? { borderColor: "#F4645C", color: "#F4645C" } : {}}
-              title={status.liveAllowed ? "" : "Live trading is disabled on this deployment"}
+              className="btn-primary mt-4"
+              onClick={() => void connectSim()}
+              disabled={busy}
             >
-              Live {status.liveAllowed ? "" : "(disabled)"}
+              <Bot size={14} /> {busy ? "Connecting…" : "Connect built-in simulator"}
             </button>
           </div>
-          <button type="button" className="btn-primary" onClick={() => void connect()} disabled={busy || !keyId || !secret}>
-            <Link2 size={14} /> {busy ? "Verifying…" : "Connect and verify"}
-          </button>
-          <p className="text-[11px] leading-relaxed text-faint">
-            Keys are verified against the broker before being saved, then stored encrypted. They never reach your browser again.
-            Axiom cannot withdraw funds — the API keys grant trading only.
-          </p>
-        </div>
+        ) : (
+          <div className="mt-4 grid gap-3 sm:max-w-md">
+            <p className="text-sm leading-relaxed text-mut">
+              Start with paper keys — they trade fake money against real market data. Create them at{" "}
+              <span className="text-ink">alpaca.markets → Paper Trading → API Keys</span>. No tax
+              information required for a paper account.
+            </p>
+            <label className="field-label">API key ID
+              <input className="field mt-1.5 font-mono text-xs" value={keyId} onChange={(e) => setKeyId(e.target.value)} placeholder="PK…" />
+            </label>
+            <label className="field-label">API secret
+              <input className="field mt-1.5 font-mono text-xs" type="password" value={secret} onChange={(e) => setSecret(e.target.value)} />
+            </label>
+            <div className="flex items-center gap-2">
+              <button type="button" className="btn text-xs" onClick={() => setMode("paper")} style={mode === "paper" ? { borderColor: "#B4F03C", color: "#B4F03C" } : {}}>Paper</button>
+              <button
+                type="button"
+                className="btn text-xs"
+                disabled={!status.liveAllowed}
+                onClick={() => setMode("live")}
+                style={mode === "live" ? { borderColor: "#F4645C", color: "#F4645C" } : {}}
+                title={status.liveAllowed ? "" : "Live trading is disabled on this deployment"}
+              >
+                Live {status.liveAllowed ? "" : "(disabled)"}
+              </button>
+            </div>
+            <button type="button" className="btn-primary" onClick={() => void connectAlpaca()} disabled={busy || !keyId || !secret}>
+              <Link2 size={14} /> {busy ? "Verifying…" : "Connect and verify"}
+            </button>
+            <p className="text-[11px] leading-relaxed text-faint">
+              Keys are verified against the broker before being saved, then stored encrypted. They never reach your browser again.
+              AXIOM cannot withdraw funds — the API keys grant trading only.
+              {" "}<a href="/help#broker" className="quiet-link">Can&apos;t find your keys?</a>
+            </p>
+          </div>
+        )}
       </div>
     );
   }
 
-  const live = status.mode === "live";
+  const isSim = status.broker === "sim";
+  const isLive = status.mode === "live";
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2">
-        <Link2 size={17} style={{ color: live ? "#F4645C" : "#34D399" }} />
-        <span className="text-sm font-semibold text-ink">Alpaca</span>
-        <span className="badge" style={live ? { background: "#241111", color: "#F4645C" } : { background: "#10241C", color: "#34D399" }}>
-          {live ? "LIVE — real money" : "Paper"}
+        {isSim ? <Bot size={17} className="text-[#34D399]" /> : <Link2 size={17} style={{ color: isLive ? "#F4645C" : "#34D399" }} />}
+        <span className="text-sm font-semibold text-ink">{isSim ? "Built-in simulator" : "Alpaca"}</span>
+        <span className="badge" style={isLive ? { background: "#241111", color: "#F4645C" } : { background: "#10241C", color: "#34D399" }}>
+          {isLive ? "LIVE — real money" : isSim ? "Simulator" : "Paper"}
         </span>
         {status.keyHint && <span className="font-mono text-xs text-faint">…{status.keyHint}</span>}
       </div>
@@ -133,7 +199,7 @@ export function BrokerPanel() {
               ["Equity", `$${Math.round(status.account?.equity ?? 0).toLocaleString()}`],
               ["Buying power", `$${Math.round(status.account?.buyingPower ?? 0).toLocaleString()}`],
               ["Orders today", `${status.ordersToday ?? 0} / 5`],
-              ["Market", status.clock?.isOpen ? "Open" : "Closed"],
+              ["Market", isSim ? "Simulated" : (status.clock?.isOpen ? "Open" : "Closed")],
             ].map(([l, v]) => (
               <div key={l} className="rounded-[14px] bg-panel2 p-3">
                 <div className="eyebrow">{l}</div>
@@ -143,7 +209,7 @@ export function BrokerPanel() {
           </div>
 
           {status.account?.restricted && (
-            <p className="mt-3 flex items-start gap-2 rounded-[14px] bg-[#241C0E] px-4 py-3 text-sm" style={{ color: "#F0B429" }}>
+            <p className="mt-3 flex items-start gap-2 rounded-[14px] bg-panel2 px-4 py-3 text-sm" style={{ color: "#F0B429" }}>
               <AlertTriangle size={15} className="mt-0.5 shrink-0" />
               Your broker has restricted this account. Axiom will refuse to submit orders until that clears.
             </p>
@@ -166,11 +232,22 @@ export function BrokerPanel() {
       )}
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <button type="button" className="btn" onClick={() => void sync()} disabled={busy}>
-          <RefreshCw size={14} className={busy ? "animate-spin" : ""} /> Sync orders
+        {!isSim && (
+          <button type="button" className="btn" onClick={() => void sync()} disabled={busy}>
+            <RefreshCw size={14} className={busy ? "animate-spin" : ""} /> Sync orders
+          </button>
+        )}
+        <button type="button" className="btn-danger" onClick={() => void disconnect()}>
+          {isSim ? "Reset simulator" : "Disconnect"}
         </button>
-        <button type="button" className="btn-danger" onClick={() => void disconnect()}>Disconnect</button>
       </div>
+
+      {isSim && (
+        <p className="mt-3 text-[11px] leading-relaxed text-faint">
+          Resetting the simulator returns the account to $10,000 and removes all open positions.
+          Order history is preserved.
+        </p>
+      )}
     </div>
   );
 }

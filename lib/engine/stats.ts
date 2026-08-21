@@ -114,6 +114,13 @@ export function journalStats(trades: Trade[]): JournalStats {
   };
 }
 
+export interface SleeveBreakdown {
+  sleeve: string;
+  marketValue: number;
+  weightPct: number;
+  holdings: number;
+}
+
 export interface PortfolioStats {
   totalMarketValue: number;
   pricedCount: number;
@@ -124,6 +131,14 @@ export interface PortfolioStats {
   topWeightTicker: string | null;
   top3IncomeConcPct: number | null;
   weightedExpensePct: number | null;
+  /** Sum of unrealized P&L over holdings with cost basis; null if none have one. */
+  totalUnrealizedUsd: number | null;
+  /** Allocation by sleeve (Core/Income/Satellite/Cash), priced holdings only. */
+  sleeves: SleeveBreakdown[];
+  /** Herfindahl–Hirschman index over position weights (0–1; 1 = one position). */
+  hhi: number | null;
+  /** 1/HHI — "how many equally-sized positions is this really?" */
+  effectiveHoldings: number | null;
   rows: {
     id: string;
     ticker: string;
@@ -185,6 +200,24 @@ export function portfolioStats(holdings: Holding[]): PortfolioStats {
     .filter((r) => r.weightPct !== null)
     .sort((a, b) => (b.weightPct as number) - (a.weightPct as number))[0];
 
+  // Sleeve allocation over priced holdings.
+  const bySleeve = new Map<string, { marketValue: number; holdings: number }>();
+  for (const h of priced) {
+    const mv = (h.price as number) * (h.shares as number);
+    const cur = bySleeve.get(h.sleeve) ?? { marketValue: 0, holdings: 0 };
+    bySleeve.set(h.sleeve, { marketValue: cur.marketValue + mv, holdings: cur.holdings + 1 });
+  }
+  const sleeves: SleeveBreakdown[] = [...bySleeve.entries()]
+    .map(([sleeve, v]) => ({ sleeve, marketValue: v.marketValue, weightPct: totalMV > 0 ? (v.marketValue / totalMV) * 100 : 0, holdings: v.holdings }))
+    .sort((a, b) => b.marketValue - a.marketValue);
+
+  // Concentration: HHI over weights, and its reciprocal as "effective" count.
+  const weights = rows.filter((r) => r.weightPct !== null).map((r) => (r.weightPct as number) / 100);
+  const hhi = weights.length ? weights.reduce((a, w) => a + w * w, 0) : null;
+  const effectiveHoldings = hhi && hhi > 0 ? 1 / hhi : null;
+
+  const unrealized = rows.filter((r) => r.unrealizedUsd !== null).map((r) => r.unrealizedUsd as number);
+
   return {
     totalMarketValue: totalMV,
     pricedCount: priced.length,
@@ -197,6 +230,10 @@ export function portfolioStats(holdings: Holding[]): PortfolioStats {
     topWeightTicker: top?.ticker ?? null,
     top3IncomeConcPct: forwardIncome > 0 ? (top3Income / forwardIncome) * 100 : null,
     weightedExpensePct: weightedExpense,
+    totalUnrealizedUsd: unrealized.length ? unrealized.reduce((a, b) => a + b, 0) : null,
+    sleeves,
+    hhi,
+    effectiveHoldings,
     rows,
   };
 }

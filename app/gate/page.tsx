@@ -88,7 +88,7 @@ export default function GatePage() {
       <section className="mb-10 rounded-[26px] p-6 sm:p-9" style={{ background: stateMeta.bg }}>
         <div className="max-w-3xl">
           <stateMeta.Icon size={27} style={{ color: stateMeta.ink }} />
-          <h2 className="mt-5 font-display text-[2.4rem] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[3.5rem]">{stateMeta.answer}</h2>
+          <h2 className="mt-5 font-display text-[1.6rem] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[2.05rem]">{stateMeta.answer}</h2>
           <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-mut">{stateMeta.copy}</p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button type="button" className="btn-primary" onClick={fetchLatest} disabled={fetching}><ArrowDownToLine size={16} />{fetching ? "Updating…" : "Update today's market checks"}</button>
@@ -104,7 +104,7 @@ export default function GatePage() {
           <p className="mt-3 text-sm leading-relaxed text-mut">Unknown facts stay unknown. AXIOM never treats missing information as a pass.</p>
         </div>
 
-        <div className="divide-y divide-[#27312B] border-y border-[#27312B]">
+        <div className="divide-y divide-line border-y border-line">
           {gate.checks.map((c) => {
             const plain = PLAIN_CHECKS[c.id];
             const tone = c.pass ? { Icon: Check, label: "Clear", ink: "#34D399", bg: "#EFF6F1" } : c.unknown ? { Icon: CircleHelp, label: "Not known", ink: "#767e79", bg: "#1A211D" } : { Icon: AlertTriangle, label: "Outside limit", ink: "#F4645C", bg: "#241111" };
@@ -115,7 +115,7 @@ export default function GatePage() {
                   <h3 className="text-[17px] font-semibold text-ink">{plain?.title ?? c.label}</h3>
                   <p className="mt-1 text-sm text-mut">Current reading: <strong className="font-semibold text-ink">{c.current}</strong>. Your rule is {c.threshold}.</p>
                   <details className="mt-3 group">
-                    <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-semibold text-[#49695a]">Why this matters <ChevronDown size={14} className="transition-transform group-open:rotate-180" /></summary>
+                    <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-semibold text-faint">Why this matters <ChevronDown size={14} className="transition-transform group-open:rotate-180" /></summary>
                     <p className="mt-2 max-w-2xl text-sm leading-relaxed text-mut">{plain?.why}</p>
                   </details>
                 </div>
@@ -130,7 +130,7 @@ export default function GatePage() {
         </div>
       </section>
 
-      <section className="mb-12 border-t border-[#27312B] pt-10">
+      <section className="mb-12 border-t border-line pt-10">
         <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr]">
           <div>
             <div className="page-kicker">Two things only you can answer</div>
@@ -146,7 +146,7 @@ export default function GatePage() {
                 <option value="">Not sure yet</option><option value="no">No</option><option value="yes">Yes</option>
               </select>
             </label>
-            <details className="mt-2 rounded-[18px] bg-[#241C0E]/70 p-5">
+            <details className="mt-2 rounded-[18px] bg-panel2/70 p-5">
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-4"><div><div className="text-sm font-semibold text-ink">Enter market facts manually</div><p className="mt-1 text-sm text-mut">Only use this when the automatic update is unavailable or you are verifying a delayed reading.</p></div><ChevronDown size={18} className="shrink-0 text-faint" /></div>
               </summary>
@@ -165,7 +165,7 @@ export default function GatePage() {
         </div>
       </section>
 
-      <section className="mb-12 rounded-[22px] bg-[#241C0E]/75 p-6 sm:p-8">
+      <section className="mb-12 rounded-[22px] bg-panel2/75 p-6 sm:p-8">
         <details>
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-4">
@@ -191,7 +191,7 @@ export default function GatePage() {
         </details>
       </section>
 
-      <section className="border-t border-[#27312B] pt-10">
+      <section className="border-t border-line pt-10">
         <details>
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-5">
@@ -200,11 +200,11 @@ export default function GatePage() {
                 <h2 className="mt-1 font-display text-[2rem] font-semibold tracking-[-0.035em]">Size a trade from the loss I can accept</h2>
                 <p className="mt-3 text-sm leading-relaxed text-mut">Open the calculator when you have a real entry and stop. AXIOM works backwards from your planned risk budget instead of asking how confident you feel.</p>
               </div>
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#151B17] text-[#49695a]"><Gauge size={18} /></span>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-panel text-faint"><Gauge size={18} /></span>
             </div>
           </summary>
 
-          <div className="mt-7 rounded-[22px] bg-[#241C0E]/75 p-6 sm:p-8">
+          <div className="mt-7 rounded-[22px] bg-panel2/75 p-6 sm:p-8">
             <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr]">
               <div className="grid gap-4">
                 <label className="field-label">Planned entry ($)<input className="field mt-1.5" inputMode="decimal" value={entry} onChange={(e) => setEntry(e.target.value)} /></label>

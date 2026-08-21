@@ -3,13 +3,15 @@ import { getSessionUser } from "@/lib/server/auth";
 import { audit } from "@/lib/server/audit";
 import { AlpacaBroker } from "@/lib/broker/alpaca";
 import { BrokerError, type BrokerMode } from "@/lib/broker/types";
+import { SIM_INITIAL_EQUITY } from "@/lib/broker/sim";
 import { liveTradingEnabled } from "@/lib/broker/preflight";
-import { clearBrokerKeys, saveBrokerKeys } from "@/lib/server/broker-store";
+import { clearBrokerKeys, connectSim, saveBrokerKeys } from "@/lib/server/broker-store";
 import { limited, clientIp } from "@/lib/server/ratelimit";
 
 export const dynamic = "force-dynamic";
 
-/** POST { keyId, secret, mode } — verifies the keys against the broker before storing them. */
+/** POST { keyId, secret, mode } — verifies the keys against the broker before storing them.
+ *  POST { mode: "sim" } — activates the built-in paper simulator with no keys needed. */
 export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -18,6 +20,18 @@ export async function POST(req: Request) {
 
   let body: { keyId?: string; secret?: string; mode?: string };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid request." }, { status: 400 }); }
+
+  // Built-in simulator path — no API keys required.
+  if (body.mode === "sim") {
+    await connectSim(user.id);
+    await audit("broker.connected", { userId: user.id, username: user.username, req, detail: "sim paper" });
+    return NextResponse.json({
+      ok: true,
+      mode: "paper",
+      broker: "sim",
+      account: { accountNumber: "SIM", equity: SIM_INITIAL_EQUITY, currency: "USD", restricted: false },
+    });
+  }
 
   const keyId = (body.keyId ?? "").trim();
   const secret = (body.secret ?? "").trim();
@@ -36,6 +50,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       mode,
+      broker: "alpaca",
       account: { accountNumber: account.accountNumber.slice(-4), equity: account.equity, currency: account.currency, restricted: account.restricted },
     });
   } catch (e) {

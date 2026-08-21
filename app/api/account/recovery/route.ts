@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import { getSessionUser, hashPassphrase } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
+import { limited } from "@/lib/server/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,8 @@ function makeRecoveryCode(): string {
 export async function POST(req: Request) {
   const session = await getSessionUser();
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (limited(`recovery-gen:${session.id}`, 3, 10 * 60_000))
+    return NextResponse.json({ error: "Too many new codes — wait a few minutes." }, { status: 429 });
   const code = makeRecoveryCode();
   const rec = hashPassphrase(code);
   const c = await db();

@@ -29,10 +29,10 @@ export default function ResetPage() {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="panel w-full max-w-md p-8 text-center">
-          <div className="eyebrow text-[#B4F03C]">Passphrase changed</div>
+          <div className="eyebrow text-volt">Passphrase changed</div>
           <h1 className="mt-2 font-display text-2xl font-semibold text-ink">Save your new recovery code</h1>
           <p className="mt-3 text-sm leading-relaxed text-mut">The old code is now invalid. This new one is shown once.</p>
-          <div className="mt-5 rounded-[14px] border border-[#27312B] bg-[#1A211D] px-4 py-4 font-mono text-lg tracking-wider text-[#B4F03C]">{fresh}</div>
+          <div className="mt-5 rounded-[14px] border border-line bg-panel2 px-4 py-4 font-mono text-lg tracking-wider text-volt">{fresh}</div>
           <button type="button" className="btn mt-3 w-full" onClick={() => { void navigator.clipboard?.writeText(fresh).catch(() => {}); }}>Copy code</button>
           <Link href="/login" className="btn-primary mt-3 w-full">Sign in with the new passphrase</Link>
         </div>

@@ -6,15 +6,19 @@ import { useEffect, useRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Home, PieChart, Lightbulb, BookOpenText, CalendarCheck2, Library,
-  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Bot,
+  Settings, LineChart, Users, ShieldCheck, MoreHorizontal, Bot, Cpu, LifeBuoy,
+  Activity,
 } from "lucide-react";
 import { SyncBadge } from "@/components/sync";
 import { AxiomMark } from "@/components/logo";
+import { TickerTape } from "@/components/ticker-tape";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type NavItem = { href: string; label: string; key: string; Icon: LucideIcon };
 
 const PRIMARY_NAV: NavItem[] = [
   { href: "/", label: "Today", key: "0", Icon: Home },
+  { href: "/terminal", label: "Terminal", key: "t", Icon: Activity },
   { href: "/portfolio", label: "My portfolio", key: "4", Icon: PieChart },
   { href: "/copilot", label: "Copilot", key: "c", Icon: Bot },
   { href: "/watchlist", label: "Trade ideas", key: "5", Icon: Lightbulb },
@@ -25,19 +29,21 @@ const PRIMARY_NAV: NavItem[] = [
 
 const MORE_NAV: NavItem[] = [
   { href: "/gate", label: "Risk check", key: "2", Icon: ShieldCheck },
+  { href: "/bot", label: "AXIOM Bot", key: "b", Icon: Cpu },
   { href: "/charts", label: "Charts", key: "6", Icon: LineChart },
   { href: "/group", label: "Group", key: "9", Icon: Users },
+  { href: "/help", label: "Help & support", key: "h", Icon: LifeBuoy },
   { href: "/settings", label: "Settings", key: "", Icon: Settings },
 ];
 
 const NAV = [...PRIMARY_NAV, ...MORE_NAV, { href: "/daily", label: "Daily check", key: "1", Icon: Home }];
 
 const TITLES: Record<string, string> = {
-  "/": "Today", "/daily": "Daily check", "/gate": "Risk check",
+  "/": "Today", "/terminal": "Terminal", "/daily": "Daily check", "/gate": "Risk check",
   "/journal": "Journal", "/portfolio": "My portfolio", "/copilot": "Copilot",
-  "/watchlist": "Trade ideas",
+  "/bot": "AXIOM Bot", "/watchlist": "Trade ideas",
   "/charts": "Charts", "/monthly": "Monthly review", "/guides": "Learn", "/group": "Group",
-  "/settings": "Settings", "/login": "Sign in", "/join": "Join",
+  "/help": "Help & support", "/settings": "Settings", "/login": "Sign in", "/join": "Join",
 };
 
 const AUTH_PATHS = ["/login", "/join"];
@@ -125,11 +131,17 @@ export function Nav() {
                 ))}
               </div>
             </details>
+            <span className="ml-1"><ThemeToggle /></span>
           </nav>
 
-          <Link href="/settings" className="md:hidden" aria-label="Settings"><Settings size={20} /></Link>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <Link href="/settings" aria-label="Settings"><Settings size={20} /></Link>
+          </div>
         </div>
       </header>
+
+      <TickerTape />
 
       <nav className="mobile-nav md:hidden" aria-label="Mobile navigation">
         {mobile.map((n) => {
@@ -211,7 +223,7 @@ export function Footer() {
   return (
     <footer className="site-footer">
       AXIOM is an educational process tool, not investment advice. Market figures may be delayed. Planned stop risk is not a guaranteed maximum loss.
-      <span className="mt-2 block"><Link href="/terms" className="quiet-link">Terms</Link> · <Link href="/privacy" className="quiet-link">Privacy</Link></span>
+      <span className="mt-2 block"><Link href="/help" className="quiet-link">Help &amp; support</Link> · <Link href="/terms" className="quiet-link">Terms</Link> · <Link href="/privacy" className="quiet-link">Privacy</Link></span>
     </footer>
   );
 }

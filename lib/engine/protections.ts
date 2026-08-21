@@ -42,6 +42,9 @@ export interface ProtectionSettings {
   requireReflections: boolean;
   /** Minutes after a loss during which a new entry counts as revenge. */
   revengeWindowMinutes: number;
+  /** Realised losses TODAY as % of portfolio → done for the day. Optional for
+   *  states saved before this rule existed; the default applies when absent. */
+  dailyLoss?: { pct: number };
 }
 
 export const DEFAULT_PROTECTIONS: ProtectionSettings = {
@@ -52,6 +55,7 @@ export const DEFAULT_PROTECTIONS: ProtectionSettings = {
   symbolLoss: { losses: 2, lookbackDays: 30, lockDays: 14 },
   requireReflections: true,
   revengeWindowMinutes: 30,
+  dailyLoss: { pct: 2 },
 };
 
 const MS_DAY = 86_400_000;
@@ -170,6 +174,28 @@ export function evaluateProtections(state: AppState, now = Date.now()): Lock[] {
           until: new Date(until).toISOString(),
           reason: `${recent.length} stop-outs in ${lookbackDays} days. Either the market changed or your edge did.`,
           remedy: "Review the last few trades before risking more.",
+        });
+      }
+    }
+  }
+
+  // ── 4b. Daily loss limit: down X% today → done for the day ──────────────
+  {
+    const dailyPct = (p.dailyLoss ?? DEFAULT_PROTECTIONS.dailyLoss)?.pct ?? 0;
+    if (dailyPct > 0 && state.settings.portfolioValue > 0) {
+      const today = new Date(now).toISOString().slice(0, 10);
+      const todayNet = closed
+        .filter((t) => t.exitDate === today)
+        .reduce((sum, t) => sum + realisedUsd(t), 0);
+      if (todayNet <= -(dailyPct / 100) * state.settings.portfolioValue) {
+        const nextMidnight = new Date(now);
+        nextMidnight.setUTCHours(24, 0, 0, 0);
+        locks.push({
+          id: "daily-loss",
+          scope: "global",
+          until: nextMidnight.toISOString(),
+          reason: `Down ${Math.abs((todayNet / state.settings.portfolioValue) * 100).toFixed(1)}% today (limit ${dailyPct}%). You are done for the day.`,
+          remedy: "Tomorrow exists. Nothing you do in the next few hours will be your best decision.",
         });
       }
     }

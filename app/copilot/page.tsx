@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bot, Lock, Power, RefreshCw, ShieldAlert, Zap } from "lucide-react";
+import { Bot, Power, RefreshCw, ShieldAlert, Zap } from "lucide-react";
 import { Panel } from "@/components/chrome";
 import { ProtectionBanner } from "@/components/protection-banner";
 import { toast } from "@/components/toast";
@@ -16,6 +16,8 @@ interface ApiCandidate {
   asset: string; side: "Long"; strategy: Recommendation["strategy"];
   entry: number; stop: number; takeProfits: number[];
   confidence: number; evidence: string[]; technical: Record<string, number | string | null>;
+  invalidation?: string | null;
+  dataAsOf?: string | null;
 }
 
 export default function CopilotPage() {
@@ -120,6 +122,8 @@ export default function CopilotPage() {
         maxRiskUsd: null,
         confidence: Math.max(0, Math.min(1, c.confidence ?? 0.5)),
         evidence: (c.evidence ?? []).slice(0, 4),
+        invalidation: typeof c.invalidation === "string" ? c.invalidation.slice(0, 200) : null,
+        dataAsOf: c.dataAsOf ?? null,
         technical: c.technical ?? {},
         macro: { gateState: gate.state },
         sentiment: null,
@@ -200,8 +204,10 @@ export default function CopilotPage() {
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight">Copilot</h1>
           <p className="mt-1 max-w-xl text-sm text-mut">
-            Scans your trade-idea tickers, proposes paper trades with evidence, and sizes them with your risk
-            engine. It never executes anything — you approve each one, and approvals are <span className="text-ink">paper only</span> for now.
+            Scans your trade-idea tickers, proposes trades with evidence, and sizes them with your risk
+            engine. It never executes on its own — <span className="text-ink">you approve each one</span>. Approvals
+            record a paper trade, or route to your connected broker (paper by default; a live order needs the
+            deployment flag and your typed confirmation).
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -250,6 +256,51 @@ export default function CopilotPage() {
         </p>
       </Panel>
 
+      {/* Dense proposal blotter */}
+      {live.length > 0 && (
+        <div className="overflow-x-auto border border-line bg-panel">
+          <div className="border-b border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+            Live proposals — {live.length}
+          </div>
+          <table className="w-full font-mono text-[11px] tnum">
+            <thead>
+              <tr className="border-b border-line text-faint">
+                <th className="px-3 py-1.5 text-left font-normal">Asset</th>
+                <th className="px-2 py-1.5 text-left font-normal">Strategy</th>
+                <th className="px-2 py-1.5 text-right font-normal">Entry</th>
+                <th className="px-2 py-1.5 text-right font-normal">Stop</th>
+                <th className="px-2 py-1.5 text-right font-normal">Target</th>
+                <th className="px-2 py-1.5 text-right font-normal">Size</th>
+                <th className="px-2 py-1.5 text-right font-normal">R:R</th>
+                <th className="px-2 py-1.5 text-right font-normal">Conf</th>
+                <th className="px-3 py-1.5 text-left font-normal">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {live.map((r) => {
+                const tp = r.takeProfits[0] ?? null;
+                const rr = tp != null && r.entry != null && r.stop != null && r.entry !== r.stop
+                  ? (tp - r.entry) / (r.entry - r.stop) : null;
+                const ok = r.validation?.ok;
+                return (
+                  <tr key={r.id} className="border-b border-line/60 last:border-0 hover:bg-panel2">
+                    <td className="px-3 py-1.5 text-ink">{r.asset}</td>
+                    <td className="px-2 py-1.5 text-mut">{r.strategy}</td>
+                    <td className="px-2 py-1.5 text-right text-ink">{r.entry}</td>
+                    <td className="px-2 py-1.5 text-right" style={{ color: "#F4645C" }}>{r.stop}</td>
+                    <td className="px-2 py-1.5 text-right" style={{ color: "#34D399" }}>{tp ?? "—"}</td>
+                    <td className="px-2 py-1.5 text-right text-mut">{r.positionSize ?? "—"}</td>
+                    <td className="px-2 py-1.5 text-right text-mut">{rr == null ? "—" : `${rr.toFixed(1)}`}</td>
+                    <td className="px-2 py-1.5 text-right" style={{ color: "rgb(var(--c-volt))" }}>{Math.round(r.confidence * 100)}%</td>
+                    <td className="px-3 py-1.5" style={{ color: ok ? "#34D399" : "#F0B429" }}>{ok ? "approvable" : "blocked"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* Proposal cards */}
       {live.length > 0 && (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -279,6 +330,9 @@ export default function CopilotPage() {
                 {r.evidence.map((e, i) => (
                   <li key={i} className="flex gap-2"><span style={{ color: "#B4F03C" }}>·</span><span>{e}</span></li>
                 ))}
+                {r.invalidation && (
+                  <li className="flex gap-2"><span style={{ color: "#F4645C" }}>✕</span><span><span className="text-faint">Invalid if:</span> {r.invalidation}</span></li>
+                )}
               </ul>
               {r.validation.notes.length > 0 && (
                 <p className="text-[11px] text-faint">{r.validation.notes.join(" ")}</p>
@@ -341,15 +395,15 @@ export default function CopilotPage() {
         </Panel>
       )}
 
-      {/* Autopilot locked */}
+      {/* Autopilot */}
       <div className="flex items-center gap-3 rounded-lg border border-dashed border-line bg-panel px-4 py-3.5">
-        <Lock size={16} className="text-faint" />
-        <div className="flex-1 text-sm text-mut">
-          <span className="font-semibold text-ink">Autopilot — locked.</span> Unlocks after the paper co-pilot
-          earns it: 20+ approved paper trades with positive expectancy and no heat-cap breaches. Even then, the
-          deterministic engine executes; the AI only ever proposes.
-        </div>
         <Bot size={16} className="text-faint" />
+        <div className="flex-1 text-sm text-mut">
+          <span className="font-semibold text-ink">Autopilot — paper only.</span> The AXIOM bot runs this same
+          pipeline on a schedule: shared strategy engine, your risk engine, every interlock. It never touches a
+          live account — that stays human-approved, order by order, and only after the paper record earns it.
+        </div>
+        <Link href="/bot" className="btn-ghost text-xs">AXIOM Bot →</Link>
       </div>
     </div>
   );

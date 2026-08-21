@@ -156,9 +156,11 @@ refuses to place orders rather than trusting the client.
 
 ## Broker connection
 
-Axiom can place real orders through **your own** broker account. Each user connects their own Alpaca API
-keys in Settings; keys are verified against the broker before being stored, then encrypted at rest with
-AES-256-GCM. Axiom never holds funds, never sees a bank card, and API keys grant trading — not withdrawals.
+Axiom can place orders through **your own** broker account. Each user picks one of two paper brokers in
+Settings: the **built-in simulator** (one click, no keys — fills against the free daily feed with the
+backtester's slippage) or their own **Alpaca** API keys, which are verified against the broker before being
+stored, then encrypted at rest with AES-256-GCM. Axiom never holds funds, never sees a bank card, and API
+keys grant trading — not withdrawals.
 
 **Paper by default.** Live trading additionally requires `ALLOW_LIVE_TRADING=true` in the environment *and*
 the user typing `PLACE LIVE ORDER` per order. Both. The UI cannot switch live mode on by itself.
@@ -204,16 +206,22 @@ What is deliberately **not** in place, and you should know before inviting stran
   that code, their synced data is unrecoverable. This is a deliberate trade (no email = less to leak); say so plainly.
 - **No CAPTCHA.** Rate limiting is in-memory and per-instance — fine for one Render/Fly instance, useless behind
   multiple. If the app grows, put Cloudflare (or Turnstile) in front and move the limiter to the database.
-- **No payment, no broker connection.** The Copilot is paper-only by design.
+- **No payments collected.** Broker access is strictly bring-your-own: each user connects their own paper
+  account (or the keyless built-in simulator). The bot is paper-only in code, and live trading stays behind
+  the deployment flag plus per-order typed confirmation described above.
 
 ## Operational notes
 
 - **One writer.** The file-backed setup is deliberately single-instance. If the group ever outgrows that,
   switch to path C — same code, zero migration beyond exporting/importing member backups.
 - **Rotating `SESSION_SECRET`** signs everyone out (sessions are stateless JWTs). Data is unaffected.
-- **Lost passphrase:** there is no reset by design; any member mints a fresh invite and the person rejoins
-  under a new account, then restores their own JSON backup.
+- **Lost passphrase:** the recovery code (`AXR-XXXX-XXXX`, shown at sign-up and regenerable in Settings)
+  resets it at `/reset`. Losing both the passphrase *and* the code is unrecoverable by design — the person
+  rejoins with a fresh invite and restores their own JSON backup.
 - **Market data** (FRED, Stooq) is fetched server-side, keyless and delayed; `ALPHA_VANTAGE_API_KEY` is an
-  optional quote fallback. Outbound HTTPS from the host is all that's needed.
+  optional quote fallback. Outbound HTTPS from the host is all that's needed. For **real** daily bars, set
+  `ALPACA_API_KEY_ID` + `ALPACA_API_SECRET_KEY` (any Alpaca key, paper or live — read-only market data): the
+  Alpaca IEX feed then serves equities/ETFs/bond-ETFs for charts, the Copilot, the bot, and backtests, with
+  Stooq as automatic fallback for anything it can't cover.
 - **What to monitor:** `/api/health` (returns `{ok:true, storage:...}`) and disk space on the volume. That's
   the whole ops surface.

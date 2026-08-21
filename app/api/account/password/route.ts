@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { getSessionUser, hashPassphrase, verifyPassphrase } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
+import { limited } from "@/lib/server/ratelimit";
 
 export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  // Keyed by user: a hijacked session must not get unlimited guesses at the
+  // current passphrase.
+  if (limited(`passwd:${user.id}`, 5, 15 * 60_000))
+    return NextResponse.json({ error: "Too many attempts — wait a few minutes." }, { status: 429 });
   let body: { current?: string; next?: string };
   try {
     body = await req.json();
@@ -22,5 +27,6 @@ export async function POST(req: Request) {
 
   const { salt, hash } = hashPassphrase(body.next);
   await c.execute({ sql: "UPDATE users SET pass_salt = ?, pass_hash = ?, token_version = token_version + 1 WHERE id = ?", args: [salt, hash, user.id] });
+  await audit("passphrase.changed", { userId: user.id, username: user.username, req });
   return NextResponse.json({ ok: true });
 }
